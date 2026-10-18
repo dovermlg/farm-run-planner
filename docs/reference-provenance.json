@@ -1,0 +1,43 @@
+{
+  "audited": "2026-10-18",
+  "runeliteRelease": "1.13.2",
+  "releaseMetadata": "https://repo.runelite.net/net/runelite/client/maven-metadata.xml",
+  "tag": "runelite-parent-1.13.2",
+  "sources": [
+    {
+      "name": "FarmingRegion.java",
+      "url": "https://raw.githubusercontent.com/runelite/runelite/runelite-parent-1.13.2/runelite-client/src/main/java/net/runelite/client/plugins/timetracking/farming/FarmingRegion.java",
+      "sha256": "3501cd94767a64916f53f9c1290ab909a5d8e8fee1fb9da5112366ab88045db0"
+    },
+    {
+      "name": "FarmingTracker.java",
+      "url": "https://raw.githubusercontent.com/runelite/runelite/runelite-parent-1.13.2/runelite-client/src/main/java/net/runelite/client/plugins/timetracking/farming/FarmingTracker.java",
+      "sha256": "d859db3b8339e2d785c421f5420cd9ef84773dc42abdbd7ffceeb739c98d68ec"
+    },
+    {
+      "name": "FarmingWorld.java",
+      "url": "https://raw.githubusercontent.com/runelite/runelite/runelite-parent-1.13.2/runelite-client/src/main/java/net/runelite/client/plugins/timetracking/farming/FarmingWorld.java",
+      "sha256": "4c635358a6c68b1e963a0cbc67900a827d97eb6dace782fadb5169df521d5136"
+    },
+    {
+      "name": "PatchImplementation.java",
+      "url": "https://raw.githubusercontent.com/runelite/runelite/runelite-parent-1.13.2/runelite-client/src/main/java/net/runelite/client/plugins/timetracking/farming/PatchImplementation.java",
+      "sha256": "58b24fe2f32095dc010cae7a14b68cf16c205cb51b10f13b340588e3a14d1b1d"
+    },
+    {
+      "name": "PatchState.java",
+      "url": "https://raw.githubusercontent.com/runelite/runelite/runelite-parent-1.13.2/runelite-client/src/main/java/net/runelite/client/plugins/timetracking/farming/PatchState.java",
+      "sha256": "445a56bbd73b6a379f3a891ceb2d96081e6c393f48a32645ba0d48313573d1fe"
+    },
+    {
+      "name": "Produce.java",
+      "url": "https://raw.githubusercontent.com/runelite/runelite/runelite-parent-1.13.2/runelite-client/src/main/java/net/runelite/client/plugins/timetracking/farming/Produce.java",
+      "sha256": "c7981205055024be1add799d6e24d7369161d5c16ee43ed7ae82d7ada0b89db3"
+    }
+  ],
+  "tables": {
+    "crop-states.csv": "a857127edd24556eda6c15a978f1b58c0f013fd0f3c989ded653636c3198b5f1",
+    "patch-bindings.csv": "720c6321ee6ecd2fa78f364fbadabeb3b383c07bf334bf2060b93a30b99d6076",
+    "crop-stumps.csv": "15dc6e4b251ca6c3d052f8f6cef90dc15702a42de1930be1fae75a6ac6911841"
+  }
+}

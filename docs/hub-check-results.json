@@ -1,0 +1,49 @@
+{
+  "reviewDate": "2026-10-18",
+  "plugin": "Farm Run Planner",
+  "version": "1.10.1",
+  "author": "Astral",
+  "internalName": "farm-run-planner",
+  "runeliteVersion": "1.13.2",
+  "tooling": {
+    "repository": "https://github.com/runelite/plugin-hub-tooling",
+    "commit": "034eaffd5bce7bb678d35287b547874f3dba6b3b",
+    "officialPackagerLocalBuild": "passed",
+    "dependencyVerification": "passed",
+    "deprecatedApiCheck": "passed",
+    "dependencyApiCompatibility": "passed",
+    "recordedExternalApiSymbols": 99
+  },
+  "tests": {
+    "tests": 92,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "farmingReference": {
+    "rawDecoderValues": 1376256,
+    "uniquePatchBindings": 99,
+    "tilePlaneBoundaryComparisons": 6176768,
+    "result": "passed"
+  },
+  "productionSourceSha256": "f87f39410277dacf619d9efb6d458b8b28e0f56e12cbdbdf4081915ab424d9f1",
+  "developmentJarSha256": "cc84c04a2136bd5f1668e1a11c84a9ab735f02f2d2eb8df9102a7a25de604efe",
+  "officialLocalPackagerJarSha256": "a864e56b0658f61e1fd5037eda6e15f08dd4d2721749ab57c7c4b8834afba5e2",
+  "dependencyVerificationMetadataSha256": "d0939deaafbfd7c9a339e10d466305b59ec22eade03342cade83be1d21377041",
+  "limits": {
+    "authenticatedGameSession": false,
+    "actualServerPayloadCapture": false,
+    "publicRepositoryProvided": false,
+    "remoteSourceDownloadVerified": false,
+    "hostedPluginHubCiRun": false,
+    "maintainerApproval": false,
+    "published": false,
+    "fixtureManifest": "LOCAL-OFFLINE-CHECK URL and zero commit; local parser fixture only, never a submission manifest"
+  },
+  "completionBarVisualCheck": {
+    "completedFill": "RuneLite completion green",
+    "text": "black",
+    "partialResetAndEmpty": "normal color",
+    "gameAccountUsed": false
+  }
+}

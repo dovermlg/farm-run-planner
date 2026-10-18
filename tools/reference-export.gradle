@@ -1,0 +1,18 @@
+allprojects {
+ afterEvaluate { project ->
+  if (project.plugins.hasPlugin('java')) {
+   project.sourceSets.test.java.srcDir('tools/reference')
+   project.tasks.register('exportFarmingReference', JavaExec) {
+    dependsOn project.tasks.named('testClasses')
+    classpath = project.sourceSets.test.runtimeClasspath
+    mainClass = 'com.classictreerun.ExportFarmingReference'
+   }
+   project.tasks.register('verifyFarmingReference', JavaExec) {
+    dependsOn project.tasks.named('testClasses')
+    classpath = project.sourceSets.test.runtimeClasspath
+    mainClass = 'com.classictreerun.VerifyFarmingReference'
+    maxHeapSize = '512m'
+   }
+  }
+ }
+}

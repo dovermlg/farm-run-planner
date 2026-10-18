@@ -1,0 +1,22 @@
+# RuneLite 1.13.2 PatchImplementation object/action comments: [Clear,Inspect,Guide].
+# Separate from the unmodified decoder table, which merges these into HARVESTABLE.
+# implementation,raw
+TREE,14
+TREE,23
+TREE,34
+TREE,47
+TREE,62
+FRUIT_TREE,33
+FRUIT_TREE,60
+FRUIT_TREE,97
+FRUIT_TREE,124
+FRUIT_TREE,161
+FRUIT_TREE,188
+FRUIT_TREE,225
+FRUIT_TREE,252
+HARDWOOD_TREE,17
+HARDWOOD_TREE,40
+HARDWOOD_TREE,65
+HARDWOOD_TREE,90
+HARDWOOD_TREE,116
+CELASTRUS,28

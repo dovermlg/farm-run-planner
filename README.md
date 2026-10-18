@@ -1,5 +1,9 @@
 # Farm Run Planner
 
+[Source](https://github.com/dovermlg/farm-run-planner) · [Report an issue](https://github.com/dovermlg/farm-run-planner/issues) · [Offline build checks](https://github.com/dovermlg/farm-run-planner/actions/workflows/check.yml)
+
+Repository destination: `dovermlg/farm-run-planner`. Publication is pending GitHub sign-in; the links above become available after the initial push.
+
 A local RuneLite development plugin for choosing patches, saving named farming runs and optimizing estimated travel. **Version 1.10 removes submission blockers, adopts RuneLite’s bounded file storage and passes the official local packager checks**, covering all 99 recurring crop patches across 21 crop types. It includes newer Varlamore and Sailing locations, while keeping the original classic tree run as a starter selection.
 
 Author: **Astral**. See [the Plugin Hub readiness review](docs/HUB-REVIEW.md) for fixes, official local check results and remaining submission steps. This build has not been approved or published.

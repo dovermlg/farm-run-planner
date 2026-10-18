@@ -2,11 +2,11 @@
 
 [Source](https://github.com/dovermlg/farm-run-planner) · [Report an issue](https://github.com/dovermlg/farm-run-planner/issues) · [Offline build checks](https://github.com/dovermlg/farm-run-planner/actions/workflows/check.yml)
 
-Repository destination: `dovermlg/farm-run-planner`. Publication is pending GitHub sign-in; the links above become available after the initial push.
+Source is published in `dovermlg/farm-run-planner` and linked to GitHub Desktop. The repository is currently private; its links require repository access. GitHub's offline build, tests and farming-reference checks passed. See [GitHub setup and publishing status](docs/GITHUB.md).
 
 A local RuneLite development plugin for choosing patches, saving named farming runs and optimizing estimated travel. **Version 1.10 removes submission blockers, adopts RuneLite’s bounded file storage and passes the official local packager checks**, covering all 99 recurring crop patches across 21 crop types. It includes newer Varlamore and Sailing locations, while keeping the original classic tree run as a starter selection.
 
-Author: **Astral**. See [the Plugin Hub readiness review](docs/HUB-REVIEW.md) for fixes, official local check results and remaining submission steps. This build has not been approved or published.
+Author: **Astral**. See [the Plugin Hub readiness review](docs/HUB-REVIEW.md) for fixes, official local check results and remaining submission steps. The source is on GitHub; the plugin has not been submitted to or approved by Plugin Hub.
 
 ## Start locally
 
@@ -171,7 +171,7 @@ Native preset/cog UI checks can be performed while logged out. The automated sui
 
 ## Optional Plugin Hub submission
 
-Nothing is published or submitted. The author is Astral and the internal submission name is `farm-run-planner`. The official local packager passed with RuneLite 1.13.2, and 92 offline tests pass. Put the reviewed project at the root of a public GitHub repository with the included BSD-2-Clause license, and follow [Plugin Hub's submission instructions](https://github.com/runelite/plugin-hub#submitting-a-plugin). The Hub manifest references that repository and a full 40-character commit SHA. `python tools/make-submission-manifest.py --repository <public-HTTPS-clone-URL> --commit <full-SHA>` writes the local marker after you supply real values; it does not publish or verify remote visibility. Never submit the local harness’s fictional repository/commit. See [HUB-REVIEW.md](docs/HUB-REVIEW.md). This project uses `build=standard` and no additional production dependencies. Local build success does not establish Hub acceptance.
+The source is published at [dovermlg/farm-run-planner](https://github.com/dovermlg/farm-run-planner), currently a private repository. No Plugin Hub submission or release has been made. The author is Astral and the internal submission name is `farm-run-planner`. The official local packager passed with RuneLite 1.13.2, all 92 offline tests pass, and this repository's GitHub build and reference checks passed. Before submission, make the repository public and follow [Plugin Hub's submission instructions](https://github.com/runelite/plugin-hub#submitting-a-plugin). The Hub manifest references the repository and a full 40-character commit SHA. `python tools/make-submission-manifest.py --repository https://github.com/dovermlg/farm-run-planner.git --commit <full-SHA>` writes the local marker; it does not submit anything or verify public visibility. Never submit the local harness’s fictional repository/commit. See [HUB-REVIEW.md](docs/HUB-REVIEW.md). This project uses `build=standard` and no additional production dependencies. Passing this repository's workflow is separate from Plugin Hub CI and maintainer acceptance.
 
 The plugin only displays guidance and updates user-selected configuration. It does not walk, teleport, click objects, invoke game menus or schedule gameplay input. It imports no private farming-plugin implementation and makes no runtime network requests. Preset-library and completion persistence use local files; active cog settings use RuneLite configuration and its optional sync. This remains a local development build requiring normal Plugin Hub review before any Hub release.
 

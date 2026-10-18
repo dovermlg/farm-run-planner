@@ -28,13 +28,13 @@ Requirements were checked against the [Plugin Hub submission/build instructions]
 3. Put license notices under `src/main/resources/META-INF/`. The Hub replaces a standard plugin's custom build scripts, so root-file copy steps cannot be required for runtime resources. Removed that custom copy step and tested source/resource equality.
 4. Set the requested author to Astral. Kept the native cog, local named preset library, timers and checklist behavior.
 5. Made preset dropdown names literal text, preventing Swing HTML interpretation of user-entered names. No names were rejected or rewritten.
-6. Added a read-only GitHub Actions workflow for account-free build, regression and data-reference checks. The workflow file is prepared locally; it has not run on GitHub.
+6. Added a read-only GitHub Actions workflow for account-free build, regression and data-reference checks. It passed on GitHub after source publication; see [the publication record](GITHUB.md). This is the project's workflow, separate from hosted Plugin Hub CI.
 
 ## Official local tooling evidence
 
 Used the unmodified [plugin-hub-tooling](https://github.com/runelite/plugin-hub-tooling/tree/034eaffd5bce7bb678d35287b547874f3dba6b3b) source at commit `034eaffd5bce7bb678d35287b547874f3dba6b3b`. Built its API recorder and packager under JDK 11. A small **development-only local harness**, outside production sources, supplies the source directory and calls `Plugin.build("1.13.2", true)`. It does not call the repository downloader or uploader. The official packager still performs its standard build, Gradle dependency verification, resource/class/version checks, descriptor/metadata checks, license check and terminally deprecated API check. The recorded external API set was also compared against RuneLite 1.13.2's dependency API set with no missing symbols.
 
-The local harness uses an explicitly fictional `LOCAL-OFFLINE-CHECK` repository URL and a zero commit solely as parser fixtures. They are **not submission values**. Actual public-repository availability, remote source retrieval, the final commit and hosted Plugin Hub CI have not been verified. No fixture manifest is supplied as a real submission manifest.
+The local harness uses an explicitly fictional `LOCAL-OFFLINE-CHECK` repository URL and a zero commit solely as parser fixtures. They are **not submission values**. That local check did not verify public-repository availability or remote source retrieval, and did not run hosted Plugin Hub CI. The later GitHub publication is recorded separately in [GITHUB.md](GITHUB.md); the repository remains private and cannot yet be retrieved publicly by Plugin Hub. No fixture manifest is supplied as a real submission manifest.
 
 An initial packager attempt could not resolve a Maven hostname in its child process. Caching the standard builder's dependencies through the regular build resolved that environment problem; the successful run retained the official verification metadata and checks.
 
@@ -65,12 +65,12 @@ Snapshots, slot mappings, progress, crop observations and reminder markers remai
 
 ## Remaining submission steps
 
-1. Put this reviewed project at the root of a public GitHub repository under a maintainer-controlled account. Keep the source, license, notices and README.
-2. Commit the exact reviewed source and obtain its full 40-character commit SHA.
+1. Make the existing `dovermlg/farm-run-planner` repository public. Its root already contains the source, license, notices and README; GitHub Desktop is linked.
+2. Use the full 40-character SHA of the final pushed source commit and verify that commit can be fetched publicly.
 3. Generate the marker file using `tools/make-submission-manifest.py` and those real values. It creates a local file only.
 4. Follow the official Plugin Hub pull-request process, disclose the untested live integration, resolve hosted checks and wait for maintainer review.
 
-No repository, push, pull request, submission or release was created by this task.
+Source publication and this project's GitHub workflow are complete; see [GITHUB.md](GITHUB.md). No upstream Plugin Hub pull request, submission or release has been created. The JSON and packager log remain the historical evidence from the earlier local preflight, rather than a claim of a new hosted Plugin Hub check.
 
 ## Version 1.10.1
 

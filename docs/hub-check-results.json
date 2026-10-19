@@ -1,7 +1,7 @@
 {
   "reviewDate": "2026-10-18",
   "plugin": "Farm Run Planner",
-  "version": "1.10.1",
+  "version": "1.11.0",
   "author": "Astral",
   "internalName": "farm-run-planner",
   "runeliteVersion": "1.13.2",
@@ -12,10 +12,10 @@
     "dependencyVerification": "passed",
     "deprecatedApiCheck": "passed",
     "dependencyApiCompatibility": "passed",
-    "recordedExternalApiSymbols": 99
+    "recordedExternalApiSymbols": 130
   },
   "tests": {
-    "tests": 92,
+    "tests": 109,
     "failures": 0,
     "errors": 0,
     "skipped": 0
@@ -26,9 +26,9 @@
     "tilePlaneBoundaryComparisons": 6176768,
     "result": "passed"
   },
-  "productionSourceSha256": "f87f39410277dacf619d9efb6d458b8b28e0f56e12cbdbdf4081915ab424d9f1",
-  "developmentJarSha256": "cc84c04a2136bd5f1668e1a11c84a9ab735f02f2d2eb8df9102a7a25de604efe",
-  "officialLocalPackagerJarSha256": "a864e56b0658f61e1fd5037eda6e15f08dd4d2721749ab57c7c4b8834afba5e2",
+  "productionSourceSha256": "d4f7ee8510a98dd72400d098c290bf18d3c5fedd5561954961b7f423fd61e2a1",
+  "developmentJarSha256": "a2f12d092cd128c8456a9bd51896db973dc1c347471c4d0c1d3b48bdfdcbe0e9",
+  "officialLocalPackagerJarSha256": "80a2b663eed4d74825370a4399552a242c89715f35ec46744504c472d345401b",
   "dependencyVerificationMetadataSha256": "d0939deaafbfd7c9a339e10d466305b59ec22eade03342cade83be1d21377041",
   "limits": {
     "authenticatedGameSession": false,
@@ -37,13 +37,25 @@
     "remoteSourceDownloadVerified": false,
     "hostedPluginHubCiRun": false,
     "maintainerApproval": false,
-    "published": false,
-    "fixtureManifest": "LOCAL-OFFLINE-CHECK URL and zero commit; local parser fixture only, never a submission manifest"
+    "fixtureManifest": "LOCAL-OFFLINE-CHECK URL and zero commit; local parser fixture only, never a submission manifest",
+    "pluginHubPublished": false
   },
   "completionBarVisualCheck": {
     "completedFill": "RuneLite completion green",
     "text": "black",
     "partialResetAndEmpty": "normal color",
     "gameAccountUsed": false
+  },
+  "configurationItems": 129,
+  "productionSourceHashMethod": "SHA-256 of sorted src/main paths (forward slashes) + NUL + LF-normalized contents + NUL",
+  "presetBackups": {
+    "formatVersion": 1,
+    "localDirectory": "preset-backups",
+    "maximumFileBytes": 1048576,
+    "maximumEntries": 256,
+    "importRequiresFreeEditorSlots": true,
+    "characterDataIncluded": false,
+    "activeRunChangedOnImport": false,
+    "regressions": 17
   }
 }

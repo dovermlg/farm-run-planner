@@ -7,6 +7,9 @@ import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 /** Local, stable mappings from native editor slot IDs to saved snapshot names. */
 final class PresetSlots
@@ -81,6 +84,55 @@ final class PresetSlots
         Map<String, String> extras = new LinkedHashMap<>(); extras.put(KEY, encode(next));
         library.delete(target, extras);
         slots.clear(); slots.putAll(next); EditorPreset.publish(slots);
+    }
+
+    String importPresets(List<PresetBackup.Entry> entries)
+    {
+        PresetLibrary library = new PresetLibrary(preferences);
+        Map<EditorPreset, String> next = new EnumMap<>(slots);
+        Map<String, Properties> additions = new LinkedHashMap<>();
+        Set<String> reserved = new HashSet<>(library.names());
+        Set<String> incomingNames = new HashSet<>();
+        for (PresetBackup.Entry entry : entries) { reserved.add(entry.name); incomingNames.add(entry.name); }
+        int skipped = 0, renamed = 0;
+        for (PresetBackup.Entry entry : entries)
+        {
+            String name = entry.name;
+            if (library.contains(name))
+            {
+                if (entry.matches(PresetBackup.capture(name, library.config(name)))) { skipped++; continue; }
+                int copy = 1;
+                do
+                {
+                    String suffix = copy == 1 ? " (imported)" : " (imported " + copy + ")";
+                    int end = Math.min(entry.name.length(), 60 - suffix.length());
+                    if (end > 0 && Character.isHighSurrogate(entry.name.charAt(end - 1))) { end--; }
+                    name = entry.name.substring(0, end).stripTrailing() + suffix;
+                    copy++;
+                    if (!incomingNames.contains(name) && library.contains(name)
+                        && entry.matches(PresetBackup.capture(name, library.config(name))))
+                    { name = null; skipped++; break; }
+                }
+                while (reserved.contains(name));
+                if (name == null) { continue; }
+                renamed++;
+            }
+            EditorPreset free = firstFree(next);
+            if (free == null)
+            { throw new IllegalArgumentException("Not enough free preset slots for this import. Delete an unused preset and try again. No presets were changed."); }
+            reserved.add(name);
+            next.put(free, name);
+            additions.put(name, entry.snapshot(name));
+        }
+        if (!additions.isEmpty())
+        {
+            library.merge(additions, Map.of(KEY, encode(next)));
+            slots.clear();
+            slots.putAll(next);
+            EditorPreset.publish(slots);
+        }
+        return "Imported " + additions.size() + " presets; " + skipped + " identical copies skipped; "
+            + renamed + " renamed to keep existing presets. Reopen the cog to refresh its preset list.";
     }
 
     private static EditorPreset firstFree(Map<EditorPreset, String> values)

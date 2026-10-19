@@ -35,7 +35,7 @@ public class RunSettingsTest
             if ("selectionV2".equals(item.keyName()) || "excluded".equals(item.keyName()) || "order".equals(item.keyName())) { assertTrue(item.hidden()); }
         }
         assertEquals(99, patches);
-        assertEquals(24, sections.size());
+        assertEquals(25, sections.size());
     }
 
     @Test public void migrationKeepsLegacySelectionAndProgress() throws Exception

@@ -1,0 +1,60 @@
+{
+  "format": "farm-run-planner-presets",
+  "version": 1,
+  "presets": [
+    {
+      "name": "Classic trees",
+      "patches": [
+        "LUMBRIDGE_TREE",
+        "VARROCK_TREE",
+        "FALADOR_TREE",
+        "TAVERLEY_TREE",
+        "STRONGHOLD_TREE",
+        "STRONGHOLD_FRUIT",
+        "VILLAGE_FRUIT",
+        "LLETYA_FRUIT",
+        "CATHERBY_FRUIT",
+        "BRIMHAVEN_FRUIT",
+        "TAI_BWO_WANNAI_CALQUAT",
+        "FOSSIL_EAST",
+        "FOSSIL_MIDDLE",
+        "FOSSIL_WEST",
+        "GUILD_TREE",
+        "GUILD_FRUIT"
+      ],
+      "settings": {
+        "autoOptimize": true,
+        "hideCompleted": false,
+        "showDetails": false,
+        "faladorTravel": "RING_OF_WEALTH",
+        "taverleyTravel": "REDIRECTED_TABLET",
+        "strongholdTravel": "SLAYER_RING",
+        "catherbyTravel": "CATHERBY_TELEPORT",
+        "brimhavenTravel": "REDIRECTED_TABLET",
+        "calquatTravel": "TAI_BWO_WANNAI_SCROLL",
+        "fossilTravel": "DIGSITE_BARGE",
+        "guildTravel": "SKILLS_NECKLACE"
+      }
+    },
+    {
+      "name": "Daily herbs",
+      "patches": [
+        "TROLL_HERB",
+        "WEISS_HERB"
+      ],
+      "settings": {
+        "autoOptimize": true,
+        "hideCompleted": false,
+        "showDetails": false,
+        "faladorTravel": "RING_OF_WEALTH",
+        "taverleyTravel": "REDIRECTED_TABLET",
+        "strongholdTravel": "SLAYER_RING",
+        "catherbyTravel": "CATHERBY_TELEPORT",
+        "brimhavenTravel": "REDIRECTED_TABLET",
+        "calquatTravel": "TAI_BWO_WANNAI_SCROLL",
+        "fossilTravel": "DIGSITE_BARGE",
+        "guildTravel": "SKILLS_NECKLACE"
+      }
+    }
+  ]
+}

@@ -9,6 +9,9 @@ final class ConfigValues
 {
     private ConfigValues() { }
     static final Set<String> KEYS = Set.of(
+        "backupFilename",
+        "exportPresetsAction",
+        "importPresetsAction",
         "preset",
         "editorPreset",
         "runName",
@@ -139,6 +142,9 @@ final class ConfigValues
     static Map<String,String> read(ClassicTreeRunConfig config)
     {
         Map<String,String> values = new LinkedHashMap<>();
+        values.put("backupFilename", wire(config.backupFilename()));
+        values.put("exportPresetsAction", wire(config.exportPresetsAction()));
+        values.put("importPresetsAction", wire(config.importPresetsAction()));
         values.put("preset", wire(config.preset()));
         values.put("editorPreset", wire(config.editorPreset()));
         values.put("runName", wire(config.runName()));

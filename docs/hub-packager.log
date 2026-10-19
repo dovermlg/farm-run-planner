@@ -12,4 +12,5 @@ For more on this, please refer to https://docs.gradle.org/8.10/userguide/command
 
 BUILD SUCCESSFUL in 2s
 4 actionable tasks: 4 executed
-built jar with hash _7iqtnFhtFp2wEkSx2s8RKXGADgvsvBz-Fh4LXQdRBM from commit 0000000000000000000000000000000000000000
+warning: unused props in runelite-plugin.properties: [support]
+built jar with hash mFl-g2eQ8_X2fVn3RCmHH7hFfQVWG8hMJQ5_8QFLSDE from commit 0000000000000000000000000000000000000000

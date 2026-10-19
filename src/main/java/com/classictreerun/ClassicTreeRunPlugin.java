@@ -84,7 +84,8 @@ public class ClassicTreeRunPlugin extends Plugin
             panel = new ClassicTreeRunPanel(config, combined);
             settings = new RunSettings(config, combined, panel);
             new PresetLibrary(combined).seedStarters(config);
-            presetActions = new PresetActions(config, combined, settings, panel);
+            presetActions = new PresetActions(config, combined, settings, panel,
+                new PresetTransfer(getPluginDirectory().joinSegment("preset-backups"), combined));
             panel.setPrepareRun(() -> { if (settings != null) { settings.prepareNow(); } });
             panel.setPresetLoaded(() -> {
                 if (presetActions != null) { presetActions.syncForRun(); }

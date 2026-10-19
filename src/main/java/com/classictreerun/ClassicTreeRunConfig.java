@@ -30,6 +30,15 @@ public interface ClassicTreeRunConfig extends net.runelite.client.config.Config
     String TRAVEL = "travel";
     @ConfigSection(name="Checklist display", description="Control the run tab", position=2, closedByDefault=true)
     String DISPLAY = "display";
+    @ConfigSection(name="Preset backups", description="Import or export saved presets as local JSON files. Results appear in the run tab.", position=3, closedByDefault=true)
+    String BACKUPS = "backups";
+
+    @ConfigItem(keyName="backupFilename", name="Backup filename", description="A .json filename inside plugin-data/farm-run-planner/preset-backups, for example presets.json. Save draft edits before exporting.", section=BACKUPS, position=0)
+    default String backupFilename() { return "presets.json"; }
+    @ConfigItem(keyName="exportPresetsAction", name="Export presets", description="Export all saved presets to the local backup file. Click in either direction; the result appears in the run tab.", warning="Export all saved presets? An existing backup with this filename will be replaced. Character data, crop observations and completion marks are excluded.", section=BACKUPS, position=1)
+    default boolean exportPresetsAction() { return false; }
+    @ConfigItem(keyName="importPresetsAction", name="Import presets", description="Import a JSON backup from the local preset-backups folder. Keeps existing presets, skips identical copies and renames conflicting imports.", warning="Import saved presets from the selected local backup file? Existing presets and the current run will be kept. The whole import is cancelled if the file is invalid or there are not enough free slots.", section=BACKUPS, position=2)
+    default boolean importPresetsAction() { return false; }
 
     @ConfigItem(keyName="preset", name="Preset", description="Legacy preset identifier retained for migration", section=RUN, position=0, hidden=true)
     default RunPreset preset() { return RunPreset.CUSTOM; }

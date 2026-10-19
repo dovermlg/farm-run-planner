@@ -106,12 +106,30 @@ final class PresetLibrary
     java.util.List<Patch> patches(String name)
     {
         if(!contains(name))return java.util.Collections.emptyList();
+        return RouteState.active(config(name));
+    }
+
+    ClassicTreeRunConfig config(String name)
+    {
+        if (!contains(name)) { throw new IllegalArgumentException("Choose a saved preset first."); }
         Properties snapshot=decode(saved.getProperty(name));
         ClassicTreeRunPanel.Preferences values=new ClassicTreeRunPanel.Preferences(){
             public String get(String key){return snapshot.getProperty(key);}
             public void set(String key,String value){throw new UnsupportedOperationException("Read-only preset");}
         };
-        return RouteState.active(new LocalRunConfig(values));
+        return new LocalRunConfig(values);
+    }
+
+    void merge(Map<String, Properties> additions, Map<String, String> extras)
+    {
+        Properties next = new Properties();
+        next.putAll(saved);
+        additions.forEach((name, snapshot) -> next.setProperty(name, encode(snapshot)));
+        Map<String, String> changes = new LinkedHashMap<>(extras);
+        changes.put(KEY, encode(next));
+        preferences.update(changes);
+        saved.clear();
+        saved.putAll(next);
     }
 
     private static boolean snapshotKey(String key)

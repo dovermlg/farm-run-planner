@@ -8,15 +8,27 @@ final class PresetActions
     private final RunSettings settings;
     private final ClassicTreeRunPanel panel;
     private final PresetSlots slots;
+    private final PresetTransfer transfer;
     private boolean changingSelection;
 
     PresetActions(ClassicTreeRunConfig config, ClassicTreeRunPanel.Preferences preferences,
         RunSettings settings, ClassicTreeRunPanel panel)
     {
+        this(config, preferences, settings, panel, null);
+    }
+
+    PresetActions(ClassicTreeRunConfig config, ClassicTreeRunPanel.Preferences preferences,
+        RunSettings settings, ClassicTreeRunPanel panel, PresetTransfer transfer)
+    {
         this.config = config; this.preferences = preferences; this.settings = settings; this.panel = panel;
+        this.transfer = transfer;
         slots = new PresetSlots(preferences);
     }
-    static boolean isAction(String key) { return "savePresetAction".equals(key) || "deletePresetAction".equals(key); }
+    static boolean isAction(String key)
+    {
+        return "savePresetAction".equals(key) || "deletePresetAction".equals(key)
+            || "exportPresetsAction".equals(key) || "importPresetsAction".equals(key);
+    }
     static boolean isCommand(String key) { return isAction(key) || "editorPreset".equals(key); }
     static boolean shouldQueue(String key, String oldValue, String newValue, boolean uiThread)
     {
@@ -66,10 +78,16 @@ final class PresetActions
                 setSelected(saved);
                 panel.presetSaved(config.runName());
             }
-            else
+            else if ("deletePresetAction".equals(key))
             {
                 slots.delete(config.editorPreset(), config.runName());
                 panel.setStatus("Preset deleted. Current run kept; this slot is now empty.");
+            }
+            else
+            {
+                if (transfer == null) { throw new IllegalStateException("Local preset backup storage is unavailable."); }
+                panel.setStatus("exportPresetsAction".equals(key)
+                    ? transfer.exportPresets(config.backupFilename()) : transfer.importPresets(config.backupFilename(), slots));
             }
         }
         catch (IllegalArgumentException | IllegalStateException error) { panel.setStatus(error.getMessage()); }

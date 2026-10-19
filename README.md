@@ -8,6 +8,7 @@ By **Astral** · [Source](https://github.com/dovermlg/farm-run-planner) · [Issu
 
 - Choose from 99 recurring farming patches across 21 crop types.
 - Create named presets in RuneLite's normal plugin settings cog.
+- Import and export saved presets as local JSON files.
 - Start a saved run from the sidebar, with travel instructions and a patch checklist.
 - Reorder selected patches using your travel preferences and estimated travel costs.
 - Track observed crops, estimated ready times and full-run reminders.
@@ -35,6 +36,30 @@ To edit a preset, select its slot, leave and reopen the cog, then make your chan
 Switching slots replaces the working draft, so save any changes you want to keep first. **Delete named preset** removes the selected saved slot and keeps the current working run. Names must be unique and between 1 and 60 characters.
 
 There are 32 editable slots, including the starter presets. Older libraries with more names remain available in the sidebar; freeing a slot and restarting assigns another older preset to it. Deleted starter presets stay deleted.
+
+## Import and export presets
+
+Open **Preset backups** in the normal settings cog. These controls work like Save preset: toggle the checkbox and confirm. The result appears in the run tab.
+
+To make a backup:
+
+1. Save any draft changes you want to include. Exports contain all **saved** presets.
+2. Set **Backup filename**, or leave it as `presets.json`.
+3. Click **Export presets** and confirm. An existing file with that name is replaced.
+
+Files are stored in:
+
+```text
+<RuneLite data folder>/plugin-data/farm-run-planner/preset-backups/
+```
+
+On Windows, this is normally `%USERPROFILE%\.runelite\plugin-data\farm-run-planner\preset-backups\`. Copy the JSON file to back it up or share it. This folder is shared by the plugin's configuration profiles; use different filenames to keep separate backups.
+
+To restore or import a shared file, copy it into that folder, enter its filename in the cog, and click **Import presets**. Reopen the cog after importing to refresh its preset list. The [example backup](docs/preset-backup-example.json) contains two sample runs you can try without entering a game world.
+
+Imports keep the current draft, checklist and existing presets. An identical preset with the same name is skipped. If the name exists with different settings, the imported copy receives a name such as `Herbs (imported)`. The entire file is validated before saving; invalid files or insufficient free editor slots cancel the whole import. Files must be valid Farm Run Planner JSON, no larger than 1 MB, with at most 256 entries. New presets must fit within the 32 editor slots.
+
+Backups contain preset names, selected patches in route order, and travel/display preferences. Character identifiers, crop observations, reminder records, completion marks and tracking controls are excluded. Files stay local unless you choose to copy or share them.
 
 ## Follow a run
 

@@ -1,8 +1,8 @@
 # Plugin Hub review notes
 
-**Farm Run Planner 1.10.1** · Author: **Astral** · Internal name: `farm-run-planner`
+**Farm Run Planner 1.11.0** · Author: **Astral** · Internal name: `farm-run-planner`
 
-The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongside 92 regression tests and the farming-reference audit. This is a development preflight; maintainer review and hosted Plugin Hub CI have not taken place.
+The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongside 109 regression tests and the farming-reference audit. This is a development preflight; maintainer review and hosted Plugin Hub CI have not taken place.
 
 ## Implementation
 
@@ -11,7 +11,7 @@ The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongs
 | Build | Java 11, `build=standard`, no extra production dependencies |
 | Metadata | Explicit internal name, legacy data directory and disabled-by-default descriptor |
 | License | BSD-2-Clause; license and farming-data notices included as normal JAR resources |
-| Configuration | Public RuneLite config controls; direct accessors for all 126 items |
+| Configuration | Public RuneLite config controls; direct accessors for all 129 items |
 | Storage | Bounded `Filepath` from `Plugin.getPluginDirectory()` |
 | UI | Plugin-owned sidebar and settings; no private UI access or other-plugin configuration changes |
 | Game interaction | Observes public crop state; generates no gameplay input or menu actions |
@@ -25,7 +25,15 @@ The check used unmodified [plugin-hub-tooling at commit 034eaff](https://github.
 
 The harness did not run the source downloader or uploader. Its `LOCAL-OFFLINE-CHECK` URL and zero commit are parser fixtures, not submission values. The harness and reference utilities are outside the production source set and are excluded from the plugin JAR.
 
-Evidence: [hub-check-results.json](hub-check-results.json), [hub-packager.log](hub-packager.log), and [harness instructions](../tools/hub-review/README.md). The JSON and log retain the original preflight results and hashes. GitHub publication and the project's own CI are documented separately in [GITHUB.md](GITHUB.md).
+Evidence: [hub-check-results.json](hub-check-results.json), [hub-packager.log](hub-packager.log), and [harness instructions](../tools/hub-review/README.md). The JSON and log record the 1.11.0 local preflight. GitHub publication and the project's own CI are documented separately in [GITHUB.md](GITHUB.md).
+
+## Preset backups
+
+Import and export are explicit, confirmed actions in the native settings cog. Filenames are limited to simple `.json` names inside `Plugin.getPluginDirectory()/preset-backups`; no unrestricted paths, file chooser, external program or network client is used. Exports use a temporary file and replacement move through `Filepath`.
+
+The versioned JSON contains only names, ordered patch selections and supported travel/display settings. The reader rejects duplicate fields, unknown patch IDs or travel choices, action/tracking settings and malformed data. Files are limited to 1 MB and 256 entries. Import planning resolves conflicts and checks free slots before a single local library/slot update. Existing names are preserved, identical copies are skipped, and changed imports receive separate names. The active run, progress and observations are unchanged.
+
+The codec uses Gson's streaming reader and writer already supplied by RuneLite. It creates no Gson instance and adds no dependency. Imported data does not execute commands or change another plugin's settings.
 
 ## Data and testing limits
 

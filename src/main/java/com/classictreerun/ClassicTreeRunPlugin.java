@@ -131,8 +131,16 @@ public class ClassicTreeRunPlugin extends Plugin
             panel.setInventoryDataRequest(ids->clientThread.invokeLater((java.util.function.BooleanSupplier)()->{
                 if(inventoryPanel!=panel)return true;
                 if(client.getGameState()==GameState.STARTING || client.getGameState()==GameState.UNKNOWN)return false;
-                InventoryItemData data=InventoryItemData.read(ids,itemManager::getItemComposition);
-                SwingUtilities.invokeLater(()->{if(inventoryPanel==panel)inventoryPanel.setInventoryData(data);});
+                try
+                {
+                    InventoryItemData data=InventoryItemData.read(ids,itemManager::getItemComposition);
+                    SwingUtilities.invokeLater(()->{if(inventoryPanel==panel)inventoryPanel.setInventoryData(data);});
+                }
+                catch(RuntimeException failure)
+                {
+                    org.slf4j.LoggerFactory.getLogger(ClassicTreeRunPlugin.class).warn("Couldn't read farming item definitions",failure);
+                    SwingUtilities.invokeLater(()->{if(inventoryPanel==panel)inventoryPanel.setInventoryDataError();});
+                }
                 return true;
             }));
             growthMonitor=new GrowthMonitor(config,combined,panel,message->notifier.notify(message),cropReference,

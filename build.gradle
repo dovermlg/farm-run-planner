@@ -9,7 +9,9 @@ repositories {
 
 def runeLiteVersion = findProperty('runeliteVersion') ?: 'latest.release'
 group = 'com.classictreerun'
-version = '1.14.0'
+def pluginMetadata = new Properties()
+file('runelite-plugin.properties').withInputStream { pluginMetadata.load(it) }
+version = pluginMetadata.getProperty('version')
 
 dependencies {
     compileOnly "net.runelite:client:${runeLiteVersion}"
@@ -23,6 +25,13 @@ tasks.withType(JavaCompile).configureEach {
     options.release.set(11)
 }
 test { systemProperty 'java.awt.headless', 'true' }
+tasks.register('benchmarkInventoryPlanning', JavaExec) {
+    group = 'verification'
+    description = 'Measure inventory planning offline using test fixtures; does not launch RuneLite.'
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.classictreerun.InventoryPlanningBenchmark'
+    systemProperty 'java.awt.headless', 'true'
+}
 tasks.register('run', JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
     mainClass = 'com.classictreerun.ClassicTreeRunLauncher'

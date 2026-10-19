@@ -117,6 +117,11 @@ public class NextTeleportTest
         RouteState charterState = new RouteState(); charterState.setDone(Patch.LUMBRIDGE_TREE, true);
         assertEquals(TeleportDevice.CATHERBY, NextTeleport.resolve(f.config, charter, charterState, charterPlan, null));
         assertEquals(TeleportDevice.NONE, NextTeleport.resolve(f.config, charter, charterState, charterPlan, charterPlan.confirmBank(null, 1)));
+        String bankDeparture=BankDestination.CATHERBY.departureInstructions(Patch.BRIMHAVEN_FRUIT,f.config);
+        assertTrue(bankDeparture.startsWith("From Catherby bank"));assertTrue(bankDeparture.contains("Trader Crewmember"));
+        assertFalse(bankDeparture.contains("Teleport"));
+        f.set("calquatTravel","WALK_FROM_BRIMHAVEN");
+        assertTrue(BankDestination.CATHERBY.departureInstructions(Patch.TAI_BWO_WANNAI_CALQUAT,f.config).contains("calquat patch"));
         f.set("loadBank", "CUSTOM"); f.set("loadBankInstructions", "Use my ring of wealth.");
         assertEquals(TeleportDevice.NONE, NextTeleport.bank(f.config));
         assertEquals(TeleportDevice.NONE, NextTeleport.resolve(f.config, route, new RouteState(), null, null));

@@ -21,6 +21,14 @@ final class InventoryPreparation
     InventoryPreparation(ClassicTreeRunConfig config,Runnable changed) { this.config=config;this.changed=changed; }
     void setRequest(Consumer<Set<Integer>> request) { this.request=request;requestedItems=Set.of(); }
     void accept(InventoryItemData incoming) { if(!disposed){data=data.merge(incoming);changed.run();} }
+    void failed()
+    {
+        if(disposed)return;
+        if(worker!=null){worker.cancel(false);worker=null;}
+        plan=null;requestedPlan=null;
+        error="Couldn't read RuneLite item data. Toggle Plan inventory loads off and on to retry.";
+        changed.run();
+    }
     InventoryLoadPlanner.Plan get() { return plan; }
     InventoryItemData data() { return data; }
     String error() { return error; }
@@ -28,7 +36,7 @@ final class InventoryPreparation
     {
         if(disposed)return;
         if(!config.loadPlanning())
-        {if(worker!=null)worker.cancel(false);worker=null;plan=null;requestedPlan=null;error=null;return;}
+        {if(worker!=null)worker.cancel(false);worker=null;plan=null;requestedPlan=null;requestedItems=Set.of();error=null;return;}
         Set<Integer> items=SupplyPlan.build(config,route).items;
         if(!data.covers(items))
         {

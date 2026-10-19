@@ -21,16 +21,9 @@ final class NextTeleport
         }
         int index = route.indexOf(next);
         int starts = plan == null ? -1 : plan.startsAt(next);
-        if (starts > 0 && config.loadBank().departureInstructions(next) != null) { return TeleportDevice.NONE; }
-        if (starts > 0 && config.loadBank() == BankDestination.CATHERBY
-            && config.brimhavenTravel() == ClassicTreeRunConfig.BrimhavenTravel.CATHERBY_CHARTER
-            && (next == Patch.BRIMHAVEN_FRUIT || next == Patch.TAI_BWO_WANNAI_CALQUAT
-                && config.calquatTravel() == ClassicTreeRunConfig.CalquatTravel.WALK_FROM_BRIMHAVEN))
-        { return TeleportDevice.NONE; } // Already in Catherby: walk to the charter ship.
+        if (starts > 0 && config.loadBank().departureInstructions(next,config) != null) { return TeleportDevice.NONE; }
         Patch previous = index > 0 && starts <= 0 ? route.get(index - 1) : null;
-        if (TravelCosts.walkingInstruction(previous, next, config) != null
-            || previous == Patch.BRIMHAVEN_FRUIT && next == Patch.TAI_BWO_WANNAI_CALQUAT
-                && config.calquatTravel() == ClassicTreeRunConfig.CalquatTravel.WALK_FROM_BRIMHAVEN)
+        if (TravelCosts.walkingInstruction(previous, next, config) != null)
         { return TeleportDevice.NONE; }
         return arrival(next, config);
     }

@@ -77,14 +77,7 @@ final class PresetBackup
         values.put("autoOptimize", Boolean.toString(config.autoOptimize()));
         values.put("hideCompleted", Boolean.toString(config.hideCompleted()));
         values.put("showDetails", Boolean.toString(config.showDetails()));
-        values.put("faladorTravel", config.faladorTravel().name());
-        values.put("taverleyTravel", config.taverleyTravel().name());
-        values.put("strongholdTravel", config.strongholdTravel().name());
-        values.put("catherbyTravel", config.catherbyTravel().name());
-        values.put("brimhavenTravel", config.brimhavenTravel().name());
-        values.put("calquatTravel", config.calquatTravel().name());
-        values.put("fossilTravel", config.fossilTravel().name());
-        values.put("guildTravel", config.guildTravel().name());
+        values.putAll(TravelCosts.settings(config));
         values.putAll(CropChoices.settings(config));
         values.putAll(InventoryLoadPlanner.settings(config));
         return values;

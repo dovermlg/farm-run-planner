@@ -27,8 +27,15 @@ public enum BankDestination
             : "From this patch, walk to the Farming Guild's central bank chest.";
         return instructions(config);
     }
-    String departureInstructions(Patch to)
+    String departureInstructions(Patch to,ClassicTreeRunConfig config)
     {
+        if(this==CATHERBY && config.brimhavenTravel()==ClassicTreeRunConfig.BrimhavenTravel.CATHERBY_CHARTER
+            && (to==Patch.BRIMHAVEN_FRUIT || to==Patch.TAI_BWO_WANNAI_CALQUAT
+                && config.calquatTravel()==ClassicTreeRunConfig.CalquatTravel.WALK_FROM_BRIMHAVEN))
+        {
+            String charter=TravelGuide.catherbyBankCharterInstructions();
+            return to==Patch.TAI_BWO_WANNAI_CALQUAT?charter+" Then run south towards Tai Bwo Wannai to the calquat patch north of the village.":charter;
+        }
         if(!local(to))return null;
         if(this==FARMING_GUILD)return "From the Farming Guild's central bank chest, walk to this patch: "+to.getDirections()+". Check its wing access requirements.";
         return to==Patch.CATHERBY_FRUIT ? "From Catherby bank, walk east along the shore to the fruit tree patch."

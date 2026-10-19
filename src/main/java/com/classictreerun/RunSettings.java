@@ -21,6 +21,7 @@ final class RunSettings
     private boolean dirty;
     private boolean disposed;
     private int version;
+    private SwingWorker<List<Patch>,Void> worker;
 
     RunSettings(ClassicTreeRunConfig config, ClassicTreeRunPanel.Preferences preferences, ClassicTreeRunPanel panel)
     {
@@ -89,6 +90,7 @@ final class RunSettings
     private void queue()
     {
         panel.setRoutePreparing(true);
+        if(worker!=null){worker.cancel(false);worker=null;}
         version++;
         dirty = true;
         panel.setStatus("Preparing your run...");
@@ -97,19 +99,21 @@ final class RunSettings
 
     void prepareNow()
     {
-        if (disposed || !dirty) { panel.reload(); return; }
+        if(disposed)return;
+        if (!dirty) { panel.reload(); return; }
         dirty = false;
         delay.stop();
         if (!config.autoOptimize()) { panel.setRoutePreparing(false);panel.setStatus(""); panel.reload(); return; }
         int requestedVersion = version;
         List<Patch> selected = RouteState.active(config);
         TravelCosts costs = new TravelCosts(selected, config);
-        new SwingWorker<List<Patch>, Void>()
+        worker=new SwingWorker<List<Patch>, Void>()
         {
-            protected List<Patch> doInBackground() { return RouteOptimizer.optimize(selected, costs.entry, costs.travel); }
+            protected List<Patch> doInBackground() { return RouteOptimizer.optimize(selected, costs.entry, costs.travel,this::isCancelled); }
             protected void done()
             {
-                if (disposed || requestedVersion != version) { return; }
+                if (disposed || isCancelled() || requestedVersion != version) { return; }
+                worker=null;
                 panel.setRoutePreparing(false);
                 try
                 {
@@ -121,7 +125,8 @@ final class RunSettings
                 catch (Exception error) { panel.setStatus("Couldn't reorder this run. Your patches are saved; change a travel setting to retry."); }
                 panel.reload();
             }
-        }.execute();
+        };
+        worker.execute();
     }
 
     void dispose()
@@ -129,6 +134,7 @@ final class RunSettings
         disposed = true;
         version++;
         delay.stop();
+        if(worker!=null){worker.cancel(false);worker=null;}
     }
 }
 

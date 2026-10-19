@@ -2,6 +2,8 @@
 
 Audited 2026-10-18. The tested release is RuneLite **1.13.2**, confirmed against its published Maven release metadata. This is a local development build.
 
+This document records the data audit introduced in 1.9.0. Current validation and later fixes are recorded in [build results](BUILD-REPORT.md) and the [reliability review](REVIEW.md).
+
 ## What the game reports
 
 The plugin reads farming varbits through public `Client.getVarbitValue` on the game thread. These are region-dependent payloads: the same varbit can describe different patches in different places. The observer therefore uses a versioned patch/region binding, RuneLite's special location boundaries, modal-dialog guards, settling after arrival and two matching reads. It reads only patches whose payloads should be available at the player's current location. It does not query a remote farming service or inspect every patch from anywhere.
@@ -25,7 +27,7 @@ Travel costs are separate hand-authored relative scores. The game does not provi
 | Every tile on planes 0–3 in every mapped region alias | **6,176,768 boundary comparisons matched** |
 | Stump values distinguished by the tagged source's object/action comments | **All 19 matched** |
 | Live OSRS Wiki regular patch tables | All seven refreshed tables unchanged from the earlier 99-patch audit |
-| Regression suite | **87 tests passed, 0 failed, 0 skipped** |
+| Original 1.9.0 regression suite | **87 tests passed, 0 failed, 0 skipped** |
 
 The checked Wiki pages cover [allotment/flower/herb patches](https://oldschool.runescape.wiki/w/Allotment_patch/Patches), [normal trees](https://oldschool.runescape.wiki/w/Tree_patch/Patches), [fruit trees](https://oldschool.runescape.wiki/w/Fruit_tree_patch/Patches), [hops](https://oldschool.runescape.wiki/w/Hops_patch/Patches), [bushes](https://oldschool.runescape.wiki/w/Bush_patch/Patches), [spirit trees](https://oldschool.runescape.wiki/w/Spirit_Tree_(Farming)/Patches) and [special patches](https://oldschool.runescape.wiki/w/Special_patches/Patches). The audit also checked Catherby/Brimhaven charter access and Tai Bwo Wannai scroll requirements. Travel scores do not assume a fixed fare or measured journey time.
 

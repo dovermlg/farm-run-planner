@@ -83,8 +83,14 @@ final class TravelGuide
     static String catherbyCharterInstructions()
     {
         return "From Catherby fruit patch, walk west along the shore to the charter ship at Catherby docks. "
-            + "Choose Charter on a Trader Crewmember, select Brimhaven, then walk to the nearby fruit patch. Bring coins for the fare.";
+            + charterToBrimhaven();
     }
+
+    static String catherbyBankCharterInstructions()
+    { return "From Catherby bank, walk to the charter ship at Catherby docks. "+charterToBrimhaven(); }
+
+    private static String charterToBrimhaven()
+    { return "Choose Charter on a Trader Crewmember, select Brimhaven, then walk to the nearby fruit patch. Bring coins for the fare."; }
 
     private static String guild(ClassicTreeRunConfig c)
     {

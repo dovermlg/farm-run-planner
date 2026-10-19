@@ -34,6 +34,11 @@ public class LocalHubCheck
                     else Files.copy(from,plugin.repositoryDirectory.toPath().resolve(name));
                 }
                 plugin.build("1.13.2",true);
+                java.util.Properties metadata=new java.util.Properties();
+                try(InputStream stream=Files.newInputStream(source.resolve("runelite-plugin.properties"))){metadata.load(stream);}
+                String version=metadata.getProperty("version");
+                if(!version.equals(plugin.getDisplayData().getVersion()))throw new IllegalStateException("Plugin Hub manifest version does not match source metadata");
+                Files.writeString(reports.resolve("version.txt"),version+"\n");
                 try(InputStream stream=Files.newInputStream(plugin.getApiFile().toPath()))
                 {
                     String missing=API.decode(stream).missingFrom(Plugin.CURRENT_API).sorted().collect(java.util.stream.Collectors.joining("\n"));

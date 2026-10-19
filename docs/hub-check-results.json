@@ -1,7 +1,7 @@
 {
   "reviewDate": "2026-10-18",
   "plugin": "Farm Run Planner",
-  "version": "1.14.0",
+  "version": "1.14.1",
   "author": "Astral",
   "internalName": "farm-run-planner",
   "runeliteVersion": "1.13.2",
@@ -12,10 +12,10 @@
     "dependencyVerification": "passed",
     "deprecatedApiCheck": "passed",
     "dependencyApiCompatibility": "passed",
-    "recordedExternalApiSymbols": 455
+    "recordedExternalApiSymbols": 458
   },
   "tests": {
-    "tests": 165,
+    "tests": 170,
     "failures": 0,
     "errors": 0,
     "skipped": 0
@@ -26,9 +26,9 @@
     "tilePlaneBoundaryComparisons": 6176768,
     "result": "passed"
   },
-  "productionSourceSha256": "b213df9b2983c32c096521a4ecaa1a18960722cd2dea6077d0aed2fe00c4d36d",
-  "developmentJarSha256": "507285936aa96977215028912c48c64dec2b2046165fac901baae99f31d59dca",
-  "officialLocalPackagerJarSha256": "a39fbfdf42f0b7d64bd859a3d8e97a14c57021095cac5f3dbde379c265c73dbb",
+  "productionSourceSha256": "9599a830f129df88f2ccd548376e5f02e9df8f9d20214db9b2dcb51887d97ed4",
+  "developmentJarSha256": "410365c4004f5dbae2dcd049652f7a9601864bd81f16d5b4f853e7dfe59b716e",
+  "officialLocalPackagerJarSha256": "fd23efba1444aa082e0644827aa56e3891aa9ecb7e93c3706f04d7b0f4fb7871",
   "dependencyVerificationMetadataSha256": "d0939deaafbfd7c9a339e10d466305b59ec22eade03342cade83be1d21377041",
   "limits": {
     "authenticatedGameSession": false,
@@ -87,7 +87,7 @@
     }
   },
   "inventoryPlanning": {
-    "regressions": 19,
+    "regressions": 22,
     "itemFlags": "public RuneLite ItemComposition.isStackable and getLinkedNoteId; client thread",
     "planner": "fewest contiguous loads, then relative bank detour cost; prepared patch order preserved",
     "bankChoice": "saved per preset; custom instructions supported",
@@ -118,6 +118,35 @@
     "itemForms": "explicit usable IDs; excludes empty, noted and placeholder forms",
     "walkingAndCustomTravel": "no inventory outline",
     "automaticGameActions": false,
+    "gameAccountUsed": false
+  },
+  "maintenanceReview": {
+    "regressionsAdded": 5,
+    "manualProgressSupersedesFailedAutomaticWrites": true,
+    "cropObservationsRetainedForRetry": true,
+    "cooperativeRouteCancellation": "SwingWorker.cancel(false) with bounded predicate checks; no thread interruption",
+    "incrementalSlotComparisonCases": 1528,
+    "compatiblePlanFingerprints": true,
+    "itemDataFailures": "visible error; retry by toggling planning off/on",
+    "charterBankDirections": "shared with teleport walking rules",
+    "releaseVersion": {
+      "singleSource": "runelite-plugin.properties",
+      "gradleReadsDescriptor": true,
+      "officialLocalManifest": "1.14.1",
+      "checked": true
+    },
+    "planningBenchmark": {
+      "case": "all 99 patches; harvest/check only; optional tools, compost and coins off",
+      "baselineCommit": "7b79abf68a6682b96796467075df1cca3f2454e3",
+      "baselineMedianMs": 26.148,
+      "currentMedianMs": 1.962,
+      "warmups": 3,
+      "measuredRuns": 7,
+      "runtime": "JDK 11; same local workspace; deliberate offline fixtures",
+      "task": "benchmarkInventoryPlanning",
+      "gamePerformanceClaim": false
+    },
+    "productionJarContainsTestHelpers": false,
     "gameAccountUsed": false
   }
 }

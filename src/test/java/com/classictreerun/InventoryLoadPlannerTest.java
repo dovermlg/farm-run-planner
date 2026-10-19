@@ -10,6 +10,45 @@ import static org.junit.Assert.*;
 
 public class InventoryLoadPlannerTest
 {
+    @Test public void incrementalSlotCountsMatchFullPackingListsForMixedCropsAndPaymentForms()
+    {
+        java.util.Random random=new java.util.Random(818);
+        for(boolean noted:List.of(false,true))for(String compost:List.of("NONE","COMPOST","ULTRACOMPOST","BOTTOMLESS"))
+        {
+            ConfigFixture f=new ConfigFixture();f.set("loadNotedProtection",Boolean.toString(noted));f.set("supplyCompost",compost);
+            f.set("cropTree","MAGIC");f.set("cropAllotment","POTATO");f.set("cropFruit","APPLE");
+            List<Patch> route=new java.util.ArrayList<>(List.of(Patch.values()));java.util.Collections.shuffle(route,random);
+            InventoryItemData data=InventoryFixtures.data(f.config,route);
+            // Include nonstacking planting supplies, compost applications/payments and shared tools.
+            for(int start=0;start<route.size();start+=7)
+            {
+                InventoryLoadPlanner.SlotCounter counter=new InventoryLoadPlanner.SlotCounter(data);
+                for(int end=start+1;end<=Math.min(route.size(),start+14);end++)
+                {
+                    int actual=counter.add(InventoryLoadPlanner.supplies(f.config,List.of(route.get(end-1)),data));
+                    int expected=InventoryLoadPlanner.slots(InventoryLoadPlanner.supplies(f.config,route.subList(start,end),data),data);
+                    assertEquals(noted+" / "+compost+" / "+route.subList(start,end),expected,actual);
+                }
+            }
+        }
+    }
+
+    @Test public void fingerprintsKeepTheirFormatAndDoNotReadUnrelatedPatchToggles()
+    {
+        ConfigFixture f=InventoryFixtures.light();List<Patch> route=Patch.classic();
+        ClassicTreeRunConfig config=new LocalRunConfig(new ClassicTreeRunPanel.Preferences(){
+            public String get(String key){if(key.startsWith("patch_"))throw new AssertionError(key);return f.get(key);}
+            public void set(String key,String value){throw new AssertionError("No writes while fingerprinting");}
+        });
+        InventoryItemData data=InventoryFixtures.data(config,route);
+        java.util.Map<String,String> travel=new java.util.TreeMap<>();
+        ConfigValues.read(f.config).forEach((key,value)->{if(key.endsWith("Travel"))travel.put(key,value);});
+        String source=RouteState.encode(route)+"\n"+CropChoices.settings(f.config)+"\n"+InventoryLoadPlanner.settings(f.config)+"\n"+travel+"\n"
+            +data.fingerprint(SupplyPlan.build(f.config,route).items);
+        String expected=com.google.common.hash.Hashing.sha256().hashString(source,java.nio.charset.StandardCharsets.UTF_8).toString();
+        assertEquals(expected,InventoryLoadPlanner.signature(config,route,data));
+        assertEquals("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",Digests.sha256(""));
+    }
     private List<Patch> type(Patch.Type type)
     {return Arrays.stream(Patch.values()).filter(p->p.getType()==type).collect(Collectors.toList());}
 
@@ -101,9 +140,9 @@ public class InventoryLoadPlannerTest
         assertEquals(List.of(Patch.CATHERBY_FRUIT),catherby.loads.get(0).patches);
         assertEquals(List.of(Patch.LUMBRIDGE_TREE,Patch.VARROCK_TREE),catherby.loads.get(1).patches);
         assertTrue(BankDestination.CATHERBY.instructions(Patch.CATHERBY_FRUIT,f.config).contains("walk to Catherby bank"));
-        assertTrue(BankDestination.CATHERBY.departureInstructions(Patch.CATHERBY_FRUIT).contains("walk east along the shore"));
-        assertTrue(BankDestination.FARMING_GUILD.departureInstructions(Patch.GUILD_TREE).contains("West wing tree patch"));
-        assertNull(BankDestination.CATHERBY.departureInstructions(Patch.LUMBRIDGE_TREE));
+        assertTrue(BankDestination.CATHERBY.departureInstructions(Patch.CATHERBY_FRUIT,f.config).contains("walk east along the shore"));
+        assertTrue(BankDestination.FARMING_GUILD.departureInstructions(Patch.GUILD_TREE,f.config).contains("West wing tree patch"));
+        assertNull(BankDestination.CATHERBY.departureInstructions(Patch.LUMBRIDGE_TREE,f.config));
     }
 
     @Test public void travelPreferencesInvalidateLoadsEvenWhenPatchOrderStaysTheSame()

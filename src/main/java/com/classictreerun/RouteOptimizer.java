@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.function.BooleanSupplier;
 
 /** Exact for <=16 stops; bounded multi-start nearest-neighbour and relocate search for larger runs. */
 final class RouteOptimizer
@@ -11,12 +13,16 @@ final class RouteOptimizer
     private RouteOptimizer() { }
 
     static List<Patch> optimize(List<Patch> patches, int[] entry, int[][] travel)
+    { return optimize(patches,entry,travel,()->false); }
+
+    static List<Patch> optimize(List<Patch> patches, int[] entry, int[][] travel, BooleanSupplier cancelled)
     {
+        checkCancelled(cancelled);
         int n = patches.size();
         if (entry.length != n || travel.length != n) { throw new IllegalArgumentException("Invalid route dimensions"); }
         if (n == 0) { return new ArrayList<>(); }
         for (int[] row : travel) { if (row.length != n) { throw new IllegalArgumentException("Invalid cost matrix"); } }
-        if (n > 16) { return largeRoute(patches, entry, travel); }
+        if (n > 16) { return largeRoute(patches, entry, travel, cancelled); }
         int size = 1 << n;
         int[] best = new int[size * n];
         byte[] previous = new byte[size * n];
@@ -25,6 +31,7 @@ final class RouteOptimizer
         for (int i = 0; i < n; i++) { best[(1 << i) * n + i] = entry[i]; }
         for (int mask = 1; mask < size; mask++)
         {
+            if((mask & 127)==1)checkCancelled(cancelled);
             for (int last = 0; last < n; last++)
             {
                 int cost = best[mask * n + last];
@@ -61,7 +68,7 @@ final class RouteOptimizer
         return result;
     }
 
-    private static List<Patch> largeRoute(List<Patch> patches, int[] entry, int[][] travel)
+    private static List<Patch> largeRoute(List<Patch> patches, int[] entry, int[][] travel, BooleanSupplier cancelled)
     {
         int n = patches.size();
         List<Integer> best = new ArrayList<>();
@@ -69,6 +76,7 @@ final class RouteOptimizer
         int bestScore = score(best, entry, travel); // Never return a worse route than the user's order.
         for (int start = 0; start < n; start++)
         {
+            checkCancelled(cancelled);
             boolean[] used = new boolean[n];
             List<Integer> route = new ArrayList<>();
             int last = start;
@@ -91,6 +99,7 @@ final class RouteOptimizer
         // Score each directed relocation from its changed edges, including first-stop entry.
         for (int pass = 0; pass < Math.min(n, 100); pass++)
         {
+            checkCancelled(cancelled);
             int bestFrom = -1, bestTo = -1;
             int improvedScore = bestScore;
             for (int from = 0; from < n; from++)
@@ -120,6 +129,9 @@ final class RouteOptimizer
         for (int index : best) { result.add(patches.get(index)); }
         return result;
     }
+
+    private static void checkCancelled(BooleanSupplier cancelled)
+    { if(cancelled.getAsBoolean())throw new CancellationException("Route preparation superseded"); }
 
     private static int score(List<Integer> route, int[] entry, int[][] travel)
     {

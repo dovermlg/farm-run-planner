@@ -38,6 +38,7 @@ final class ClassicTreeRunPanel extends PluginPanel
     private String status = "";
     private Runnable prepare = () -> { };
     private Runnable loaded = () -> { };
+    private Runnable progressEdited = () -> { };
     private java.util.function.Consumer<SupplyPlan> startSupplies=plan -> { };
     private Runnable clearSupplies=() -> { };
     private SupplySnapshot supplies=SupplySnapshot.UNKNOWN;
@@ -64,11 +65,14 @@ final class ClassicTreeRunPanel extends PluginPanel
     }
 
     void setPresetLoaded(Runnable loaded) { this.loaded = loaded; }
+    void setProgressEdited(Runnable action) { progressEdited = action; }
+    private void presetLoaded() { progressEdited.run();loaded.run(); }
     void setSupplyActions(java.util.function.Consumer<SupplyPlan> start,Runnable clear)
     { startSupplies=start;clearSupplies=clear; }
     void setInventoryDataRequest(java.util.function.Consumer<java.util.Set<Integer>> request)
     { inventories.setRequest(request);reload(); }
     void setInventoryData(InventoryItemData data) { inventories.accept(data); }
+    void setInventoryDataError() { inventories.failed(); }
     void setRoutePreparing(boolean preparing) { routePreparing=preparing;if(preparing)nextTeleport=TeleportDevice.NONE; }
     void dispose() { nextTeleport=TeleportDevice.NONE;inventories.dispose(); }
     void setSupplies(SupplySnapshot snapshot)
@@ -132,7 +136,7 @@ final class ClassicTreeRunPanel extends PluginPanel
         add(text("Farm Run Planner"));
         add(text(config.runName().trim()));
         add(text("Create and save presets in RuneLite’s plugin cog. Choose your run below."));
-        add(new PresetControls(config, preferences, loaded, selectedPreset, name -> selectedPreset = name, this::setStatus));
+        add(new PresetControls(config, preferences, this::presetLoaded, selectedPreset, name -> selectedPreset = name, this::setStatus));
         JButton start=new JButton("Start run");start.setName("startRun");start.setEnabled(!route.isEmpty() && loadsReady && !routePreparing);
         start.addActionListener(event -> {
             if(state.count(route)>0 && confirmReset && JOptionPane.showConfirmDialog(this,
@@ -140,6 +144,7 @@ final class ClassicTreeRunPanel extends PluginPanel
             try
             {
                 preferences.update(java.util.Map.of(PROGRESS_KEY,"",InventoryLoadPlanner.BANKS_KEY,""));
+                progressEdited.run();
                 clearSupplies.run();setBankFilterActive(false);displayedLoad=null;
                 List<Patch> first=inventoryPlan==null?route:inventoryPlan.loads.get(0).patches;
                 startSupplies.accept(config.loadPlanning()?InventoryLoadPlanner.supplies(config,first,inventories.data()):SupplyPlan.build(config,first));
@@ -215,7 +220,7 @@ final class ClassicTreeRunPanel extends PluginPanel
             {
                 state.reset();
                 clearSupplies.run();
-                try { preferences.update(java.util.Map.of(PROGRESS_KEY,state.save(),InventoryLoadPlanner.BANKS_KEY,"")); reload(); }
+                try { preferences.update(java.util.Map.of(PROGRESS_KEY,state.save(),InventoryLoadPlanner.BANKS_KEY,""));progressEdited.run(); reload(); }
                 catch (IllegalStateException error) { setStatus(error.getMessage()); }
             }
         });
@@ -249,13 +254,13 @@ final class ClassicTreeRunPanel extends PluginPanel
                     changes.put(PROGRESS_KEY,state.save());
                     if(!complete.isSelected() && inventoryPlan!=null)
                         changes.put(InventoryLoadPlanner.BANKS_KEY,inventoryPlan.reopenPatch(preferences.get(InventoryLoadPlanner.BANKS_KEY),patch));
-                    preferences.update(changes);reload();
+                    preferences.update(changes);progressEdited.run();reload();
                 }
                 catch (IllegalStateException error) { setStatus(error.getMessage()); }
             });
             content.add(complete);
             Patch previous = i > 0 && starts<=0 ? route.get(i - 1) : null;
-            String walking = starts>0 ? config.loadBank().departureInstructions(patch) : TravelCosts.walkingInstruction(previous, patch, config);
+            String walking = starts>0 ? config.loadBank().departureInstructions(patch,config) : TravelCosts.walkingInstruction(previous, patch, config);
             content.add(text(walking == null ? TravelGuide.instructions(patch, config) : walking));
             if(config.trackGrowth()) { JLabel cropLabel=text("");cropLabels.put(patch,cropLabel);content.add(cropLabel); }
             if (config.showDetails())

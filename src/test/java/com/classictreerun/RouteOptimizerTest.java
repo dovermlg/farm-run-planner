@@ -11,6 +11,17 @@ import static org.junit.Assert.*;
 
 public class RouteOptimizerTest
 {
+    @Test public void supersededExactAndLargeCalculationsCanStopWithoutThreadInterruption()
+    {
+        for(List<Patch> selected:List.of(Patch.classic(),List.of(Patch.values())))
+        {
+            TravelCosts costs=new TravelCosts(selected,new ClassicTreeRunConfig(){});
+            java.util.concurrent.atomic.AtomicInteger checks=new java.util.concurrent.atomic.AtomicInteger();
+            assertThrows(java.util.concurrent.CancellationException.class,()->RouteOptimizer.optimize(selected,
+                costs.entry,costs.travel,()->checks.incrementAndGet()==3));
+            assertEquals(3,checks.get());
+        }
+    }
     @Test public void directedRelocateDeltasReachTheSameLocalMinimumAsFullScoring()
     {
         Random random=new Random(190);

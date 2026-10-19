@@ -7,6 +7,44 @@ import static org.junit.Assert.*;
 
 public class GrowthMonitorTest
 {
+    @Test public void aFailedAutomaticCompletionCannotUndoAManualResetOrCorrection() throws Exception
+    {
+        SwingUtilities.invokeAndWait(()->{
+            for(String action:List.of("resetRun","startRun","TROLL_HERB","savedPresets"))
+            {
+                ConfigFixture f=new ConfigFixture();preset(f,"Herbs","TROLL_HERB,WEISS_HERB");
+                f.set("autoCompleteReplanted","true");f.set("loadPlanning","false");boolean[] fail={false};
+                new PresetLibrary(f).save("Other",f.config);
+                ClassicTreeRunPanel.Preferences storage=new ClassicTreeRunPanel.Preferences(){
+                    public String get(String key){return f.get(key);}
+                    public void set(String key,String value){if(fail[0])throw new IllegalStateException("disk failure");f.set(key,value);}
+                    public void update(Map<String,String> values){if(fail[0])throw new IllegalStateException("disk failure");f.update(values);}
+                };
+                ClassicTreeRunPanel panel=new ClassicTreeRunPanel(f.config,storage);panel.setConfirmReset(false);
+                GrowthMonitor monitor=new GrowthMonitor(f.config,storage,panel,message->{},new CropReference(),()->1000,false);
+                monitor.accept("a",List.of(sample(Patch.TROLL_HERB,0,false),sample(Patch.WEISS_HERB,0,false)),false);
+                fail[0]=true;
+                monitor.accept("a",List.of(sample(Patch.TROLL_HERB,4,true),sample(Patch.WEISS_HERB,4,true)),false);
+                assertNull(f.get(ClassicTreeRunPanel.PROGRESS_KEY));
+                fail[0]=false;
+                if("savedPresets".equals(action))((javax.swing.JComboBox<?>)find(panel,action)).setSelectedItem("Herbs");
+                else ((javax.swing.AbstractButton)find(panel,action)).doClick();
+                String manual=f.get(ClassicTreeRunPanel.PROGRESS_KEY);monitor.poll();
+                assertEquals(action+" must remain authoritative",manual,f.get(ClassicTreeRunPanel.PROGRESS_KEY));
+                assertNotNull(f.get("growthDataV1.a"));monitor.dispose();panel.dispose();
+            }
+        });
+    }
+
+    private static java.awt.Component find(java.awt.Container root,String name)
+    {
+        for(java.awt.Component child:root.getComponents())
+        {
+            if(name.equals(child.getName()))return child;
+            if(child instanceof java.awt.Container){java.awt.Component match=find((java.awt.Container)child,name);if(match!=null)return match;}
+        }
+        return null;
+    }
     @Test public void failedWritesSurviveACharacterSwitchAndAreRetriedTogether() throws Exception
     {
         SwingUtilities.invokeAndWait(()->{

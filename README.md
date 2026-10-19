@@ -194,6 +194,7 @@ The default RuneLite dependency is `latest.release`. To reproduce the audited ve
 Test results are in `build/reports/tests/test/index.html`. The reference check compares the bundled farming tables and patch boundaries against the RuneLite dependency. Tests use offline fixtures and do not log into RuneScape. Live crop timing and desktop notification delivery have not been validated.
 
 - [Build results](docs/BUILD-REPORT.md)
+- [Optimization and reliability review](docs/REVIEW.md)
 - [Farming data audit and sources](docs/DATA-AUDIT.md)
 - [Plugin Hub review notes](docs/HUB-REVIEW.md)
 - [GitHub and submission setup](docs/GITHUB.md)

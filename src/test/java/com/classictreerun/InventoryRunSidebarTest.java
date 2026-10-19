@@ -18,6 +18,24 @@ import static org.junit.Assert.*;
 
 public class InventoryRunSidebarTest
 {
+    @Test public void itemDataFailureIsVisibleAndTogglingPlanningCanRetry() throws Exception
+    {
+        ConfigFixture f=InventoryFixtures.light();f.set("selectionV2","LUMBRIDGE_TREE");
+        ClassicTreeRunPanel[] panel={null};int[] requested={0};
+        SwingUtilities.invokeAndWait(()->{
+            panel[0]=new ClassicTreeRunPanel(f.config,f);panel[0].setInventoryDataRequest(ids->requested[0]++);
+            assertEquals(1,requested[0]);panel[0].setInventoryDataError();
+            assertTrue(labels(panel[0]).contains("Toggle Plan inventory loads off and on"));
+            assertFalse(((AbstractButton)find(panel[0],"startRun")).isEnabled());
+            panel[0].reload();assertEquals(1,requested[0]);
+            f.set("loadPlanning","false");panel[0].reload();
+            assertTrue(((AbstractButton)find(panel[0],"startRun")).isEnabled());
+            f.set("loadPlanning","true");panel[0].reload();assertEquals(2,requested[0]);
+            panel[0].setInventoryData(InventoryFixtures.data(f.config,List.of(Patch.LUMBRIDGE_TREE)));
+        });
+        awaitReady(panel[0]);
+        SwingUtilities.invokeAndWait(()->{assertTrue(((AbstractButton)find(panel[0],"startRun")).isEnabled());panel[0].dispose();});
+    }
     @Test public void filtersOnlyCurrentInventoryAndBankingDoesNotResetPatchProgress() throws Exception
     {
         ConfigFixture f=InventoryFixtures.light();f.set("loadReservedSlots","26");f.set("loadBank","CATHERBY");

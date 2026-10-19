@@ -1,8 +1,5 @@
 package com.classictreerun;
 
-import java.nio.charset.StandardCharsets;
-import java.security.*;
-import java.time.Instant;
 import java.util.*;
 import java.util.function.*;
 import javax.swing.Timer;
@@ -29,7 +26,13 @@ final class GrowthMonitor
         Consumer<String> notify,CropReference reference,LongSupplier clock,boolean startTimer)
     {
         this.config=config;this.preferences=preferences;this.panel=panel;this.notify=notify;this.reference=reference;this.clock=clock;
+        panel.setProgressEdited(this::discardPendingCompletion);
         timer=new Timer(10000,event->poll());if(startTimer)timer.start();
+    }
+    private void discardPendingCompletion()
+    {
+        // A successful manual change supersedes failed automatic progress, but keeps crop observations.
+        pendingProgress=null;pendingWrites.remove(ClassicTreeRunPanel.PROGRESS_KEY);
     }
     void allowNotifications(boolean allow){allowNotifications=allow;}
     void accept(String character,List<GrowthSampler.Sample> samples,boolean seasonal)
@@ -106,13 +109,5 @@ final class GrowthMonitor
     static String characterKey(long accountHash){return characterKey(accountHash,false,false);}
     static String characterKey(long accountHash,boolean seasonal,boolean deadman)
     {return digest(Long.toUnsignedString(accountHash)+":"+(deadman?"deadman":seasonal?"seasonal":"normal"));}
-    static String digest(String value)
-    {
-        try
-        {
-            byte[] hash=MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));char[] hex="0123456789abcdef".toCharArray(),text=new char[hash.length*2];
-            for(int i=0;i<hash.length;i++){int part=hash[i]&255;text[i*2]=hex[part>>>4];text[i*2+1]=hex[part&15];}return new String(text);
-        }
-        catch(NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);}
-    }
+    static String digest(String value) { return Digests.sha256(value); }
 }

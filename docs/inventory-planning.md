@@ -12,6 +12,8 @@ Set these options in the normal RuneLite cog under **Inventory planning**, then 
 
 The compact list checks carried items only. It never reads bank ownership, withdraws supplies, changes withdrawal mode or opens a bank. Start run packs the first inventory and clears old progress after confirmation. **Filter this inventory** refreshes the bank display for the current load without resetting progress.
 
+If RuneLite item definitions cannot be read, the sidebar shows an error and keeps Start and Filter disabled. Toggle **Plan inventory loads** off and on to request the data again. With planning off, the ordinary full-run packing list remains available. This does not resolve RuneLite's own network or startup problems.
+
 Finish the current load's patches to advance its packing list. The next route step is the chosen bank. Deposit produce and unneeded supplies, keep tools and travel items, and withdraw the next list yourself. **Banked - continue** acknowledges that stop. Patch progress and bank acknowledgments survive a restart; starting, resetting or loading a saved run clears both. Reopening an earlier patch clears bank acknowledgments after that inventory. Settings changes rebuild the plan and invalidate its old bank acknowledgments.
 
 ![Bank stop and second inventory — offline layout fixture with a deliberately small capacity](inventory-run-preview.png)
@@ -22,7 +24,7 @@ RuneLite's public item definitions supply inventory stackability and whether a p
 
 Seeds and coins use one slot per item stack. Saplings and ordinary compost buckets use one slot each. A filled bottomless compost bucket uses one slot; its charges and type remain a manual check. Noteable protection payments use one slot per payment stack when the notes option is enabled. Loose payment and planting quantities sharing an item ID are added together; noted payments remain separate. The selected tools and coin allowance are included in each load that needs them.
 
-The planner keeps the prepared patch order and chooses contiguous loads. It minimizes the number of loads first, then the estimated bank detour cost, then prefers a fuller first load on a tie. The bank cost uses relative travel scores, with local walking allowances at Catherby and the Farming Guild. It is not live pathfinding or a measured travel-time estimate. Route optimization still happens before load planning; this is not a joint search over every patch order and bank placement.
+The planner keeps the prepared patch order and chooses contiguous loads. It minimizes the number of loads first, then the estimated bank detour cost, then prefers a fuller first load on a tie. It prepares each patch's requirements once and counts each candidate load incrementally, sharing tools, the bottomless bucket and coin allowance across its patches. The bank cost uses relative travel scores, with local walking allowances at Catherby and the Farming Guild. It is not live pathfinding or a measured travel-time estimate. Route optimization still happens before load planning; this is not a joint search over every patch order and bank placement.
 
 Load boundaries stay fixed as patches are completed. Within a load, completed patches disappear from its supply quantities. Changing patches, crops, supply options, travel or inventory settings recomputes the plan. If one patch's supplies exceed capacity, that patch remains as a separate load and the sidebar flags the shortage of space.
 

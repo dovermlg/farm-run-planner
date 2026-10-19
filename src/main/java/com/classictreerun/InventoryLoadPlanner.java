@@ -1,8 +1,5 @@
 package com.classictreerun;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -107,18 +104,36 @@ final class InventoryLoadPlanner
         return (int)Math.min(Integer.MAX_VALUE,slots);
     }
 
+    /** Adds each patch once per candidate load; shared tools/buckets are counted once per load. */
+    static final class SlotCounter
+    {
+        private final InventoryItemData data;
+        private final Map<Integer,Long> consumable=new HashMap<>(),reusable=new HashMap<>();
+        private final java.util.Set<Integer> notes=new java.util.HashSet<>();
+        private long occupied;
+        SlotCounter(InventoryItemData data) { this.data=data; }
+        int add(SupplyPlan patch)
+        {
+            for(SupplyPlan.Requirement row:patch.requirements)
+            {
+                if(row.notedOnly){if(notes.add(row.item))occupied++;continue;}
+                long before=consumable.getOrDefault(row.item,0L)+reusable.getOrDefault(row.item,0L);
+                if(row.reusable)reusable.merge(row.item,(long)row.quantity,Math::max);
+                else consumable.merge(row.item,(long)row.quantity,Long::sum);
+                long after=consumable.getOrDefault(row.item,0L)+reusable.getOrDefault(row.item,0L);
+                occupied+=data.get(row.item).stackable?(before==0 && after>0?1:0):after-before;
+            }
+            return (int)Math.min(Integer.MAX_VALUE,occupied);
+        }
+    }
+
     static String signature(ClassicTreeRunConfig config,List<Patch> route,InventoryItemData data)
     {
         Map<String,String> travel=new java.util.TreeMap<>();
-        ConfigValues.read(config).forEach((key,value)->{if(key.endsWith("Travel"))travel.put(key,value);});
+        travel.putAll(TravelCosts.settings(config));
         String source=RouteState.encode(route)+"\n"+CropChoices.settings(config)+"\n"+settings(config)+"\n"+travel+"\n"
             +data.fingerprint(SupplyPlan.build(config,route).items);
-        try
-        {
-            byte[] digest=MessageDigest.getInstance("SHA-256").digest(source.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hex=new StringBuilder();for(byte b:digest)hex.append(String.format(java.util.Locale.ROOT,"%02x",b&255));return hex.toString();
-        }
-        catch(NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);}
+        return Digests.sha256(source);
     }
 
     static Plan plan(ClassicTreeRunConfig config,List<Patch> route,InventoryItemData data)
@@ -128,11 +143,14 @@ final class InventoryLoadPlanner
         int[] count=new int[n+1],cost=new int[n+1],next=new int[n],occupied=new int[n];
         java.util.Arrays.fill(count,Integer.MAX_VALUE);java.util.Arrays.fill(cost,Integer.MAX_VALUE);count[n]=0;cost[n]=0;
         BankDestination bank=config.loadBank();
+        List<SupplyPlan> perPatch=new ArrayList<>();
+        for(Patch patch:route)perPatch.add(supplies(config,List.of(patch),data));
         for(int i=n-1;i>=0;i--)
         {
+            SlotCounter counter=new SlotCounter(data);
             for(int j=i+1;j<=n;j++)
             {
-                int slots=slots(supplies(config,route.subList(i,j),data),data);
+                int slots=counter.add(perPatch.get(j-1));
                 if(slots>capacity && j>i+1)break;
                 int loads=1+count[j];
                 int boundary=j==n?0:bank.approachCost(route.get(j-1))+bank.departureCost(route.get(j),config)

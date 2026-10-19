@@ -8,6 +8,20 @@ final class TravelCosts
     final int[] entry;
     final int[][] travel;
 
+    static java.util.Map<String,String> settings(ClassicTreeRunConfig config)
+    {
+        java.util.Map<String,String> values=new java.util.LinkedHashMap<>();
+        values.put("faladorTravel",config.faladorTravel().name());
+        values.put("taverleyTravel",config.taverleyTravel().name());
+        values.put("strongholdTravel",config.strongholdTravel().name());
+        values.put("catherbyTravel",config.catherbyTravel().name());
+        values.put("brimhavenTravel",config.brimhavenTravel().name());
+        values.put("calquatTravel",config.calquatTravel().name());
+        values.put("fossilTravel",config.fossilTravel().name());
+        values.put("guildTravel",config.guildTravel().name());
+        return values;
+    }
+
     TravelCosts(List<Patch> patches, ClassicTreeRunConfig config)
     {
         int n = patches.size();
@@ -143,6 +157,9 @@ final class TravelCosts
         if (from.getSite() == PatchSite.GUILD && to == Patch.GUILD_TREE) { return "Stay in the Farming Guild; walk to the west wing normal tree patch."; }
         if (from.getSite() == PatchSite.GUILD && to == Patch.GUILD_FRUIT) { return "Stay in the Farming Guild; walk to the north wing fruit patch (85 Farming)."; }
         if (from.getSite() == to.getSite()) { return "Stay at " + to.getLocation() + "; walk to " + to.getDirections() + "."; }
-        return null; // Brimhaven-to-calquat walking is already explicit in the base guide.
+        if(from==Patch.BRIMHAVEN_FRUIT && to==Patch.TAI_BWO_WANNAI_CALQUAT
+            && c.calquatTravel()==ClassicTreeRunConfig.CalquatTravel.WALK_FROM_BRIMHAVEN)
+        {return "From Brimhaven fruit patch, run south towards Tai Bwo Wannai to the calquat patch north of the village.";}
+        return null;
     }
 }

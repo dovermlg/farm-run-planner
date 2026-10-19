@@ -25,16 +25,18 @@ public final class SupplyPlan
     {
         final String label;
         final int item, quantity;
-        final boolean notes, notedOnly;
+        final boolean notes, notedOnly, reusable;
         final Set<Integer> alternatives;
         Requirement(String label, int item, int quantity, boolean notes, Integer... alternatives)
-        { this(label,item,quantity,notes,false,alternatives); }
-        private Requirement(String label,int item,int quantity,boolean notes,boolean notedOnly,Integer... alternatives)
+        { this(label,item,quantity,notes,false,false,alternatives); }
+        private Requirement(String label,int item,int quantity,boolean notes,boolean notedOnly,boolean reusable,Integer... alternatives)
         {
-            this.label=label; this.item=item; this.quantity=quantity; this.notes=notes;this.notedOnly=notedOnly;
+            this.label=label; this.item=item; this.quantity=quantity; this.notes=notes;this.notedOnly=notedOnly;this.reusable=reusable;
             java.util.HashSet<Integer> ids=new java.util.HashSet<>(List.of(alternatives));
             ids.add(item); this.alternatives=Set.copyOf(ids);
         }
+        static Requirement once(String label,int item,int quantity,Integer... alternatives)
+        { return new Requirement(label,item,quantity,false,false,true,alternatives); }
     }
 
     final List<Requirement> requirements;
@@ -99,7 +101,7 @@ public final class SupplyPlan
         {
             if(config.supplyCompost()==Compost.BOTTOMLESS)
             {
-                result.add(new Requirement("Filled bottomless bucket (presence only)",ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED,1,false));
+                result.add(Requirement.once("Filled bottomless bucket (presence only)",ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED,1));
                 reminders.add("Bottomless bucket: check its compost type and charges for "+compost+" remaining patches. Charges are not counted.");
             }
             else
@@ -113,18 +115,18 @@ public final class SupplyPlan
         {
             if(config.supplyTools())
             {
-                result.add(new Requirement("Spade",ItemID.SPADE,1,false));
-                if(secateurs)result.add(new Requirement("Secateurs (magic recommended)",ItemID.FAIRY_ENCHANTED_SECATEURS,1,false,ItemID.SECATEURS));
-                if(grapes)result.add(new Requirement("Gardening trowel",ItemID.GARDENING_TROWEL,1,false));
-                if(axe)result.add(new Requirement("Axe (optional if paying for removal)",ItemID.BRONZE_AXE,1,false,
+                result.add(Requirement.once("Spade",ItemID.SPADE,1));
+                if(secateurs)result.add(Requirement.once("Secateurs (magic recommended)",ItemID.FAIRY_ENCHANTED_SECATEURS,1,ItemID.SECATEURS));
+                if(grapes)result.add(Requirement.once("Gardening trowel",ItemID.GARDENING_TROWEL,1));
+                if(axe)result.add(Requirement.once("Axe (optional if paying for removal)",ItemID.BRONZE_AXE,1,
                     ItemID.IRON_AXE,ItemID.STEEL_AXE,ItemID.BLACK_AXE,ItemID.MITHRIL_AXE,ItemID.ADAMANT_AXE,
                     ItemID.RUNE_AXE,ItemID.DRAGON_AXE,ItemID.INFERNAL_AXE,ItemID.INFERNAL_AXE_EMPTY,ItemID.CRYSTAL_AXE,
                     ItemID.BRONZE_AXE_2H,ItemID.IRON_AXE_2H,ItemID.STEEL_AXE_2H,ItemID.BLACK_AXE_2H,
                     ItemID.MITHRIL_AXE_2H,ItemID.ADAMANT_AXE_2H,ItemID.RUNE_AXE_2H,ItemID.DRAGON_AXE_2H,ItemID.CRYSTAL_AXE_2H));
             }
-            if(config.supplyRake())result.add(new Requirement("Rake",ItemID.RAKE,1,false));
-            if(config.supplyDibber() && seeds)result.add(new Requirement("Seed dibber",ItemID.DIBBER,1,false));
-            if(config.supplyCoins()>0)result.add(new Requirement("Coins (your budget)",ItemID.COINS,config.supplyCoins(),false));
+            if(config.supplyRake())result.add(Requirement.once("Rake",ItemID.RAKE,1));
+            if(config.supplyDibber() && seeds)result.add(Requirement.once("Seed dibber",ItemID.DIBBER,1));
+            if(config.supplyCoins()>0)result.add(Requirement.once("Coins (your budget)",ItemID.COINS,config.supplyCoins()));
             if(axe)reminders.add("Pack an axe if chopping trees yourself; bring extra coins for gardener removal and fares.");
             if(belladonna)reminders.add("Wear suitable gloves before harvesting belladonna.");
             if(coral)reminders.add("Coral nurseries require diving equipment or a medallion of the deep.");
@@ -148,7 +150,7 @@ public final class SupplyPlan
         {
             InventoryItemData.ItemInfo info=data.get(row.item);
             boolean notedOnly=notedPayments && row.notes && info.noteable && !info.stackable;
-            rows.add(new Requirement(row.label,row.item,row.quantity,row.notes,notedOnly,row.alternatives.toArray(new Integer[0])));
+            rows.add(new Requirement(row.label,row.item,row.quantity,row.notes,notedOnly,row.reusable,row.alternatives.toArray(new Integer[0])));
         }
         return new SupplyPlan(rows,reminders);
     }

@@ -34,7 +34,7 @@ public enum BankDestination
         return to==Patch.CATHERBY_FRUIT ? "From Catherby bank, walk east along the shore to the fruit tree patch."
             : "From Catherby bank, walk to the farming patches north of town: "+to.getDirections()+".";
     }
-    private boolean local(Patch patch)
+    boolean local(Patch patch)
     {
         switch(this)
         {

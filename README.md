@@ -13,6 +13,7 @@ By **Astral** · [Source](https://github.com/dovermlg/farm-run-planner) · [Issu
 - Filter bank supplies with **Start run**, and see carried-item shortages in red.
 - Split supplies into inventories, with a saved bank choice and packing list for each load.
 - Start a saved run from the sidebar, with travel instructions and a patch checklist.
+- Highlight the next step's teleport item in your inventory or worn equipment.
 - Reorder selected patches using your travel preferences and estimated travel costs.
 - Track observed crops, estimated ready times and full-run reminders.
 - Keep preset libraries, checklist progress and crop observations in local files.
@@ -97,6 +98,16 @@ Selecting a saved run in the sidebar starts a fresh checklist. Loading its slot 
 Removing or adding a patch recalculates the route when **Optimize route** is enabled. With optimization off, the stored order is kept. Travel settings include a **Catherby charter ship** option for Brimhaven: walk from Catherby fruit patch to the docks, charter to Brimhaven, then walk to its fruit patch. Bring coins for the fare.
 
 Bring your seeds or saplings, tools, compost or protection payments, and travel supplies. The checklist tracks each patch as one stop; it does not separately track harvesting, clearing, planting and protection.
+
+### Next teleport highlight
+
+**Checklist display → Highlight next teleport** is on by default. The matching carried item gets a green outline in your inventory or worn equipment, and the sidebar names it beside the next step. The highlight follows your selected travel preferences and advances when you mark a patch complete, including optional observed replant completion. Undoing or resetting progress updates it too.
+
+At a resupply stop it switches to the chosen bank's device. Click **Banked - continue** to advance to the next patch's travel. Walking links and local bank walks have no item outline. A Catherby charter leg from Catherby also needs no further teleport.
+
+The highlight is guidance only. Use the written route directions for the destination. For instructions that allow a spell or tablet, the tablet can be outlined when carried; spells, runes, POH objects, fairy rings and spirit trees are not highlighted. Empty jewellery and noted copies are excluded. Check diary limits, charges stored outside the item ID and travel unlocks yourself. Custom bank text is not interpreted as an item choice. Nothing is clicked, equipped or teleported automatically.
+
+This is a global display preference; loading or importing a preset does not change it. Read the [supported devices and limits](docs/teleport-highlights.md) for details.
 
 ## Crop tracking and reminders
 

@@ -35,6 +35,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
+import net.runelite.client.ui.overlay.OverlayManager;
 
 @PluginDescriptor(name="Farm Run Planner", internalName="farm-run-planner", legacyDataDirectory="farm-run-planner", description="Local named farming presets and estimated travel routes", tags={"farming", "tree", "herb", "route"}, enabledByDefault=false)
 public class ClassicTreeRunPlugin extends Plugin
@@ -45,6 +46,8 @@ public class ClassicTreeRunPlugin extends Plugin
     @Inject private ClientThread clientThread;
     @Inject private ItemManager itemManager;
     @Inject private BankSearch bankSearch;
+    @Inject private OverlayManager overlayManager;
+    private NextTeleportOverlay teleportOverlay;
     private final SupplyBankFilter supplyFilter=new SupplyBankFilter();
     private final java.util.concurrent.atomic.AtomicLong supplyGeneration=new java.util.concurrent.atomic.AtomicLong();
     private volatile GrowthMonitor growthMonitor;
@@ -66,7 +69,16 @@ public class ClassicTreeRunPlugin extends Plugin
 
     @Provides ClassicTreeRunConfig provideConfig(ConfigManager manager) { return manager.getConfig(ClassicTreeRunConfig.class); }
 
-    @Override protected void startUp() throws Exception { onEdt(this::openProfile); }
+    @Override protected void startUp() throws Exception
+    {
+        onEdt(() -> {
+            openProfile();
+            teleportOverlay = new NextTeleportOverlay(client,config,
+                () -> { ClassicTreeRunPanel current=panel;return current==null?TeleportDevice.NONE:current.nextTeleport(); },
+                (id,quantity) -> itemManager.getItemOutline(id,quantity,NextTeleportOverlay.COLOR));
+            overlayManager.add(teleportOverlay);
+        });
+    }
 
     private void openProfile()
     {
@@ -180,6 +192,7 @@ public class ClassicTreeRunPlugin extends Plugin
     {
         clearSupplyFilter();
         onEdt(() -> {
+            if(teleportOverlay!=null){overlayManager.remove(teleportOverlay);teleportOverlay=null;}
             pendingPresetActions.clear(); presetActions = null; EditorPreset.clearLabels();
             if(growthMonitor!=null){growthMonitor.dispose();growthMonitor=null;}
             if (settings != null) { settings.dispose(); settings = null; }
@@ -208,7 +221,7 @@ public class ClassicTreeRunPlugin extends Plugin
         else
         {
             if (!(key.startsWith("patch_") || key.startsWith("crop") || key.startsWith("supply") || key.startsWith("load") || key.endsWith("Travel") || "runName".equals(key)
-                || "autoOptimize".equals(key) || "hideCompleted".equals(key) || "showDetails".equals(key)
+                || "autoOptimize".equals(key) || "hideCompleted".equals(key) || "showDetails".equals(key) || "highlightNextTeleport".equals(key)
                 || "trackGrowth".equals(key) || "notifyWhenReady".equals(key) || "autoCompleteReplanted".equals(key))) { return; }
             changed.add(key.startsWith("patch_") ? "patch_" : key);
             if(key.startsWith("patch_") || key.startsWith("crop") || key.startsWith("supply") || key.startsWith("load"))clearSupplyFilter();

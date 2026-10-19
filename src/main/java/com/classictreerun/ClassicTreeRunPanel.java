@@ -31,6 +31,8 @@ final class ClassicTreeRunPanel extends PluginPanel
     private final InventoryPreparation inventories;
     private String displayedLoad;
     private boolean routePreparing;
+    private volatile TeleportDevice nextTeleport = TeleportDevice.NONE;
+    TeleportDevice nextTeleport() { return nextTeleport; }
     private final RouteState state = new RouteState();
     private boolean confirmReset = true;
     private String status = "";
@@ -67,8 +69,8 @@ final class ClassicTreeRunPanel extends PluginPanel
     void setInventoryDataRequest(java.util.function.Consumer<java.util.Set<Integer>> request)
     { inventories.setRequest(request);reload(); }
     void setInventoryData(InventoryItemData data) { inventories.accept(data); }
-    void setRoutePreparing(boolean preparing) { routePreparing=preparing; }
-    void dispose() { inventories.dispose(); }
+    void setRoutePreparing(boolean preparing) { routePreparing=preparing;if(preparing)nextTeleport=TeleportDevice.NONE; }
+    void dispose() { nextTeleport=TeleportDevice.NONE;inventories.dispose(); }
     void setSupplies(SupplySnapshot snapshot)
     {
         if(supplies.known==snapshot.known && supplies.plain.equals(snapshot.plain) && supplies.notes.equals(snapshot.notes))return;
@@ -111,6 +113,9 @@ final class ClassicTreeRunPanel extends PluginPanel
         InventoryLoadPlanner.Plan inventoryPlan=inventories.get();
         int currentInventory=inventoryPlan==null?-1:inventoryPlan.current(state);
         boolean loadsReady=!config.loadPlanning() || inventoryPlan!=null;
+        nextTeleport = loadsReady && !routePreparing && config.highlightNextTeleport()
+            ? NextTeleport.resolve(config,route,state,inventoryPlan,preferences.get(InventoryLoadPlanner.BANKS_KEY))
+            : TeleportDevice.NONE;
         boolean bankNeeded=config.loadPlanning() && currentInventory>0
             && !inventoryPlan.bankConfirmed(preferences.get(InventoryLoadPlanner.BANKS_KEY),currentInventory);
         String loadKey=!config.loadPlanning()?"all":inventoryPlan==null?"waiting":inventoryPlan.signature+":"+currentInventory;
@@ -194,6 +199,13 @@ final class ClassicTreeRunPanel extends PluginPanel
             : route.isEmpty() ? "No patches selected. Open the settings cog to choose them."
             : next == null ? "Run complete. Reset when you're ready to start again."
             : "NEXT: " + next.getLabel()));
+        if(nextTeleport!=TeleportDevice.NONE)
+        {
+            JLabel teleport=text("Teleport item: "+nextTeleport.label);
+            teleport.setName("nextTeleport");
+            teleport.setToolTipText(html("Matching carried items have a green outline. Use the route directions for the destination. Check charges, daily limits and unlocks yourself; this does not teleport or open menus."));
+            add(teleport);
+        }
         JButton reset = new JButton("Reset run");
         reset.setName("resetRun");
         reset.addActionListener(event ->

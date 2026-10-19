@@ -9,7 +9,7 @@ repositories {
 
 def runeLiteVersion = findProperty('runeliteVersion') ?: 'latest.release'
 group = 'com.classictreerun'
-version = '1.13.0'
+version = '1.14.0'
 
 dependencies {
     compileOnly "net.runelite:client:${runeLiteVersion}"

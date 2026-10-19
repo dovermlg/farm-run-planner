@@ -10,7 +10,7 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.10/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 2s
+BUILD SUCCESSFUL in 3s
 4 actionable tasks: 4 executed
 warning: unused props in runelite-plugin.properties: [support]
-built jar with hash RJvPFjhfHEOjWOvE5QwlgVOuPcFD6XJ7MubNREEFbEk from commit 0000000000000000000000000000000000000000
+built jar with hash 5Yt3B84PD-dcjRLt4GPh9UIEVYt_Gi8joAJzmbwMO_s from commit 0000000000000000000000000000000000000000

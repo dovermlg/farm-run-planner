@@ -1,8 +1,8 @@
 # Plugin Hub review notes
 
-**Farm Run Planner 1.13.0** · Author: **Astral** · Internal name: `farm-run-planner`
+**Farm Run Planner 1.14.0** · Author: **Astral** · Internal name: `farm-run-planner`
 
-The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongside 152 regression tests and the farming-reference audit. This is a development preflight; maintainer review and hosted Plugin Hub CI have not taken place.
+The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongside 165 regression tests and the farming-reference audit. This is a development preflight; maintainer review and hosted Plugin Hub CI have not taken place.
 
 ## Implementation
 
@@ -11,7 +11,7 @@ The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongs
 | Build | Java 11, `build=standard`, no extra production dependencies |
 | Metadata | Explicit internal name, legacy data directory and disabled-by-default descriptor |
 | License | BSD-2-Clause; license and farming-data notices included as normal JAR resources |
-| Configuration | Public RuneLite config controls; direct accessors for all 161 items |
+| Configuration | Public RuneLite config controls; direct accessors for all 162 items |
 | Storage | Bounded `Filepath` from `Plugin.getPluginDirectory()` |
 | UI | Plugin-owned sidebar and settings; no private UI access or other-plugin configuration changes |
 | Game interaction | Observes public crop state; generates no gameplay input or menu actions |
@@ -25,7 +25,7 @@ The check used unmodified [plugin-hub-tooling at commit 034eaff](https://github.
 
 The harness did not run the source downloader or uploader. Its `LOCAL-OFFLINE-CHECK` URL and zero commit are parser fixtures, not submission values. The harness and reference utilities are outside the production source set and are excluded from the plugin JAR.
 
-Evidence: [hub-check-results.json](hub-check-results.json), [hub-packager.log](hub-packager.log), and [harness instructions](../tools/hub-review/README.md). The JSON and log record the 1.13.0 local preflight. GitHub publication and the project's own CI are documented separately in [GITHUB.md](GITHUB.md).
+Evidence: [hub-check-results.json](hub-check-results.json), [hub-packager.log](hub-packager.log), and [harness instructions](../tools/hub-review/README.md). The JSON and log record the 1.14.0 local preflight. GitHub publication and the project's own CI are documented separately in [GITHUB.md](GITHUB.md).
 
 ## Preset backups
 
@@ -48,6 +48,12 @@ Inventory and worn equipment are read through public item containers. Counts are
 The saved bank choice and reserve are ordinary native cog fields. Stackability and noteability come from public `ItemComposition.isStackable()` and `getLinkedNoteId()` definitions read through `ItemManager` on the client thread. These flags contain no character or bank data. Load planning runs in a SwingWorker against immutable settings and item flags; stale results are ignored, and workers are disposed with their panel. Start and filter controls wait for metadata and route preparation.
 
 The planner partitions the prepared patch order into contiguous loads, minimizing load count and then relative bank detour costs. It does not navigate or perform banking. A manual Banked - continue button records a local acknowledgment; those records are fingerprinted by the plan, excluded from backups and cleared on a fresh run. Undoing an earlier patch restores later bank stops. Capacity includes only planned starting supplies plus a user-selected reserve; oversized individual stops are retained and flagged. Travel, harvest quantities, stored tools and container charges remain manual decisions. See [inventory planning](inventory-planning.md) for the bank reference and calculation limits.
+
+## Next teleport outline
+
+A public `WidgetItemOverlay` draws a green `ItemManager.getItemOutline()` sprite on matching inventory or worn-equipment items. It is registered only for inventory, bank-side inventory and worn-equipment interfaces, and validates the interface before drawing. It never outlines bank stock, edits widgets, opens menus, changes destinations, swaps entries, equips items or sends input. It uses explicit charged/unnoted item IDs, not name matching or canonicalization that could admit empty or noted forms.
+
+The sidebar publishes an immutable device enum through a volatile field. It follows the next unfinished patch, the selected travel settings and manual bank acknowledgments; walking links, custom travel and unsupported methods have no item outline. The overlay is hidden outside logged-in state, disabled by its global cog toggle and removed on shutdown. It adds no stored character data, network calls or production dependency. [Supported devices and checks](teleport-highlights.md) describe the scope and offline fixtures.
 
 ## Data and testing limits
 

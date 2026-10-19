@@ -54,6 +54,7 @@ final class ConfigValues
         "notifyWhenReady",
         "autoCompleteReplanted",
         "showDetails",
+        "highlightNextTeleport",
         "trees",
         "fruit",
         "hardwood",
@@ -219,6 +220,7 @@ final class ConfigValues
         values.put("notifyWhenReady", wire(config.notifyWhenReady()));
         values.put("autoCompleteReplanted", wire(config.autoCompleteReplanted()));
         values.put("showDetails", wire(config.showDetails()));
+        values.put("highlightNextTeleport", wire(config.highlightNextTeleport()));
         values.put("trees", wire(config.trees()));
         values.put("fruit", wire(config.fruit()));
         values.put("hardwood", wire(config.hardwood()));

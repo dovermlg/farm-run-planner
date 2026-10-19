@@ -5,6 +5,7 @@ final class LocalRunConfig implements ClassicTreeRunConfig
 {
     private final ClassicTreeRunPanel.Preferences values;
     LocalRunConfig(ClassicTreeRunPanel.Preferences values) { this.values = values; }
+    @Override public boolean highlightNextTeleport() { return bool("highlightNextTeleport",ClassicTreeRunConfig.super.highlightNextTeleport()); }
     static ClassicTreeRunConfig snapshot(ClassicTreeRunConfig source)
     {
         java.util.Map<String,String> copy=java.util.Map.copyOf(ConfigValues.read(source));

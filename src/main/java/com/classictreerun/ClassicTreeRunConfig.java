@@ -135,6 +135,8 @@ public interface ClassicTreeRunConfig extends net.runelite.client.config.Config
     default boolean autoCompleteReplanted() { return false; }
     @ConfigItem(keyName="showDetails", name="Show access notes", description="Show gardener and access requirements on each checklist stop", section=DISPLAY, position=1)
     default boolean showDetails() { return false; }
+    @ConfigItem(keyName="highlightNextTeleport", name="Highlight next teleport", description="Outline the next route step's matching item in your inventory or worn equipment. Follows patch completion and bank stops. Walking, spells, POH devices and custom travel do not highlight an inventory item. Charges and unlocks still need checking.", section=DISPLAY, position=2)
+    default boolean highlightNextTeleport() { return true; }
 
     @ConfigItem(keyName="trees", name="Normal trees", description="Legacy category switch", hidden=true)
     default boolean trees() { return true; }

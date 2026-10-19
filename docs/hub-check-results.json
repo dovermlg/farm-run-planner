@@ -1,7 +1,7 @@
 {
   "reviewDate": "2026-10-18",
   "plugin": "Farm Run Planner",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "author": "Astral",
   "internalName": "farm-run-planner",
   "runeliteVersion": "1.13.2",
@@ -12,10 +12,10 @@
     "dependencyVerification": "passed",
     "deprecatedApiCheck": "passed",
     "dependencyApiCompatibility": "passed",
-    "recordedExternalApiSymbols": 342
+    "recordedExternalApiSymbols": 455
   },
   "tests": {
-    "tests": 152,
+    "tests": 165,
     "failures": 0,
     "errors": 0,
     "skipped": 0
@@ -26,9 +26,9 @@
     "tilePlaneBoundaryComparisons": 6176768,
     "result": "passed"
   },
-  "productionSourceSha256": "234625c21b947f8cafd4f15ecf02fddc09fa46f06e7feb0821f48a26faa66e0f",
-  "developmentJarSha256": "900245b9b2a00a42bb17db7c7ae9db92e2ddec62046832506741fa966f84722b",
-  "officialLocalPackagerJarSha256": "e9b81d914977b26e8da13a73c7f81627b16a1283119101f6b724d5e6186ebf1b",
+  "productionSourceSha256": "b213df9b2983c32c096521a4ecaa1a18960722cd2dea6077d0aed2fe00c4d36d",
+  "developmentJarSha256": "507285936aa96977215028912c48c64dec2b2046165fac901baae99f31d59dca",
+  "officialLocalPackagerJarSha256": "a39fbfdf42f0b7d64bd859a3d8e97a14c57021095cac5f3dbde379c265c73dbb",
   "dependencyVerificationMetadataSha256": "d0939deaafbfd7c9a339e10d466305b59ec22eade03342cade83be1d21377041",
   "limits": {
     "authenticatedGameSession": false,
@@ -46,7 +46,7 @@
     "partialResetAndEmpty": "normal color",
     "gameAccountUsed": false
   },
-  "configurationItems": 161,
+  "configurationItems": 162,
   "productionSourceHashMethod": "SHA-256 of src/main paths sorted with Windows path ordering (forward slashes) + NUL + LF-normalized contents + NUL",
   "presetBackups": {
     "formatVersion": 3,
@@ -98,6 +98,26 @@
     "bankCompletion": "manual, local, plan-fingerprinted; excluded from backups",
     "harvestPrediction": false,
     "liveBankOwnershipRead": false,
+    "gameAccountUsed": false
+  },
+  "teleportHighlights": {
+    "regressions": 13,
+    "defaultEnabled": true,
+    "settingScope": "global native cog; excluded from preset backups",
+    "rendering": "public WidgetItemOverlay and ItemManager.getItemOutline; green sprite outline only",
+    "interfaces": [
+      "inventory",
+      "bank-side inventory",
+      "worn equipment"
+    ],
+    "excludedInterfaces": [
+      "bank stock",
+      "trade offers"
+    ],
+    "target": "next unfinished patch or unacknowledged bank stop",
+    "itemForms": "explicit usable IDs; excludes empty, noted and placeholder forms",
+    "walkingAndCustomTravel": "no inventory outline",
+    "automaticGameActions": false,
     "gameAccountUsed": false
   }
 }

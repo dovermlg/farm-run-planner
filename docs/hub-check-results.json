@@ -1,7 +1,7 @@
 {
   "reviewDate": "2026-10-18",
   "plugin": "Farm Run Planner",
-  "version": "1.14.1",
+  "version": "1.14.2",
   "author": "Astral",
   "internalName": "farm-run-planner",
   "runeliteVersion": "1.13.2",
@@ -15,7 +15,7 @@
     "recordedExternalApiSymbols": 458
   },
   "tests": {
-    "tests": 170,
+    "tests": 175,
     "failures": 0,
     "errors": 0,
     "skipped": 0
@@ -26,9 +26,9 @@
     "tilePlaneBoundaryComparisons": 6176768,
     "result": "passed"
   },
-  "productionSourceSha256": "9599a830f129df88f2ccd548376e5f02e9df8f9d20214db9b2dcb51887d97ed4",
-  "developmentJarSha256": "410365c4004f5dbae2dcd049652f7a9601864bd81f16d5b4f853e7dfe59b716e",
-  "officialLocalPackagerJarSha256": "fd23efba1444aa082e0644827aa56e3891aa9ecb7e93c3706f04d7b0f4fb7871",
+  "productionSourceSha256": "708580ac1514089d6f06e0f9c675975f2b05d98d4a080d55aa36f4e39c8f1dcd",
+  "developmentJarSha256": "25b8784d9373deb4312753f284e7fd27d00f318f1bd6044c0cb6fb4a9ba8b673",
+  "officialLocalPackagerJarSha256": "eaafff4124d3e8f921c7fb90b9a73dc0205964eb46e4ceed75988daff277f549",
   "dependencyVerificationMetadataSha256": "d0939deaafbfd7c9a339e10d466305b59ec22eade03342cade83be1d21377041",
   "limits": {
     "authenticatedGameSession": false,
@@ -87,7 +87,7 @@
     }
   },
   "inventoryPlanning": {
-    "regressions": 22,
+    "regressions": 27,
     "itemFlags": "public RuneLite ItemComposition.isStackable and getLinkedNoteId; client thread",
     "planner": "fewest contiguous loads, then relative bank detour cost; prepared patch order preserved",
     "bankChoice": "saved per preset; custom instructions supported",
@@ -132,7 +132,7 @@
     "releaseVersion": {
       "singleSource": "runelite-plugin.properties",
       "gradleReadsDescriptor": true,
-      "officialLocalManifest": "1.14.1",
+      "officialLocalManifest": "1.14.2",
       "checked": true
     },
     "planningBenchmark": {
@@ -144,9 +144,24 @@
       "measuredRuns": 7,
       "runtime": "JDK 11; same local workspace; deliberate offline fixtures",
       "task": "benchmarkInventoryPlanning",
-      "gamePerformanceClaim": false
+      "gamePerformanceClaim": false,
+      "versionMeasured": "1.14.1"
     },
     "productionJarContainsTestHelpers": false,
+    "gameAccountUsed": false
+  },
+  "itemDataRequestReview": {
+    "version": "1.14.2",
+    "regressionsAdded": 5,
+    "obsoleteSuccessAndFailureIgnored": true,
+    "sameItemRetriesUseDistinctRequestIdentity": true,
+    "newRequestClearsPreviousError": true,
+    "cachedDataAndDisabledPlanningInvalidatePendingRequest": true,
+    "disposedCoordinatorIgnoresCallbacks": true,
+    "readySidebarPreserved": true,
+    "planningBenchmarkMedianMs": 2.482,
+    "signatureBenchmarkMeanMs": 0.065,
+    "benchmarkUsesOfflineFixtures": true,
     "gameAccountUsed": false
   }
 }

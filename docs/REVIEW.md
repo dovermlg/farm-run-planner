@@ -1,10 +1,12 @@
 # Optimization and reliability review
 
-Farm Run Planner **1.14.1**, reviewed 2026-10-18 against RuneLite **1.13.2**. The release version was rechecked against [RuneLite's published dependency metadata](https://repo.runelite.net/net/runelite/client/maven-metadata.xml). No game account was used.
+Farm Run Planner **1.14.2**, reviewed 2026-10-18 against RuneLite **1.13.2**. The release version was rechecked against [RuneLite's published dependency metadata](https://repo.runelite.net/net/runelite/client/maven-metadata.xml). No game account was used.
 
 The review covered route ordering, inventory boundaries, supplies and noted payments, bank filters, teleport outlines, preset editing and backups, local storage recovery, crop observation, reminders, thread ownership and plugin shutdown. The existing player settings and backup format 3 are unchanged; versions 1 and 2 remain importable.
 
 ## Fixes
+
+**Obsolete item-data responses cannot replace the current run.** The 1.14.2 follow-up reproduced a late failure clearing a newer inventory plan. Each request now has an identity, so late successes and errors are ignored after a crop change, retry, switch back to cached data, disabled planning or disposal. A newly requested crop also clears the previous request's error. Matching item IDs alone are insufficient because an off/on retry can request the same items. Five new coordinator and sidebar regressions cover these transitions, including a ready Magic-sapling run receiving an older Oak response. Existing request failures still produce the recoverable sidebar message.
 
 **Manual progress takes priority after a failed save.** A failed automatic replant-completion write could remain queued and later overwrite a successful manual reset or correction. This was reproduced by failing the local write, resetting the run, restoring storage and polling the observer. Successful Reset, Start, checkbox edits and main-tab preset loads now discard obsolete pending automatic progress. Pending crop observations are retained and retried. Failed manual writes still leave the saved state intact.
 
@@ -12,7 +14,7 @@ The review covered route ordering, inventory boundaries, supplies and noted paym
 
 **Bank departures and outlines use the same walking instructions.** After banking at Catherby, a charter departure now starts at the bank and walks to the docks. It does not send the player back to the fruit patch or suggest another teleport to Catherby. The same rule handles a charter followed by the walk to Tai Bwo Wannai calquat. Brimhaven-to-calquat walking also uses one shared instruction for the sidebar and outline resolver.
 
-**Release versions agree.** The source descriptor had remained at 1.12.2 while Gradle named later builds 1.14.x. Plugin Hub reads the descriptor's version, so this would have displayed an outdated release. The descriptor now supplies 1.14.1 to both Gradle and the Hub packager. The local packaging harness checks and records the generated manifest's version.
+**Release versions agree.** The source descriptor had remained at 1.12.2 while Gradle named later builds 1.14.x. Plugin Hub reads the descriptor's version, so this would have displayed an outdated release. The descriptor now supplies 1.14.2 to both Gradle and the Hub packager. The local packaging harness checks and records the generated manifest's version.
 
 ## Performance
 
@@ -22,11 +24,11 @@ Route workers now cancel obsolete work when settings change or the plugin is dis
 
 Plan fingerprints now read only the relevant travel fields rather than every native setting. Hexadecimal hashing also avoids per-byte formatter allocation. An independent SHA-256 comparison verifies that existing plan fingerprints keep the same format and values, preserving compatible bank acknowledgments.
 
-| Offline stress case | 1.14.0 baseline | 1.14.1 |
+| Offline stress case | 1.14.0 baseline | 1.14.1 measurement |
 | --- | --- | --- |
 | All 99 patches, harvest/check only, optional tools/coins/compost off | 26.148 ms median | 1.962 ms median |
 
-Both measurements used JDK 11 on the same workspace, three warmups and seven measured plans. This case exercises a long route whose supplies fit in one load. The baseline was commit `7b79abf68a6682b96796467075df1cca3f2454e3`. Times are hardware- and fixture-dependent, not game travel times, rendering measurements or a general speed guarantee. Reproduce the current case without opening RuneLite:
+These recorded 1.14.1 comparisons are retained for context; 1.14.2 changes request coordination, not the planning algorithm. Both measurements used JDK 11 on the same workspace, three warmups and seven measured plans. This case exercises a long route whose supplies fit in one load. The baseline was commit `7b79abf68a6682b96796467075df1cca3f2454e3`. Times are hardware- and fixture-dependent, not game travel times, rendering measurements or a general speed guarantee. Reproduce the current case without opening RuneLite:
 
 ```powershell
 .\gradlew.bat benchmarkInventoryPlanning
@@ -36,7 +38,7 @@ The benchmark and its deliberate item-data fixtures are in the test source set a
 
 ## Validation
 
-- Clean Java 11 build and **170 JUnit tests** pass.
+- Clean Java 11 build and **175 JUnit tests** pass.
 - New regressions cover stale-save recovery through all four manual progress actions, cancellation in exact and heuristic route searches, item-data retry, compatible hashes and incremental slot counts.
 - The slot-count regression compares **1,528** mixed-route slices against independently built complete packing lists, including both payment modes and four compost choices.
 - The farming audit matches **1,376,256** raw decoder values, **99** patch bindings and **6,176,768** tile/plane comparisons against the current RuneLite dependency. All 19 stump entries retain their source matches.

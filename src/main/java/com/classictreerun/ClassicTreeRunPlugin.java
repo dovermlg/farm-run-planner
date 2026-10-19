@@ -128,18 +128,18 @@ public class ClassicTreeRunPlugin extends Plugin
                 });
             },this::clearSupplyFilter);
             ClassicTreeRunPanel inventoryPanel=panel;
-            panel.setInventoryDataRequest(ids->clientThread.invokeLater((java.util.function.BooleanSupplier)()->{
+            panel.setInventoryDataRequest(request->clientThread.invokeLater((java.util.function.BooleanSupplier)()->{
                 if(inventoryPanel!=panel)return true;
                 if(client.getGameState()==GameState.STARTING || client.getGameState()==GameState.UNKNOWN)return false;
                 try
                 {
-                    InventoryItemData data=InventoryItemData.read(ids,itemManager::getItemComposition);
-                    SwingUtilities.invokeLater(()->{if(inventoryPanel==panel)inventoryPanel.setInventoryData(data);});
+                    InventoryItemData data=InventoryItemData.read(request.items,itemManager::getItemComposition);
+                    SwingUtilities.invokeLater(()->{if(inventoryPanel==panel)inventoryPanel.setInventoryData(request,data);});
                 }
                 catch(RuntimeException failure)
                 {
                     org.slf4j.LoggerFactory.getLogger(ClassicTreeRunPlugin.class).warn("Couldn't read farming item definitions",failure);
-                    SwingUtilities.invokeLater(()->{if(inventoryPanel==panel)inventoryPanel.setInventoryDataError();});
+                    SwingUtilities.invokeLater(()->{if(inventoryPanel==panel)inventoryPanel.setInventoryDataError(request);});
                 }
                 return true;
             }));

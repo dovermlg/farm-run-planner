@@ -1,8 +1,8 @@
 # Plugin Hub review notes
 
-**Farm Run Planner 1.14.1** · Author: **Astral** · Internal name: `farm-run-planner`
+**Farm Run Planner 1.14.2** · Author: **Astral** · Internal name: `farm-run-planner`
 
-The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongside 170 regression tests and the farming-reference audit. This is a development preflight; maintainer review and hosted Plugin Hub CI have not taken place.
+The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongside 175 regression tests and the farming-reference audit. This is a development preflight; maintainer review and hosted Plugin Hub CI have not taken place.
 
 ## Implementation
 
@@ -25,7 +25,7 @@ The check used unmodified [plugin-hub-tooling at commit 034eaff](https://github.
 
 The harness did not run the source downloader or uploader. Its `LOCAL-OFFLINE-CHECK` URL and zero commit are parser fixtures, not submission values. The harness and reference utilities are outside the production source set and are excluded from the plugin JAR.
 
-Evidence: [hub-check-results.json](hub-check-results.json), [hub-packager.log](hub-packager.log), and [harness instructions](../tools/hub-review/README.md). The JSON and log record the 1.14.1 local preflight. GitHub publication and the project's own CI are documented separately in [GITHUB.md](GITHUB.md).
+Evidence: [hub-check-results.json](hub-check-results.json), [hub-packager.log](hub-packager.log), and [harness instructions](../tools/hub-review/README.md). The JSON and log record the 1.14.2 local preflight. GitHub publication and the project's own CI are documented separately in [GITHUB.md](GITHUB.md).
 
 ## Preset backups
 
@@ -59,7 +59,7 @@ The sidebar publishes an immutable device enum through a volatile field. It foll
 
 The offline audit matched 1,376,256 decoder values, all 99 patch bindings and 6,176,768 tile/plane boundary comparisons. Tests cover the native preset controls, migrations, local write failures, route optimization, crop observations, reminder deduplication and sidebar layout. Reproduction commands are in [BUILD-REPORT.md](BUILD-REPORT.md).
 
-The [1.14.1 reliability review](REVIEW.md) covers manual-progress precedence after failed writes, cooperative worker cancellation, incremental slot-count equivalence, compatible fingerprints, consistent bank departure guidance and recoverable item-data errors. The benchmark is a test-only Java entry point and cannot launch the game. No additional runtime dependency or network client was introduced.
+The [1.14.2 reliability review](REVIEW.md) covers manual-progress precedence after failed writes, cooperative worker cancellation, incremental slot-count equivalence, compatible fingerprints, consistent bank departure guidance, recoverable item-data errors and rejection of obsolete item-data responses. The benchmark is a test-only Java entry point and cannot launch the game. No additional runtime dependency or network client was introduced.
 
 No authenticated game session, actual server payload capture, live bank rendering, live crop-timing measurement or desktop notification test was performed. Timers remain estimates, and travel costs are relative scores rather than measured journey times. The plugin keeps gameplay actions with the player.
 

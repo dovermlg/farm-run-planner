@@ -69,10 +69,10 @@ final class ClassicTreeRunPanel extends PluginPanel
     private void presetLoaded() { progressEdited.run();loaded.run(); }
     void setSupplyActions(java.util.function.Consumer<SupplyPlan> start,Runnable clear)
     { startSupplies=start;clearSupplies=clear; }
-    void setInventoryDataRequest(java.util.function.Consumer<java.util.Set<Integer>> request)
+    void setInventoryDataRequest(java.util.function.Consumer<InventoryPreparation.ItemRequest> request)
     { inventories.setRequest(request);reload(); }
-    void setInventoryData(InventoryItemData data) { inventories.accept(data); }
-    void setInventoryDataError() { inventories.failed(); }
+    void setInventoryData(InventoryPreparation.ItemRequest request,InventoryItemData data) { inventories.accept(request,data); }
+    void setInventoryDataError(InventoryPreparation.ItemRequest request) { inventories.failed(request); }
     void setRoutePreparing(boolean preparing) { routePreparing=preparing;if(preparing)nextTeleport=TeleportDevice.NONE; }
     void dispose() { nextTeleport=TeleportDevice.NONE;inventories.dispose(); }
     void setSupplies(SupplySnapshot snapshot)

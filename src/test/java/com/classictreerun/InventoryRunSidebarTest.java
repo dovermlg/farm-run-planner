@@ -18,20 +18,45 @@ import static org.junit.Assert.*;
 
 public class InventoryRunSidebarTest
 {
+    @Test public void obsoleteItemResponsesLeaveTheNewRunReady() throws Exception
+    {
+        ConfigFixture f=InventoryFixtures.light();f.set("selectionV2","LUMBRIDGE_TREE");
+        List<Patch> route=List.of(Patch.LUMBRIDGE_TREE);
+        ClassicTreeRunPanel[] panel={null};List<InventoryPreparation.ItemRequest> requests=new ArrayList<>();
+        SwingUtilities.invokeAndWait(()->{
+            panel[0]=new ClassicTreeRunPanel(f.config,f);panel[0].setInventoryDataRequest(requests::add);
+            f.set("cropTree","MAGIC");panel[0].reload();assertEquals(2,requests.size());
+            panel[0].setInventoryData(requests.get(1),InventoryFixtures.data(f.config,route));
+        });
+        try
+        {
+            awaitReady(panel[0]);
+            SwingUtilities.invokeAndWait(()->{
+                panel[0].setInventoryDataError(requests.get(0));
+                f.set("cropTree","OAK");InventoryItemData oak=InventoryFixtures.data(f.config,route);
+                f.set("cropTree","MAGIC");panel[0].setInventoryData(requests.get(0),oak);
+                assertEquals(2,requests.size());assertNotNull(find(panel[0],"inventoryLoad"));
+                assertTrue(((AbstractButton)find(panel[0],"startRun")).isEnabled());
+                assertTrue(labels(panel[0]).contains("1 x Magic sapling"));
+                assertFalse(labels(panel[0]).contains("Couldn't read RuneLite item data"));
+            });
+        }
+        finally { SwingUtilities.invokeAndWait(()->panel[0].dispose()); }
+    }
     @Test public void itemDataFailureIsVisibleAndTogglingPlanningCanRetry() throws Exception
     {
         ConfigFixture f=InventoryFixtures.light();f.set("selectionV2","LUMBRIDGE_TREE");
-        ClassicTreeRunPanel[] panel={null};int[] requested={0};
+        ClassicTreeRunPanel[] panel={null};List<InventoryPreparation.ItemRequest> requested=new ArrayList<>();
         SwingUtilities.invokeAndWait(()->{
-            panel[0]=new ClassicTreeRunPanel(f.config,f);panel[0].setInventoryDataRequest(ids->requested[0]++);
-            assertEquals(1,requested[0]);panel[0].setInventoryDataError();
+            panel[0]=new ClassicTreeRunPanel(f.config,f);panel[0].setInventoryDataRequest(requested::add);
+            assertEquals(1,requested.size());panel[0].setInventoryDataError(requested.get(0));
             assertTrue(labels(panel[0]).contains("Toggle Plan inventory loads off and on"));
             assertFalse(((AbstractButton)find(panel[0],"startRun")).isEnabled());
-            panel[0].reload();assertEquals(1,requested[0]);
+            panel[0].reload();assertEquals(1,requested.size());
             f.set("loadPlanning","false");panel[0].reload();
             assertTrue(((AbstractButton)find(panel[0],"startRun")).isEnabled());
-            f.set("loadPlanning","true");panel[0].reload();assertEquals(2,requested[0]);
-            panel[0].setInventoryData(InventoryFixtures.data(f.config,List.of(Patch.LUMBRIDGE_TREE)));
+            f.set("loadPlanning","true");panel[0].reload();assertEquals(2,requested.size());
+            panel[0].setInventoryData(requested.get(1),InventoryFixtures.data(f.config,List.of(Patch.LUMBRIDGE_TREE)));
         });
         awaitReady(panel[0]);
         SwingUtilities.invokeAndWait(()->{assertTrue(((AbstractButton)find(panel[0],"startRun")).isEnabled());panel[0].dispose();});
@@ -45,7 +70,7 @@ public class InventoryRunSidebarTest
         ClassicTreeRunPanel[] panel={null};List<SupplyPlan> filters=new ArrayList<>();
         SwingUtilities.invokeAndWait(()->{
             panel[0]=new ClassicTreeRunPanel(f.config,f);panel[0].setConfirmReset(false);
-            panel[0].setSupplyActions(filters::add,()->{ });panel[0].setInventoryData(data);
+            panel[0].setSupplyActions(filters::add,()->{ });supplyData(panel[0],data);
         });
         awaitReady(panel[0]);
         SwingUtilities.invokeAndWait(()->{
@@ -65,7 +90,7 @@ public class InventoryRunSidebarTest
             assertTrue(labels(panel[0]).contains("NEXT: Falador Park"));
             assertTrue(f.get(InventoryLoadPlanner.BANKS_KEY).contains("FALADOR_TREE"));
             capture(panel[0]);panel[0].dispose();
-            panel[0]=new ClassicTreeRunPanel(f.config,f);panel[0].setConfirmReset(false);panel[0].setInventoryData(data);
+            panel[0]=new ClassicTreeRunPanel(f.config,f);panel[0].setConfirmReset(false);supplyData(panel[0],data);
         });
         awaitReady(panel[0]);
         SwingUtilities.invokeAndWait(()->{
@@ -85,7 +110,7 @@ public class InventoryRunSidebarTest
         List<Patch> route=List.of(Patch.FOSSIL_EAST,Patch.FOSSIL_MIDDLE,Patch.FOSSIL_WEST);
         f.set("selectionV2",RouteState.encode(route));f.set("order",RouteState.encode(route));
         ClassicTreeRunPanel[] panel={null};
-        SwingUtilities.invokeAndWait(()->{panel[0]=new ClassicTreeRunPanel(f.config,f);panel[0].setInventoryData(InventoryFixtures.data(f.config,route));});
+        SwingUtilities.invokeAndWait(()->{panel[0]=new ClassicTreeRunPanel(f.config,f);supplyData(panel[0],InventoryFixtures.data(f.config,route));});
         awaitReady(panel[0]);
         SwingUtilities.invokeAndWait(()->{
             assertNotNull(find(panel[0],"bankStop_1"));assertNotNull(find(panel[0],"bankStop_2"));
@@ -105,6 +130,12 @@ public class InventoryRunSidebarTest
         });
     }
 
+    private static void supplyData(ClassicTreeRunPanel panel,InventoryItemData data)
+    {
+        List<InventoryPreparation.ItemRequest> requests=new ArrayList<>();
+        panel.setInventoryDataRequest(requests::add);
+        assertEquals(1,requests.size());panel.setInventoryData(requests.get(0),data);
+    }
     private static int quantity(SupplyPlan plan,int item)
     {return plan.requirements.stream().filter(r->r.item==item).findFirst().orElseThrow().quantity;}
     private static void awaitReady(ClassicTreeRunPanel panel) throws Exception

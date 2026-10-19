@@ -8,22 +8,32 @@ import javax.swing.SwingWorker;
 /** EDT coordinator: item metadata arrives from the client thread; planning runs off the EDT. */
 final class InventoryPreparation
 {
+    /** Identity distinguishes retries even when both requests contain the same items. */
+    static final class ItemRequest
+    {
+        final Set<Integer> items;
+        ItemRequest(Set<Integer> items) { this.items=Set.copyOf(items); }
+    }
     private final ClassicTreeRunConfig config;
     private final Runnable changed;
-    private Consumer<Set<Integer>> request=ids->{ };
+    private Consumer<ItemRequest> request=ids->{ };
     private InventoryItemData data=InventoryItemData.EMPTY;
-    private Set<Integer> requestedItems=Set.of();
+    private ItemRequest pendingData;
     private String requestedPlan;
     private SwingWorker<InventoryLoadPlanner.Plan,Void> worker;
     private InventoryLoadPlanner.Plan plan;
     private boolean disposed;
     private String error;
     InventoryPreparation(ClassicTreeRunConfig config,Runnable changed) { this.config=config;this.changed=changed; }
-    void setRequest(Consumer<Set<Integer>> request) { this.request=request;requestedItems=Set.of(); }
-    void accept(InventoryItemData incoming) { if(!disposed){data=data.merge(incoming);changed.run();} }
-    void failed()
+    void setRequest(Consumer<ItemRequest> request) { this.request=request;pendingData=null; }
+    void accept(ItemRequest source,InventoryItemData incoming)
     {
-        if(disposed)return;
+        if(disposed || source!=pendingData)return;
+        pendingData=null;data=data.merge(incoming);changed.run();
+    }
+    void failed(ItemRequest source)
+    {
+        if(disposed || source!=pendingData)return;
         if(worker!=null){worker.cancel(false);worker=null;}
         plan=null;requestedPlan=null;
         error="Couldn't read RuneLite item data. Toggle Plan inventory loads off and on to retry.";
@@ -36,15 +46,17 @@ final class InventoryPreparation
     {
         if(disposed)return;
         if(!config.loadPlanning())
-        {if(worker!=null)worker.cancel(false);worker=null;plan=null;requestedPlan=null;requestedItems=Set.of();error=null;return;}
+        {if(worker!=null)worker.cancel(false);worker=null;plan=null;requestedPlan=null;pendingData=null;error=null;return;}
         Set<Integer> items=SupplyPlan.build(config,route).items;
         if(!data.covers(items))
         {
             if(worker!=null)worker.cancel(false);
             plan=null;requestedPlan=null;
-            if(!items.equals(requestedItems)){requestedItems=items;request.accept(items);}
+            if(pendingData==null || !items.equals(pendingData.items))
+            {error=null;pendingData=new ItemRequest(items);request.accept(pendingData);}
             return;
         }
+        pendingData=null;
         String signature=InventoryLoadPlanner.signature(config,route,data);
         if(signature.equals(requestedPlan))return;
         if(worker!=null)worker.cancel(false);
@@ -65,5 +77,5 @@ final class InventoryPreparation
         };
         worker.execute();
     }
-    void dispose() { disposed=true;if(worker!=null)worker.cancel(false); }
+    void dispose() { disposed=true;pendingData=null;if(worker!=null)worker.cancel(false); }
 }

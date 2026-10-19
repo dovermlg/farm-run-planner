@@ -2,7 +2,7 @@
 
 **Farm Run Planner 1.12.1** · Author: **Astral** · Internal name: `farm-run-planner`
 
-The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongside 131 regression tests and the farming-reference audit. This is a development preflight; maintainer review and hosted Plugin Hub CI have not taken place.
+The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongside 132 regression tests and the farming-reference audit. This is a development preflight; maintainer review and hosted Plugin Hub CI have not taken place.
 
 ## Implementation
 

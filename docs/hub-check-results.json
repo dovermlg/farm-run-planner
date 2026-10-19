@@ -15,7 +15,7 @@
     "recordedExternalApiSymbols": 328
   },
   "tests": {
-    "tests": 131,
+    "tests": 132,
     "failures": 0,
     "errors": 0,
     "skipped": 0
@@ -64,7 +64,12 @@
     "bankFilter": "display-only",
     "inventorySnapshotsPersisted": false,
     "fallbackCrops": false,
-    "regressions": 22,
-    "bottomlessBucket": "filled-presence-only; type and charges checked manually"
+    "regressions": 23,
+    "bottomlessBucket": "filled-presence-only; type and charges checked manually",
+    "treeItemForms": {
+      "variantsChecked": 23,
+      "plantingForm": "unnoted sapling",
+      "seedsAndBothSeedlingForms": "excluded"
+    }
   }
 }

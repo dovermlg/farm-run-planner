@@ -96,7 +96,8 @@ public class ClassicTreeRunPlugin extends Plugin
             PlannerPreferences combined = new PlannerPreferences(nativeValues, preferences);
             combined.importLocalWorkingRun();
             combined.initializeCogActions();
-            panel = new ClassicTreeRunPanel(config, combined);
+            SupplyItemIcons supplyIcons=new SupplyItemIcons(itemManager);
+            panel = new ClassicTreeRunPanel(config, combined, supplyIcons::add);
             settings = new RunSettings(config, combined, panel);
             new PresetLibrary(combined).seedStarters(config);
             presetActions = new PresetActions(config, combined, settings, panel,

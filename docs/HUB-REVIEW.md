@@ -1,8 +1,8 @@
 # Plugin Hub review notes
 
-**Farm Run Planner 1.12.1** · Author: **Astral** · Internal name: `farm-run-planner`
+**Farm Run Planner 1.12.2** · Author: **Astral** · Internal name: `farm-run-planner`
 
-The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongside 132 regression tests and the farming-reference audit. This is a development preflight; maintainer review and hosted Plugin Hub CI have not taken place.
+The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongside 133 regression tests and the farming-reference audit. This is a development preflight; maintainer review and hosted Plugin Hub CI have not taken place.
 
 ## Implementation
 
@@ -25,7 +25,7 @@ The check used unmodified [plugin-hub-tooling at commit 034eaff](https://github.
 
 The harness did not run the source downloader or uploader. Its `LOCAL-OFFLINE-CHECK` URL and zero commit are parser fixtures, not submission values. The harness and reference utilities are outside the production source set and are excluded from the plugin JAR.
 
-Evidence: [hub-check-results.json](hub-check-results.json), [hub-packager.log](hub-packager.log), and [harness instructions](../tools/hub-review/README.md). The JSON and log record the 1.12.1 local preflight. GitHub publication and the project's own CI are documented separately in [GITHUB.md](GITHUB.md).
+Evidence: [hub-check-results.json](hub-check-results.json), [hub-packager.log](hub-packager.log), and [harness instructions](../tools/hub-review/README.md). The JSON and log record the 1.12.2 local preflight. GitHub publication and the project's own CI are documented separately in [GITHUB.md](GITHUB.md).
 
 ## Preset backups
 
@@ -38,6 +38,8 @@ The codec uses Gson's streaming reader and writer already supplied by RuneLite. 
 ## Bank supplies display
 
 Start run arms an in-memory filter for the ordinary bank. It uses the public `bankBuildTab` and `bankSearchFilter` script callbacks, scoped to the visible bank and excluding potion storage, plus `BankSearch.layoutBank()` on the client thread. There are no direct client script calls, chatbox writes, withdraw/equip actions, packet-enabled callbacks or menu actions. It preserves other search/tag rejection results and excludes placeholders. The filter clears on bank close, logout, preset/patch/crop changes, profile changes and shutdown.
+
+The compact requirements list uses RuneLite fonts and item sprites from the public `ItemManager`/`AsyncBufferedImage` APIs. Sprites load asynchronously, with icon updates and caching on Swing’s EDT. It adds no dependency on Quest Helper and no bank-availability tracking. Item tooltips retain exact shortages, payment notes and bottomless bucket limitations.
 
 Inventory and worn equipment are read through public item containers. Counts are transient, noted payments are separated from usable planting supplies, and a shared stack is allocated once. Crop choices never replace observed growth data. The [crop matrix](supply-crops.md) records all 82 planting options and their payments; [supply notes](supplies.md) cover assumptions and limits.
 

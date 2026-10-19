@@ -1,7 +1,7 @@
 {
   "reviewDate": "2026-10-18",
   "plugin": "Farm Run Planner",
-  "version": "1.12.1",
+  "version": "1.12.2",
   "author": "Astral",
   "internalName": "farm-run-planner",
   "runeliteVersion": "1.13.2",
@@ -12,10 +12,10 @@
     "dependencyVerification": "passed",
     "deprecatedApiCheck": "passed",
     "dependencyApiCompatibility": "passed",
-    "recordedExternalApiSymbols": 328
+    "recordedExternalApiSymbols": 337
   },
   "tests": {
-    "tests": 132,
+    "tests": 133,
     "failures": 0,
     "errors": 0,
     "skipped": 0
@@ -26,9 +26,9 @@
     "tilePlaneBoundaryComparisons": 6176768,
     "result": "passed"
   },
-  "productionSourceSha256": "a24113676b809c605af4aa2396a8cb08b11617b720c2810d904473061d7445c5",
-  "developmentJarSha256": "69c420a7e84791a88b8759a9260c528d503c2da0116ca1634eeea21e586e6a7f",
-  "officialLocalPackagerJarSha256": "90faca40377e063b1bae74cc15de00d0b3c24675778e9afa40beaaed3acf7b5e",
+  "productionSourceSha256": "9e1ea0bf127734978fcf7829484f0ae681fe74fa5d99c694579b821dafe24c6f",
+  "developmentJarSha256": "47e84489eb95b0a2399cb68549067c3499c6ca4d4afbcdb5bfce2b90439192f0",
+  "officialLocalPackagerJarSha256": "7b7cee5db3a00083a614edafde99e8d25b9ec7b149c0f21a65a491be2980f50a",
   "dependencyVerificationMetadataSha256": "d0939deaafbfd7c9a339e10d466305b59ec22eade03342cade83be1d21377041",
   "limits": {
     "authenticatedGameSession": false,
@@ -64,12 +64,20 @@
     "bankFilter": "display-only",
     "inventorySnapshotsPersisted": false,
     "fallbackCrops": false,
-    "regressions": 23,
+    "regressions": 24,
     "bottomlessBucket": "filled-presence-only; type and charges checked manually",
     "treeItemForms": {
       "variantsChecked": 23,
       "plantingForm": "unnoted sapling",
       "seedsAndBothSeedlingForms": "excluded"
+    },
+    "checklistDisplay": {
+      "layout": "compact quantity-first rows with item sprites",
+      "details": "hover tooltips",
+      "counts": "inventory and worn equipment only",
+      "offlineLayoutWidth": 225,
+      "offlineLayoutIcons": "placeholder sprites",
+      "gameAccountUsed": false
     }
   }
 }

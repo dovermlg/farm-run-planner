@@ -18,7 +18,7 @@ By **Astral** · [Source](https://github.com/dovermlg/farm-run-planner) · [Issu
 
 The starting selection is the classic 16-patch tree run: six normal trees, six fruit trees, three Fossil Island hardwoods and the Tai Bwo Wannai calquat. Herbs, Trees and Herbs + trees are also included as starter presets. Adjust them for your account's unlocks.
 
-![Completed classic tree run — offline sidebar preview](docs/completion-preview.png)
+![Compact item requirements — offline preview with placeholder icons](docs/requirements-preview.png)
 
 ## Create a preset
 
@@ -68,7 +68,9 @@ Backups contain preset names, selected patches in route order, crop choices, sup
 1. In the cog, open **Crops and supplies** and choose one crop for each patch type you use. Choose **Harvest / check only** for patches you will not replant. Click **Save preset** to keep the choices.
 2. Select that preset in the sidebar and click **Start run**. Starting again asks before clearing existing completion marks.
 3. Open a bank. Its normal item display is filtered to your chosen crops, farming tools, compost, protection payments and coin budget. Withdraw items yourself. Missing items and empty placeholders do not appear.
-4. Use the packing checklist at the top of the sidebar. Red rows show how many you are short; green rows show enough carried supplies. Hide it with **Show packing checklist** when ready to follow your route.
+4. Use **Item requirements** at the top of the sidebar. Compact lines such as `6 x Magic sapling` show the required quantity with an item icon on the right. Red means short; green means enough carried supplies. Hover a line or icon for the carried count and exact shortage. Hide it with **Show packing checklist** when ready to follow your route.
+
+Hover **Packing notes** for tool, protection and travel reminders. A gray line means the carried quantity is unknown. Icons identify the item; they do not indicate bank availability.
 
 Counts include your inventory and worn equipment, not your bank, leprechaun storage, seed-box contents or bottomless bucket charges. Planting supplies must be unnoted; protection payments may be noted. Mark each finished patch complete to remove its planting supplies from the remaining quantities. Counts are unknown while logged out.
 

@@ -179,14 +179,16 @@ public class SupplyPlanTest
             ConfigFixture f=new ConfigFixture();f.set("selectionV2","TROLL_HERB,WEISS_HERB");f.set("cropHerb","RANARR");
             ClassicTreeRunPanel panel=new ClassicTreeRunPanel(f.config,f);panel.setConfirmReset(false);
             panel.setSupplies(new SupplySnapshot(true,Map.of(ItemID.RANARR_SEED,1L),Map.of()));
-            JLabel label=findLabel(panel,"Ranarr seed:");assertNotNull(label);assertTrue(label.getText().contains("short 1"));
+            JLabel label=findLabel(panel,"Ranarr seed");assertNotNull(label);assertEquals("2 x Ranarr seed",label.getText());
+            assertTrue(label.getToolTipText().contains("Short 1"));
             assertEquals(new Color(255,115,115),label.getForeground());
             final SupplyPlan[] started={null};final boolean[] cleared={false};
             panel.setSupplyActions(plan->started[0]=plan,()->cleared[0]=true);
             ((AbstractButton)find(panel,"startRun")).doClick();assertNotNull(started[0]);
             assertEquals(2,row(started[0],ItemID.RANARR_SEED,false).quantity);
             ((AbstractButton)find(panel,"TROLL_HERB")).doClick();
-            label=findLabel(panel,"Ranarr seed:");assertTrue(label.getText().contains("1 / 1"));
+            label=findLabel(panel,"Ranarr seed");assertEquals("1 x Ranarr seed",label.getText());
+            assertTrue(label.getToolTipText().contains("Carried: 1 / 1"));
             assertEquals(new Color(103,188,116),label.getForeground());
             panel.setBankFilterActive(true);((AbstractButton)find(panel,"clearBankFilter")).doClick();assertTrue(cleared[0]);
         });

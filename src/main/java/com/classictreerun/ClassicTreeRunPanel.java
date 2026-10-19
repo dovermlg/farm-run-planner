@@ -27,6 +27,7 @@ final class ClassicTreeRunPanel extends PluginPanel
     }
     private final ClassicTreeRunConfig config;
     private final Preferences preferences;
+    private final java.util.function.BiConsumer<Integer,JLabel> supplyIcons;
     private final RouteState state = new RouteState();
     private boolean confirmReset = true;
     private String status = "";
@@ -78,9 +79,12 @@ final class ClassicTreeRunPanel extends PluginPanel
             : "Editing: " + name + ". Reopen the cog to refresh its controls before editing.");
     }
     ClassicTreeRunPanel(ClassicTreeRunConfig config, Preferences preferences)
+    { this(config,preferences,(item,label)->{ }); }
+    ClassicTreeRunPanel(ClassicTreeRunConfig config, Preferences preferences,java.util.function.BiConsumer<Integer,JLabel> supplyIcons)
     {
         this.config = config;
         this.preferences = preferences;
+        this.supplyIcons = supplyIcons;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         reload();
     }
@@ -119,7 +123,7 @@ final class ClassicTreeRunPanel extends PluginPanel
         bankFilterStatus=text("");add(bankFilterStatus);setBankFilterActive(bankFilterActive);
         List<Patch> remaining=new java.util.ArrayList<>();
         for(Patch patch:route)if(!state.isDone(patch))remaining.add(patch);
-        supplyChecklist=new SupplyChecklist(SupplyPlan.build(config,remaining),supplies);
+        supplyChecklist=new SupplyChecklist(SupplyPlan.build(config,remaining),supplies,supplyIcons);
         JCheckBox showPacking=new JCheckBox("Show packing checklist",showSupplies);
         showPacking.setName("showPackingChecklist");showPacking.setOpaque(false);showPacking.setForeground(Color.LIGHT_GRAY);
         showPacking.addActionListener(event->{showSupplies=showPacking.isSelected();supplyChecklist.setVisible(showSupplies);resizeRows();revalidate();});

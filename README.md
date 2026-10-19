@@ -9,6 +9,8 @@ By **Astral** · [Source](https://github.com/dovermlg/farm-run-planner) · [Issu
 - Choose from 99 recurring farming patches across 21 crop types.
 - Create named presets in RuneLite's normal plugin settings cog.
 - Import and export saved presets as local JSON files.
+- Save a chosen crop tier for each patch type, with no lower-tier substitutions.
+- Filter bank supplies with **Start run**, and see carried-item shortages in red.
 - Start a saved run from the sidebar, with travel instructions and a patch checklist.
 - Reorder selected patches using your travel preferences and estimated travel costs.
 - Track observed crops, estimated ready times and full-run reminders.
@@ -23,7 +25,7 @@ The starting selection is the classic 16-patch tree run: six normal trees, six f
 1. Enable **Farm Run Planner** and open its settings cog in RuneLite's Configuration tab.
 2. Under **Your run → Preset to edit**, choose an **Empty** slot.
 3. Leave and reopen the settings page to refresh its fields.
-4. Enter a **Preset name**, select patches, and choose your travel and display settings.
+4. Enter a **Preset name**, select patches, and choose crops under **Crops and supplies**, and set your travel and display preferences.
 5. Click **Save preset** and confirm.
 6. Open the green tree sidebar tab and select the saved name under **Choose your run**.
 
@@ -59,7 +61,22 @@ To restore or import a shared file, copy it into that folder, enter its filename
 
 Imports keep the current draft, checklist and existing presets. An identical preset with the same name is skipped. If the name exists with different settings, the imported copy receives a name such as `Herbs (imported)`. The entire file is validated before saving; invalid files or insufficient free editor slots cancel the whole import. Files must be valid Farm Run Planner JSON, no larger than 1 MB, with at most 256 entries. New presets must fit within the 32 editor slots.
 
-Backups contain preset names, selected patches in route order, and travel/display preferences. Character identifiers, crop observations, reminder records, completion marks and tracking controls are excluded. Files stay local unless you choose to copy or share them.
+Backups contain preset names, selected patches in route order, crop choices, supply options and travel/display preferences. Version 2 exports include crop supplies; version 1 imports remain supported and use the default crop choices. Review these defaults before starting an older preset. Character identifiers, crop observations, reminder records, completion marks and tracking controls are excluded. Files stay local unless you choose to copy or share them.
+
+## Pack for a run
+
+1. In the cog, open **Crops and supplies** and choose one crop for each patch type you use. Choose **Harvest / check only** for patches you will not replant. Click **Save preset** to keep the choices.
+2. Select that preset in the sidebar and click **Start run**. Starting again asks before clearing existing completion marks.
+3. Open a bank. Its normal item display is filtered to your chosen crops, farming tools, compost, protection payments and coin budget. Withdraw items yourself. Missing items and empty placeholders do not appear.
+4. Use the packing checklist at the top of the sidebar. Red rows show how many you are short; green rows show enough carried supplies. Hide it with **Show packing checklist** when ready to follow your route.
+
+Counts include your inventory and worn equipment, not your bank, leprechaun storage, seed-box contents or bottomless bucket charges. Planting supplies must be unnoted; protection payments may be noted. Mark each finished patch complete to remove its planting supplies from the remaining quantities. Counts are unknown while logged out.
+
+Protection payments are included by default wherever a gardener is listed. They are optional, and you can start without them. Payments use the exact required form, including filled baskets or sacks. Disable **Include protection payments** if you do not want to pack them. Protected trees omit compost except celastrus, which can use it to improve yield. A **Coin budget** of 10,000 is a starting allowance, not a calculated fare or removal total. Adjust it for your route.
+
+**Clear bank filter**, closing the bank, logging out, changing crops or patches, switching presets, changing profile or disabling the plugin removes the filter. Click **Start run** again to reapply it. Other bank searches and Bank Tags still apply; clear them if wanted supplies are hidden. The filter does not edit saved bank tabs or another plugin’s configuration.
+
+You choose which axe you can use, travel equipment, combat gear, diving equipment and belladonna gloves. The checklist includes common axes and shows reminders for special equipment. Turn off the rake, dibber or other tool recommendations if your unlocks or stored tools replace them. Read the [supply reference and limits](docs/supplies.md) for details.
 
 ## Follow a run
 
@@ -161,4 +178,4 @@ Test results are in `build/reports/tests/test/index.html`. The reference check c
 - [GitHub and submission setup](docs/GITHUB.md)
 - [Third-party notices](THIRD-PARTY-NOTICES.md)
 
-The plugin displays guidance and tracks progress. Walking, teleporting, harvesting and planting are performed by the player. It has not been submitted to or approved by Plugin Hub.
+The plugin displays guidance, filters the bank display and tracks progress. Withdrawing, equipping, walking, teleporting, harvesting and planting are performed by the player. It has not been submitted to or approved by Plugin Hub.

@@ -33,6 +33,65 @@ public interface ClassicTreeRunConfig extends net.runelite.client.config.Config
     @ConfigSection(name="Preset backups", description="Import or export saved presets as local JSON files. Results appear in the run tab.", position=3, closedByDefault=true)
     String BACKUPS = "backups";
 
+    @ConfigSection(name="Crops and supplies", description="Choose what to replant for each patch type. Save preset to keep these choices. No lower-tier substitutions.", position=4, closedByDefault=true)
+    String CROPS = "crops";
+
+    @ConfigItem(keyName="cropTree", name="Tree", description="Chosen crop for every selected tree patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=0)
+    default CropChoices.Tree cropTree() { return CropChoices.Tree.OAK; }
+    @ConfigItem(keyName="cropFruit", name="Fruit tree", description="Chosen crop for every selected fruit patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=1)
+    default CropChoices.Fruit cropFruit() { return CropChoices.Fruit.APPLE; }
+    @ConfigItem(keyName="cropHardwood", name="Hardwood", description="Chosen crop for every selected hardwood patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=2)
+    default CropChoices.Hardwood cropHardwood() { return CropChoices.Hardwood.TEAK; }
+    @ConfigItem(keyName="cropAllotment", name="Allotment", description="Chosen crop for every selected allotment patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=3)
+    default CropChoices.Allotment cropAllotment() { return CropChoices.Allotment.POTATO; }
+    @ConfigItem(keyName="cropFlower", name="Flower", description="Chosen crop for every selected flower patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=4)
+    default CropChoices.Flower cropFlower() { return CropChoices.Flower.MARIGOLD; }
+    @ConfigItem(keyName="cropHerb", name="Herb", description="Chosen crop for every selected herb patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=5)
+    default CropChoices.Herb cropHerb() { return CropChoices.Herb.GUAM; }
+    @ConfigItem(keyName="cropHops", name="Hops", description="Chosen crop for every selected hops patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=6)
+    default CropChoices.Hops cropHops() { return CropChoices.Hops.BARLEY; }
+    @ConfigItem(keyName="cropBush", name="Bush", description="Chosen crop for every selected bush patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=7)
+    default CropChoices.Bush cropBush() { return CropChoices.Bush.REDBERRIES; }
+    @ConfigItem(keyName="cropCactus", name="Cactus", description="Chosen crop for every selected cactus patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=8)
+    default CropChoices.Cactus cropCactus() { return CropChoices.Cactus.CACTUS; }
+    @ConfigItem(keyName="cropCalquat", name="Calquat", description="Chosen crop for every selected calquat patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=9)
+    default CropChoices.Calquat cropCalquat() { return CropChoices.Calquat.CALQUAT; }
+    @ConfigItem(keyName="cropSeaweed", name="Seaweed", description="Chosen crop for every selected seaweed patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=10)
+    default CropChoices.Seaweed cropSeaweed() { return CropChoices.Seaweed.GIANT_SEAWEED; }
+    @ConfigItem(keyName="cropGrape", name="Grape", description="Chosen crop for every selected grape patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=11)
+    default CropChoices.Grape cropGrape() { return CropChoices.Grape.GRAPE; }
+    @ConfigItem(keyName="cropMushroom", name="Mushroom", description="Chosen crop for every selected mushroom patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=12)
+    default CropChoices.Mushroom cropMushroom() { return CropChoices.Mushroom.BITTERCAP; }
+    @ConfigItem(keyName="cropBelladonna", name="Belladonna", description="Chosen crop for every selected belladonna patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=13)
+    default CropChoices.Belladonna cropBelladonna() { return CropChoices.Belladonna.BELLADONNA; }
+    @ConfigItem(keyName="cropHespori", name="Hespori", description="Chosen crop for every selected hespori patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=14)
+    default CropChoices.Hespori cropHespori() { return CropChoices.Hespori.HESPORI; }
+    @ConfigItem(keyName="cropAnima", name="Anima", description="Chosen crop for every selected anima patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=15)
+    default CropChoices.Anima cropAnima() { return CropChoices.Anima.ATTAS; }
+    @ConfigItem(keyName="cropCrystal", name="Crystal", description="Chosen crop for every selected crystal patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=16)
+    default CropChoices.Crystal cropCrystal() { return CropChoices.Crystal.CRYSTAL; }
+    @ConfigItem(keyName="cropCelastrus", name="Celastrus", description="Chosen crop for every selected celastrus patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=17)
+    default CropChoices.Celastrus cropCelastrus() { return CropChoices.Celastrus.CELASTRUS; }
+    @ConfigItem(keyName="cropRedwood", name="Redwood", description="Chosen crop for every selected redwood patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=18)
+    default CropChoices.Redwood cropRedwood() { return CropChoices.Redwood.REDWOOD; }
+    @ConfigItem(keyName="cropCoral", name="Coral", description="Chosen crop for every selected coral patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=19)
+    default CropChoices.Coral cropCoral() { return CropChoices.Coral.ELKHORN; }
+    @ConfigItem(keyName="cropSpirit", name="Spirit", description="Chosen crop for every selected spirit patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=20)
+    default CropChoices.Spirit cropSpirit() { return CropChoices.Spirit.SPIRIT; }
+    @ConfigItem(keyName="supplyProtection", name="Include protection payments", description="Optional gardener payments are included by default, where this patch has a gardener. Not owning them does not block starting a run.", section=CROPS, position=30)
+    default boolean supplyProtection() { return true; }
+    @ConfigItem(keyName="supplyTools", name="Include farming tools", description="Recommend a spade, secateurs where useful and special tools. Turn off if you use stored tools. Axes and combat equipment remain your choice.", section=CROPS, position=31)
+    default boolean supplyTools() { return true; }
+    @ConfigItem(keyName="supplyRake", name="Include rake", description="Turn off if you have Auto Weed or use a leprechaun rake.", section=CROPS, position=32)
+    default boolean supplyRake() { return true; }
+    @ConfigItem(keyName="supplyDibber", name="Include seed dibber", description="Turn off if Barbarian Training lets you plant seeds without a dibber.", section=CROPS, position=33)
+    default boolean supplyDibber() { return true; }
+    @ConfigItem(keyName="supplyCoins", name="Coin budget", description="Coins to pack. Choose a budget for your fares and gardener removal fees; this is not a calculated total.", section=CROPS, position=34)
+    @net.runelite.client.config.Range(min=0)
+    default int supplyCoins() { return 10000; }
+    @ConfigItem(keyName="supplyCompost", name="Compost", description="Buckets for replanting eligible crops. Paid trees without variable yields and crops that cannot use compost are omitted. Bottomless bucket charges and leprechaun storage are not counted.", section=CROPS, position=35)
+    default SupplyPlan.Compost supplyCompost() { return SupplyPlan.Compost.ULTRACOMPOST; }
+
     @ConfigItem(keyName="backupFilename", name="Backup filename", description="A .json filename inside plugin-data/farm-run-planner/preset-backups, for example presets.json. Save draft edits before exporting.", section=BACKUPS, position=0)
     default String backupFilename() { return "presets.json"; }
     @ConfigItem(keyName="exportPresetsAction", name="Export presets", description="Export all saved presets to the local backup file. Click in either direction; the result appears in the run tab.", warning="Export all saved presets? An existing backup with this filename will be replaced. Character data, crop observations and completion marks are excluded.", section=BACKUPS, position=1)

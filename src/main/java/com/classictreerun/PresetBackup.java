@@ -21,7 +21,8 @@ final class PresetBackup
     static final int MAX_CHARACTERS = 1024 * 1024;
     private static final int MAX_PRESETS = 256;
     private static final String FORMAT = "farm-run-planner-presets";
-    private static final Set<String> BOOLEAN_SETTINGS = Set.of("autoOptimize", "hideCompleted", "showDetails");
+    private static final Set<String> BOOLEAN_SETTINGS = Set.of("autoOptimize", "hideCompleted", "showDetails",
+        "supplyProtection", "supplyTools", "supplyRake", "supplyDibber");
 
     static final class Entry
     {
@@ -83,6 +84,7 @@ final class PresetBackup
         values.put("calquatTravel", config.calquatTravel().name());
         values.put("fossilTravel", config.fossilTravel().name());
         values.put("guildTravel", config.guildTravel().name());
+        values.putAll(CropChoices.settings(config));
         return values;
     }
 
@@ -93,7 +95,7 @@ final class PresetBackup
         try (JsonWriter writer = new JsonWriter(text))
         {
             writer.setIndent("  ");
-            writer.beginObject().name("format").value(FORMAT).name("version").value(1);
+            writer.beginObject().name("format").value(FORMAT).name("version").value(2);
             writer.name("presets").beginArray();
             for (Entry preset : presets)
             {
@@ -105,6 +107,7 @@ final class PresetBackup
                 {
                     writer.name(key);
                     if (BOOLEAN_SETTINGS.contains(key)) { writer.value(Boolean.parseBoolean(preset.settings.get(key))); }
+                    else if ("supplyCoins".equals(key)) { writer.value(Integer.parseInt(preset.settings.get(key))); }
                     else { writer.value(preset.settings.get(key)); }
                 }
                 writer.endObject().endObject();
@@ -126,6 +129,7 @@ final class PresetBackup
             reader.setLenient(false);
             Set<String> fields = new HashSet<>();
             List<Entry> presets = new ArrayList<>();
+            int version = 0;
             reader.beginObject();
             while (reader.hasNext())
             {
@@ -136,8 +140,11 @@ final class PresetBackup
                         if (!FORMAT.equals(string(reader))) { throw invalid("This file is not a Farm Run Planner preset backup."); }
                         break;
                     case "version":
-                        if (reader.peek() != JsonToken.NUMBER || !"1".equals(reader.nextString()))
+                        if (reader.peek() != JsonToken.NUMBER) { throw invalid("This preset backup version is not supported."); }
+                        String encodedVersion=reader.nextString();
+                        if (!("1".equals(encodedVersion) || "2".equals(encodedVersion)))
                         { throw invalid("This preset backup version is not supported."); }
+                        version=Integer.parseInt(encodedVersion);
                         break;
                     case "presets":
                         Set<String> names = new HashSet<>();
@@ -157,7 +164,16 @@ final class PresetBackup
             reader.endObject();
             if (!fields.equals(Set.of("format", "version", "presets")) || reader.peek() != JsonToken.END_DOCUMENT)
             { throw invalid("The preset backup is incomplete or contains extra data."); }
-            return presets;
+            List<Entry> normalized=new ArrayList<>();
+            for(Entry entry:presets)
+            {
+                boolean hasSupplies=entry.settings.containsKey("cropTree");
+                if(hasSupplies!=(version==2))throw invalid("The preset settings do not match the backup version.");
+                Map<String,String> values=new LinkedHashMap<>(settings(new ClassicTreeRunConfig() { }));
+                values.putAll(entry.settings);
+                normalized.add(new Entry(entry.name,entry.patches,values));
+            }
+            return normalized;
         }
         catch (IOException | IllegalStateException error)
         { throw new IllegalArgumentException("The preset backup is not valid JSON in the expected format.", error); }
@@ -201,15 +217,23 @@ final class PresetBackup
                             if (reader.peek() != JsonToken.BOOLEAN) { throw invalid("A preset setting must be true or false."); }
                             values.put(key, Boolean.toString(reader.nextBoolean()));
                         }
+                        else if ("supplyCoins".equals(key))
+                        {
+                            if(reader.peek()!=JsonToken.NUMBER)throw invalid("The coin budget must be a whole number.");
+                            String value=reader.nextString();CropChoices.validate(key,value);values.put(key,value);
+                        }
                         else
                         {
                             String value = string(reader);
-                            validateTravel(key, value);
+                            if(key.startsWith("crop") || key.startsWith("supply"))CropChoices.validate(key,value);
+                            else validateTravel(key, value);
                             values.put(key, value);
                         }
                     }
                     reader.endObject();
-                    if (!keys.equals(allowed.keySet())) { throw invalid("A preset is missing travel or display settings."); }
+                    Set<String> legacy=new HashSet<>(allowed.keySet());
+                    legacy.removeIf(key->key.startsWith("crop") || key.startsWith("supply"));
+                    if (!keys.equals(allowed.keySet()) && !keys.equals(legacy)) { throw invalid("A preset is missing required settings."); }
                     break;
                 default: throw invalid("A preset contains an unrecognized field.");
             }

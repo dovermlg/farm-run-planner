@@ -24,6 +24,7 @@ final class ConfigFixture implements ClassicTreeRunPanel.Preferences
         {
             String value = values.get(item.keyName());
             if (method.getReturnType() == boolean.class) { return Boolean.parseBoolean(value); }
+            if (method.getReturnType() == int.class) { return Integer.parseInt(value); }
             if (method.getReturnType() == String.class) { return value; }
             if (method.getReturnType().isEnum())
             {

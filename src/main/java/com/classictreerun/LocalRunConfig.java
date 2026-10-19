@@ -14,6 +14,33 @@ final class LocalRunConfig implements ClassicTreeRunConfig
         try { return Enum.valueOf(fallback.getDeclaringClass(), values.get(key)); }
         catch (IllegalArgumentException | NullPointerException error) { return fallback; }
     }
+    @Override public CropChoices.Tree cropTree() { return choice("cropTree", ClassicTreeRunConfig.super.cropTree()); }
+    @Override public CropChoices.Fruit cropFruit() { return choice("cropFruit", ClassicTreeRunConfig.super.cropFruit()); }
+    @Override public CropChoices.Hardwood cropHardwood() { return choice("cropHardwood", ClassicTreeRunConfig.super.cropHardwood()); }
+    @Override public CropChoices.Allotment cropAllotment() { return choice("cropAllotment", ClassicTreeRunConfig.super.cropAllotment()); }
+    @Override public CropChoices.Flower cropFlower() { return choice("cropFlower", ClassicTreeRunConfig.super.cropFlower()); }
+    @Override public CropChoices.Herb cropHerb() { return choice("cropHerb", ClassicTreeRunConfig.super.cropHerb()); }
+    @Override public CropChoices.Hops cropHops() { return choice("cropHops", ClassicTreeRunConfig.super.cropHops()); }
+    @Override public CropChoices.Bush cropBush() { return choice("cropBush", ClassicTreeRunConfig.super.cropBush()); }
+    @Override public CropChoices.Cactus cropCactus() { return choice("cropCactus", ClassicTreeRunConfig.super.cropCactus()); }
+    @Override public CropChoices.Calquat cropCalquat() { return choice("cropCalquat", ClassicTreeRunConfig.super.cropCalquat()); }
+    @Override public CropChoices.Seaweed cropSeaweed() { return choice("cropSeaweed", ClassicTreeRunConfig.super.cropSeaweed()); }
+    @Override public CropChoices.Grape cropGrape() { return choice("cropGrape", ClassicTreeRunConfig.super.cropGrape()); }
+    @Override public CropChoices.Mushroom cropMushroom() { return choice("cropMushroom", ClassicTreeRunConfig.super.cropMushroom()); }
+    @Override public CropChoices.Belladonna cropBelladonna() { return choice("cropBelladonna", ClassicTreeRunConfig.super.cropBelladonna()); }
+    @Override public CropChoices.Hespori cropHespori() { return choice("cropHespori", ClassicTreeRunConfig.super.cropHespori()); }
+    @Override public CropChoices.Anima cropAnima() { return choice("cropAnima", ClassicTreeRunConfig.super.cropAnima()); }
+    @Override public CropChoices.Crystal cropCrystal() { return choice("cropCrystal", ClassicTreeRunConfig.super.cropCrystal()); }
+    @Override public CropChoices.Celastrus cropCelastrus() { return choice("cropCelastrus", ClassicTreeRunConfig.super.cropCelastrus()); }
+    @Override public CropChoices.Redwood cropRedwood() { return choice("cropRedwood", ClassicTreeRunConfig.super.cropRedwood()); }
+    @Override public CropChoices.Coral cropCoral() { return choice("cropCoral", ClassicTreeRunConfig.super.cropCoral()); }
+    @Override public CropChoices.Spirit cropSpirit() { return choice("cropSpirit", ClassicTreeRunConfig.super.cropSpirit()); }
+    @Override public boolean supplyProtection() { return bool("supplyProtection", ClassicTreeRunConfig.super.supplyProtection()); }
+    @Override public boolean supplyTools() { return bool("supplyTools", ClassicTreeRunConfig.super.supplyTools()); }
+    @Override public boolean supplyRake() { return bool("supplyRake", ClassicTreeRunConfig.super.supplyRake()); }
+    @Override public boolean supplyDibber() { return bool("supplyDibber", ClassicTreeRunConfig.super.supplyDibber()); }
+    @Override public SupplyPlan.Compost supplyCompost() { return choice("supplyCompost", ClassicTreeRunConfig.super.supplyCompost()); }
+    @Override public int supplyCoins() { try { return Math.max(0,Integer.parseInt(values.get("supplyCoins"))); } catch(NumberFormatException error) { return ClassicTreeRunConfig.super.supplyCoins(); } }
     @Override public RunPreset preset() { return choice("preset", ClassicTreeRunConfig.super.preset()); }
     @Override public String runName() { return string("runName", ClassicTreeRunConfig.super.runName()); }
     @Override public boolean autoOptimize() { return bool("autoOptimize", ClassicTreeRunConfig.super.autoOptimize()); }

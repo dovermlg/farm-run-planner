@@ -1,0 +1,204 @@
+{
+  "checkedDate": "2026-10-18",
+  "runeliteVersion": "1.13.2",
+  "cropOptions": 82,
+  "patchTypes": 21,
+  "sources": [
+    {
+      "url": "https://oldschool.runescape.wiki/w/Allotment_patch?action=raw",
+      "sha256": "53f5532e4af01c72daf80b4d01241b456254e2289431802ef628a113f9b118a7"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Allotment_patch/Seeds?action=raw",
+      "sha256": "eba1e1a38cd0b19b16a218241055182b6958c4bfb8e0546994b4ae63ddf7c7d4"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Anima_patch?action=raw",
+      "sha256": "af131786a5bedbf3c9a0fef4af0839b35c671fa1b3635556c50ac302c3ed07c5"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/runelite/runelite/runelite-parent-1.13.2/runelite-client/src/main/scripts/BankMainBuild.rs2asm",
+      "sha256": "634080c35710d63091198f0b9bdc81bb669df080fd69035241b15b01fccfe6ed"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/runelite/runelite/runelite-parent-1.13.2/runelite-client/src/main/java/net/runelite/client/plugins/bank/BankPlugin.java",
+      "sha256": "021b4fe08bed051ec4b499a255239a45eb3230381254ed6850c4828cfc74e7be"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/runelite/runelite/runelite-parent-1.13.2/runelite-client/src/main/java/net/runelite/client/plugins/bank/BankSearch.java",
+      "sha256": "557f494eeda63b2785a5eb9c409f68743969bcb40bbd1b53594bb35e971fdaee"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/runelite/runelite/runelite-parent-1.13.2/runelite-client/src/main/scripts/BankSearchFilter.rs2asm",
+      "sha256": "d6d76eae9fec33febed728465eb98fc98e93a6e8453a4babe232c9d97a4aaead"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/runelite/runelite/runelite-parent-1.13.2/runelite-client/src/main/java/net/runelite/client/plugins/banktags/BankTagsPlugin.java",
+      "sha256": "c097bf61cf148a5ff83440c8eb9ed51c3688ba493005653cae2939bd298064e8"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Belladonna?action=raw",
+      "sha256": "1890884ec1512e02c5004c867857e8a804fc33c6e16938a2ffb5e1b49c940171"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Bush_patch?action=raw",
+      "sha256": "ba3829cf2b91a7692a8c0d2535855bc726ec5199e885d39f08045fa58e6fbd63"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Bush_patch/Seeds?action=raw",
+      "sha256": "bf4dc348343c8b5bf413688f4566d6e412b403f0be095040fd2bc1290c3ee46d"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Cactus_patch?action=raw",
+      "sha256": "658e44413dd5ae9a1ade8c12e0f238f08d5901a131b05ea563bd8070aa095019"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Calquat_tree?action=raw",
+      "sha256": "861cb211c4321f56abfce75f3ad5e09da10534a46131e0b74a489967bd2efdf4"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Camphor_tree_(Farming)?action=raw",
+      "sha256": "fc8a6881e5c1e01818898d13823066714b62ef9f8b474c254cc1bfb8455e798b"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Celastrus_tree?action=raw",
+      "sha256": "82a1259579436ed38802cc0e63c489993feeb72abb5ca2b08dcf7cf7c810458d"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Chet?action=raw",
+      "sha256": "da9aa1e7748c8562618046cf50f839e268cb5d939cfe09903723b3bc6f1d6b0e"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Coral_nursery?action=raw",
+      "sha256": "b1f9ae5954c55ceb3e3935effbbe201aa336951b2a4ad8572536ee38f4662903"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Coral_nursery_(patch)?action=raw",
+      "sha256": "e5d447035a470121b2424dfea270600ee23e85059acbadccf23f37a2bf3632d0"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Crystal_tree?action=raw",
+      "sha256": "214041ea6f4d3920c5e363af5034914c1a5a45148aca79e16b40d1d42d121050"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Farming?action=raw",
+      "sha256": "8c0ad18b6f27e36f2da788a171dff5523de0d729656e5249c0b9307c5df1fe70"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Flower_patch?action=raw",
+      "sha256": "e2926540e83c1ef31d8e0c9a0647655fcc2bce226457ed94dd0ba6c592151599"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Flower_patch/Seeds?action=raw",
+      "sha256": "8d92d734a21c0be26bd70fa2421e74a8d388e7ee551993fa99a49283829a5327"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Fruit_tree_patch?action=raw",
+      "sha256": "0df16c707a8d8f8ee2c42d43d4fa8756ad0866c463bccd19ced57e90f8f482ea"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Fruit_tree_patch/Seeds?action=raw",
+      "sha256": "394af31312d5fd1f90a20576036168e39c26be49c9d745d5a2227a09674afc21"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Gardener?action=raw",
+      "sha256": "566e84378a0a11ed581d4625ed596f05dd3b2a452366394690848f71d5e33952"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Grape_seed?action=raw",
+      "sha256": "68c69360dedccf4e1c90d929ea08bf1aa625b2d43b36024f445ace8419142574"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Grape_vine?action=raw",
+      "sha256": "92330c15f195e75aa3d067443c96597f837a08712481ab46700f29a62f6a6e63"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Hardwood_tree_patch?action=raw",
+      "sha256": "c96cb2b84b263a24b3b63b96a0172ce9b0bd468ea54d25d413eb30aade9aeef2"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Herb_patch?action=raw",
+      "sha256": "55ac7316bad3d1397dbf479e74773c1f6304684509412591ba02e0427650e8db"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Herb_patch/Seeds?action=raw",
+      "sha256": "f4208038e9336758e808592de9b73bdf1c00e4cf3ee6ce5749c3772139bace2d"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Hespori?action=raw",
+      "sha256": "4ffcac68fe8fc001f9ed72bf24f399752aa029774a97021277ece2367c8dfa2b"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Hops_patch?action=raw",
+      "sha256": "5b820d221910106fab9d20fd970015df1b8c74f82673999cd4791460c2ccd70a"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Hops_patch/Seeds?action=raw",
+      "sha256": "1fc40fd965e46149ee08751966441aa61635c73919e5554790481fbb98072fbf"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Ironwood_tree_(Farming)?action=raw",
+      "sha256": "5f1451c76259984e9a7e075d6b9dbdaedcc35ed00b74c66d803f9fe8679ca314"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/runelite/runelite/runelite-parent-1.13.2/runelite-api/src/main/java/net/runelite/api/gameval/ItemID.java",
+      "sha256": "6f00480cae7939de1f5187dda406e7a2029f4280bf2b395b789619847587221d"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Magic_secateurs?action=raw",
+      "sha256": "c091a43de50d7f0f1fef7f45ccb134d509f46e907ba088513fbf01a619493c56"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Mahogany_tree_(Farming)?action=raw",
+      "sha256": "517d2d654005459e2e405aad5b45c1c784ea2d85ebb991c3487a798929d0bf01"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Mushroom_patch?action=raw",
+      "sha256": "b5dd6a542aa1fb1fa14dc91e406ed0cb0c71b433dd798ff395684d098891af10"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/runelite/runelite/runelite-parent-1.13.2/runelite-client/src/main/java/net/runelite/client/plugins/timetracking/farming/Produce.java",
+      "sha256": "c7981205055024be1add799d6e24d7369161d5c16ee43ed7ae82d7ada0b89db3"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Redwood_tree?action=raw",
+      "sha256": "f26d6a6083a808ab1a218d0f6b25a8fd8c3e5289f88e399501837d75a22717ee"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Rosewood_tree_(Farming)?action=raw",
+      "sha256": "1fe5724d97fc9ae6e8c412181896d1a2825b1e571f4bc471674740daf887870d"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Seaweed_patch?action=raw",
+      "sha256": "b5dd6a542aa1fb1fa14dc91e406ed0cb0c71b433dd798ff395684d098891af10"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Special_patches?action=raw",
+      "sha256": "6dcb8e25b0c80781e88376f2fba866a03ab880a0334d0eaf0e9a46dd5789d055"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Special_patches/Seeds?action=raw",
+      "sha256": "186269c165aa650f6c233e716aa3449f6c675a6aa6a5f1ba20007c38e58e1b6f"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Spirit_tree?action=raw",
+      "sha256": "9bf3525738cbdfa39e6655482e318af4c77fb96fc3ec8883f5f77f637512e84a"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Teak_tree_(Farming)?action=raw",
+      "sha256": "291d931a0b4d52b076813fc17d30ab67f146de9f7fe0754d6461deac48f07882"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Tree_patch?action=raw",
+      "sha256": "c358444ef89c78a1f180a13bad1c4eaf25a7808ec69d19e08b43771a6f6c610a"
+    },
+    {
+      "url": "https://oldschool.runescape.wiki/w/Tree_patch/Seeds?action=raw",
+      "sha256": "213de5eaeedc4a3c51ce33b92c162a45dbe5418ec83d586f44b950382609ca02"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/runelite/runelite/runelite-parent-1.13.2/runelite-client/src/main/scripts/TriggerBankLayout.rs2asm",
+      "sha256": "7a9cf1120a1984ed0966e7be3ae7c3338eea8fe00fb1fb96a503f9c756c5fcc3"
+    }
+  ]
+}

@@ -18,6 +18,15 @@ import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.widgets.WidgetModalMode;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.ScriptCallbackEvent;
+import net.runelite.api.events.WidgetLoaded;
+import net.runelite.api.events.WidgetClosed;
+import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.gameval.InventoryID;
+import net.runelite.api.gameval.VarbitID;
+import net.runelite.client.callback.ClientThread;
+import net.runelite.client.game.ItemManager;
+import net.runelite.client.plugins.bank.BankSearch;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ProfileChanged;
@@ -33,6 +42,11 @@ public class ClassicTreeRunPlugin extends Plugin
     @Inject private ClientToolbar toolbar;
     @Inject private Client client;
     @Inject private Notifier notifier;
+    @Inject private ClientThread clientThread;
+    @Inject private ItemManager itemManager;
+    @Inject private BankSearch bankSearch;
+    private final SupplyBankFilter supplyFilter=new SupplyBankFilter();
+    private final java.util.concurrent.atomic.AtomicLong supplyGeneration=new java.util.concurrent.atomic.AtomicLong();
     private volatile GrowthMonitor growthMonitor;
     private final CropReference cropReference=new CropReference();
     private final GrowthSampler growthSampler=new GrowthSampler();
@@ -42,7 +56,7 @@ public class ClassicTreeRunPlugin extends Plugin
     private GrowthMonitor sampledMonitor;
     @Inject private ConfigManager configManager;
     private NavigationButton navigation;
-    private ClassicTreeRunPanel panel;
+    private volatile ClassicTreeRunPanel panel;
     private RunSettings settings;
     private PresetActions presetActions;
     private final java.util.Queue<String> pendingPresetActions = new java.util.concurrent.ConcurrentLinkedQueue<>();
@@ -56,6 +70,7 @@ public class ClassicTreeRunPlugin extends Plugin
 
     private void openProfile()
     {
+        clearSupplyFilter();
         pendingPresetActions.clear();
         if(growthMonitor!=null){growthMonitor.dispose();growthMonitor=null;}
         EditorPreset.clearLabels();
@@ -88,9 +103,17 @@ public class ClassicTreeRunPlugin extends Plugin
                 new PresetTransfer(getPluginDirectory().joinSegment("preset-backups"), combined));
             panel.setPrepareRun(() -> { if (settings != null) { settings.prepareNow(); } });
             panel.setPresetLoaded(() -> {
+                clearSupplyFilter();
                 if (presetActions != null) { presetActions.syncForRun(); }
                 if (settings != null) { settings.changed("patch_"); settings.changed("autoOptimize"); settings.prepareNow(); }
             });
+            panel.setSupplyActions(plan -> {
+                long generation=supplyGeneration.get();
+                clientThread.invoke(() -> {
+                    if(generation!=supplyGeneration.get())return;
+                    supplyFilter.start(plan);bankSearch.layoutBank();publishFilterState();
+                });
+            },this::clearSupplyFilter);
             growthMonitor=new GrowthMonitor(config,combined,panel,message->notifier.notify(message),cropReference,
                 ()->java.time.Instant.now().getEpochSecond(),true);
             panel.reload();
@@ -146,6 +169,7 @@ public class ClassicTreeRunPlugin extends Plugin
 
     @Override protected void shutDown() throws Exception
     {
+        clearSupplyFilter();
         onEdt(() -> {
             pendingPresetActions.clear(); presetActions = null; EditorPreset.clearLabels();
             if(growthMonitor!=null){growthMonitor.dispose();growthMonitor=null;}
@@ -157,6 +181,7 @@ public class ClassicTreeRunPlugin extends Plugin
 
     @Override public void resetConfiguration()
     {
+        clearSupplyFilter();
         // RuneLite invokes this after resetting native fields. Reset must not execute a save/delete toggle.
         pendingPresetActions.clear();
     }
@@ -169,13 +194,15 @@ public class ClassicTreeRunPlugin extends Plugin
         {
             if (settings == null || presetActions == null || presetActions.isChangingSelection() || !PresetActions.shouldQueue(key, event.getOldValue(), event.getNewValue(), SwingUtilities.isEventDispatchThread())) { return; }
             pendingPresetActions.add(key);
+            if("editorPreset".equals(key))clearSupplyFilter();
         }
         else
         {
-            if (!(key.startsWith("patch_") || key.endsWith("Travel") || "runName".equals(key)
+            if (!(key.startsWith("patch_") || key.startsWith("crop") || key.startsWith("supply") || key.endsWith("Travel") || "runName".equals(key)
                 || "autoOptimize".equals(key) || "hideCompleted".equals(key) || "showDetails".equals(key)
                 || "trackGrowth".equals(key) || "notifyWhenReady".equals(key) || "autoCompleteReplanted".equals(key))) { return; }
             changed.add(key.startsWith("patch_") ? "patch_" : key);
+            if(key.startsWith("patch_") || key.startsWith("crop") || key.startsWith("supply"))clearSupplyFilter();
         }
         if (!refreshQueued.compareAndSet(false, true)) { return; }
         SwingUtilities.invokeLater(() -> {
@@ -192,6 +219,11 @@ public class ClassicTreeRunPlugin extends Plugin
 
     @Subscribe public void onGameStateChanged(GameStateChanged event)
     {
+        if(event.getGameState()!=GameState.LOGGED_IN && event.getGameState()!=GameState.LOADING)
+        {
+            clearSupplyFilter();
+            SwingUtilities.invokeLater(()->{if(panel!=null)panel.setSupplies(SupplySnapshot.UNKNOWN);});
+        }
         growthSampler.reset();sampledCharacter=null;
         GrowthMonitor monitor=growthMonitor;
         boolean lobby=event.getGameState()==GameState.LOGIN_SCREEN;
@@ -200,6 +232,12 @@ public class ClassicTreeRunPlugin extends Plugin
 
     @Subscribe public void onGameTick(GameTick event)
     {
+        if(client.getGameState()==GameState.LOGGED_IN)
+        {
+            SupplySnapshot snapshot=SupplySnapshot.read(itemManager,client.getItemContainer(InventoryID.INV),client.getItemContainer(InventoryID.WORN));
+            ClassicTreeRunPanel target=panel;
+            SwingUtilities.invokeLater(()->{if(target!=null && target==panel)target.setSupplies(snapshot);});
+        }
         GrowthMonitor monitor=growthMonitor;
         if(monitor==null || !config.trackGrowth() || client.getGameState()!=GameState.LOGGED_IN || client.getLocalPlayer()==null)
         {growthSampler.reset();return;}
@@ -223,8 +261,59 @@ public class ClassicTreeRunPlugin extends Plugin
 
     @Subscribe public void onProfileChanged(ProfileChanged event)
     {
+        clearSupplyFilter();
         pendingPresetActions.clear();
         SwingUtilities.invokeLater(() -> { if (panel != null) { openProfile(); } });
+    }
+
+    private boolean bankOpen()
+    {
+        net.runelite.api.widgets.Widget bank=client.getWidget(InterfaceID.Bankmain.ITEMS);
+        return bank!=null && !bank.isHidden() && client.getItemContainer(InventoryID.BANK)!=null
+            && client.getVarbitValue(VarbitID.BANK_CURRENTTAB)!=15;
+    }
+
+    @Subscribe(priority=-1) public void onScriptCallbackEvent(ScriptCallbackEvent event)
+    {
+        if(!supplyFilter.active() || !bankOpen())return;
+        int[] stack=client.getIntStack();int size=client.getIntStackSize();
+        if("bankBuildTab".equals(event.getEventName()))
+        {
+            // The ordinary all-tabs layout bypasses bankSearchFilter without an active search.
+            // This public callback uses the compact, filtered layout without editing chatbox input.
+            supplyFilter.filter(event.getEventName(),true,stack,size,-1,false);
+            return;
+        }
+        if(!"bankSearchFilter".equals(event.getEventName()))return;
+        if(size<2 || size>stack.length)return;
+        int itemId=stack[size-1];
+        boolean placeholder=itemId<0 || itemManager.getItemComposition(itemId).getPlaceholderTemplateId()!=-1;
+        supplyFilter.filter(event.getEventName(),true,stack,size,itemId<0?itemId:itemManager.canonicalize(itemId),placeholder);
+    }
+
+    @Subscribe public void onWidgetLoaded(WidgetLoaded event)
+    {
+        if(event.getGroupId()==InterfaceID.BANKMAIN && supplyFilter.active())
+            clientThread.invokeLater(()->{if(bankOpen()){supplyFilter.bankVisible(true);bankSearch.layoutBank();}});
+    }
+
+    @Subscribe public void onWidgetClosed(WidgetClosed event)
+    {
+        if(event.getGroupId()==InterfaceID.BANKMAIN)
+        {supplyFilter.bankVisible(true);supplyFilter.bankVisible(false);publishFilterState();}
+    }
+
+    private void clearSupplyFilter()
+    {
+        supplyGeneration.incrementAndGet();
+        if(clientThread==null)return;
+        clientThread.invoke(()->{supplyFilter.clear();bankSearch.layoutBank();publishFilterState();});
+    }
+
+    private void publishFilterState()
+    {
+        boolean active=supplyFilter.active();ClassicTreeRunPanel target=panel;
+        SwingUtilities.invokeLater(()->{if(target!=null && target==panel)target.setBankFilterActive(active);});
     }
 
     private static void onEdt(Runnable action) throws Exception

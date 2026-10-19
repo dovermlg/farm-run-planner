@@ -32,6 +32,14 @@ final class ClassicTreeRunPanel extends PluginPanel
     private String status = "";
     private Runnable prepare = () -> { };
     private Runnable loaded = () -> { };
+    private java.util.function.Consumer<SupplyPlan> startSupplies=plan -> { };
+    private Runnable clearSupplies=() -> { };
+    private SupplySnapshot supplies=SupplySnapshot.UNKNOWN;
+    private SupplyChecklist supplyChecklist;
+    private boolean showSupplies=true;
+    private boolean bankFilterActive;
+    private JButton clearBankFilter;
+    private JLabel bankFilterStatus;
     private String selectedPreset;
     private CropGrowth growth;
     private JLabel readiness;
@@ -50,6 +58,18 @@ final class ClassicTreeRunPanel extends PluginPanel
     }
 
     void setPresetLoaded(Runnable loaded) { this.loaded = loaded; }
+    void setSupplyActions(java.util.function.Consumer<SupplyPlan> start,Runnable clear)
+    { startSupplies=start;clearSupplies=clear; }
+    void setSupplies(SupplySnapshot snapshot)
+    {
+        if(supplies.known==snapshot.known && supplies.plain.equals(snapshot.plain) && supplies.notes.equals(snapshot.notes))return;
+        supplies=snapshot;if(supplyChecklist!=null){supplyChecklist.refresh(snapshot);resizeRows();revalidate();}
+    }
+    void setBankFilterActive(boolean active)
+    {
+        bankFilterActive=active;if(clearBankFilter!=null)clearBankFilter.setEnabled(active);
+        if(bankFilterStatus!=null)updateText(bankFilterStatus,active ? "Bank filter: ready until the bank closes." : "Bank filter: off. Click Start run to filter supplies.");
+    }
     void presetSaved(String name) { selectedPreset = name; setStatus("Saved locally: " + name); }
     void presetEditing(String name)
     {
@@ -79,6 +99,32 @@ final class ClassicTreeRunPanel extends PluginPanel
         add(text(config.runName().trim()));
         add(text("Create and save presets in RuneLite’s plugin cog. Choose your run below."));
         add(new PresetControls(config, preferences, loaded, selectedPreset, name -> selectedPreset = name, this::setStatus));
+        JButton start=new JButton("Start run");start.setName("startRun");start.setEnabled(!route.isEmpty());
+        start.addActionListener(event -> {
+            if(state.count(route)>0 && confirmReset && JOptionPane.showConfirmDialog(this,
+                "Start a fresh run and clear completion marks?","Start farming run",JOptionPane.OK_CANCEL_OPTION)!=JOptionPane.OK_OPTION)return;
+            try
+            {
+                preferences.set(PROGRESS_KEY,"");
+                startSupplies.accept(SupplyPlan.build(config,route));
+                setStatus("Run started. Open your bank and withdraw supplies yourself. Clear other searches or tag tabs if items are hidden.");
+            }
+            catch(IllegalStateException error){setStatus(error.getMessage());}
+        });
+        add(start);
+        clearBankFilter=new JButton("Clear bank filter");clearBankFilter.setName("clearBankFilter");
+        clearBankFilter.setEnabled(bankFilterActive);
+        clearBankFilter.addActionListener(event -> {clearSupplies.run();setBankFilterActive(false);});
+        add(clearBankFilter);
+        bankFilterStatus=text("");add(bankFilterStatus);setBankFilterActive(bankFilterActive);
+        List<Patch> remaining=new java.util.ArrayList<>();
+        for(Patch patch:route)if(!state.isDone(patch))remaining.add(patch);
+        supplyChecklist=new SupplyChecklist(SupplyPlan.build(config,remaining),supplies);
+        JCheckBox showPacking=new JCheckBox("Show packing checklist",showSupplies);
+        showPacking.setName("showPackingChecklist");showPacking.setOpaque(false);showPacking.setForeground(Color.LIGHT_GRAY);
+        showPacking.addActionListener(event->{showSupplies=showPacking.isSelected();supplyChecklist.setVisible(showSupplies);resizeRows();revalidate();});
+        add(showPacking);supplyChecklist.setVisible(showSupplies);
+        add(supplyChecklist);
         JProgressBar progress = new JProgressBar(0, Math.max(1, route.size()));
         int completed = state.count(route);
         progress.setValue(completed);
@@ -108,6 +154,7 @@ final class ClassicTreeRunPanel extends PluginPanel
                 "Clear completion marks for all patches?", "Reset farming run", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION)
             {
                 state.reset();
+                clearSupplies.run();
                 try { preferences.set(PROGRESS_KEY, state.save()); reload(); }
                 catch (IllegalStateException error) { setStatus(error.getMessage()); }
             }

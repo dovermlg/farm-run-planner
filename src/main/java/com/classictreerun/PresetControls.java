@@ -22,7 +22,7 @@ final class PresetControls extends JPanel
         if (library.contains(selectedName)) { names.setSelectedItem(selectedName); }
         else if (library.contains(config.runName())) { names.setSelectedItem(config.runName()); }
         else { names.setSelectedIndex(-1); }
-        names.setToolTipText("Selecting a preset starts that run with a fresh checklist. Create and save presets in the plugin cog.");
+        names.setToolTipText("Load a saved run with a fresh checklist. Click Start run to filter bank supplies. Create and save presets in the plugin cog.");
         names.setMaximumSize(new Dimension(Integer.MAX_VALUE, names.getPreferredSize().height));
         names.addActionListener(event -> {
             String name = (String) names.getSelectedItem();
@@ -32,7 +32,7 @@ final class PresetControls extends JPanel
                 library.load(name);
                 selected.accept(name);
                 loaded.run();
-                status.accept("Started: " + name);
+                status.accept("Loaded: " + name + ". Click Start run for the bank supplies filter.");
             }
             catch (IllegalArgumentException | IllegalStateException error) { status.accept(error.getMessage()); }
         });

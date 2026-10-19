@@ -9,6 +9,33 @@ final class ConfigValues
 {
     private ConfigValues() { }
     static final Set<String> KEYS = Set.of(
+        "cropTree",
+        "cropFruit",
+        "cropHardwood",
+        "cropAllotment",
+        "cropFlower",
+        "cropHerb",
+        "cropHops",
+        "cropBush",
+        "cropCactus",
+        "cropCalquat",
+        "cropSeaweed",
+        "cropGrape",
+        "cropMushroom",
+        "cropBelladonna",
+        "cropHespori",
+        "cropAnima",
+        "cropCrystal",
+        "cropCelastrus",
+        "cropRedwood",
+        "cropCoral",
+        "cropSpirit",
+        "supplyProtection",
+        "supplyTools",
+        "supplyRake",
+        "supplyDibber",
+        "supplyCoins",
+        "supplyCompost",
         "backupFilename",
         "exportPresetsAction",
         "importPresetsAction",
@@ -142,6 +169,33 @@ final class ConfigValues
     static Map<String,String> read(ClassicTreeRunConfig config)
     {
         Map<String,String> values = new LinkedHashMap<>();
+        values.put("cropTree", wire(config.cropTree()));
+        values.put("cropFruit", wire(config.cropFruit()));
+        values.put("cropHardwood", wire(config.cropHardwood()));
+        values.put("cropAllotment", wire(config.cropAllotment()));
+        values.put("cropFlower", wire(config.cropFlower()));
+        values.put("cropHerb", wire(config.cropHerb()));
+        values.put("cropHops", wire(config.cropHops()));
+        values.put("cropBush", wire(config.cropBush()));
+        values.put("cropCactus", wire(config.cropCactus()));
+        values.put("cropCalquat", wire(config.cropCalquat()));
+        values.put("cropSeaweed", wire(config.cropSeaweed()));
+        values.put("cropGrape", wire(config.cropGrape()));
+        values.put("cropMushroom", wire(config.cropMushroom()));
+        values.put("cropBelladonna", wire(config.cropBelladonna()));
+        values.put("cropHespori", wire(config.cropHespori()));
+        values.put("cropAnima", wire(config.cropAnima()));
+        values.put("cropCrystal", wire(config.cropCrystal()));
+        values.put("cropCelastrus", wire(config.cropCelastrus()));
+        values.put("cropRedwood", wire(config.cropRedwood()));
+        values.put("cropCoral", wire(config.cropCoral()));
+        values.put("cropSpirit", wire(config.cropSpirit()));
+        values.put("supplyProtection", wire(config.supplyProtection()));
+        values.put("supplyTools", wire(config.supplyTools()));
+        values.put("supplyRake", wire(config.supplyRake()));
+        values.put("supplyDibber", wire(config.supplyDibber()));
+        values.put("supplyCoins", wire(config.supplyCoins()));
+        values.put("supplyCompost", wire(config.supplyCompost()));
         values.put("backupFilename", wire(config.backupFilename()));
         values.put("exportPresetsAction", wire(config.exportPresetsAction()));
         values.put("importPresetsAction", wire(config.importPresetsAction()));

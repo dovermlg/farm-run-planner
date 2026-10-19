@@ -5,7 +5,7 @@ import re
 root = Path(__file__).resolve().parents[1]
 source = root / 'src/main/java/com/classictreerun'
 items = re.findall(
-    r'@ConfigItem\(keyName="([^"]+)"[^\n]*\)\s+default\s+\S+\s+(\w+)\(\)',
+    r'@ConfigItem\(keyName="([^"]+)"[^\n]*\)\s+(?:@[^\n]+\s+)*default\s+\S+\s+(\w+)\(\)',
     (source / 'ClassicTreeRunConfig.java').read_text(encoding='utf-8'))
 assert len(items) == len(set(key for key, method in items))
 lines = [

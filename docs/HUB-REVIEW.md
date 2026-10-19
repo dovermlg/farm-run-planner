@@ -1,8 +1,8 @@
 # Plugin Hub review notes
 
-**Farm Run Planner 1.11.0** · Author: **Astral** · Internal name: `farm-run-planner`
+**Farm Run Planner 1.12.0** · Author: **Astral** · Internal name: `farm-run-planner`
 
-The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongside 109 regression tests and the farming-reference audit. This is a development preflight; maintainer review and hosted Plugin Hub CI have not taken place.
+The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongside 129 regression tests and the farming-reference audit. This is a development preflight; maintainer review and hosted Plugin Hub CI have not taken place.
 
 ## Implementation
 
@@ -11,7 +11,7 @@ The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongs
 | Build | Java 11, `build=standard`, no extra production dependencies |
 | Metadata | Explicit internal name, legacy data directory and disabled-by-default descriptor |
 | License | BSD-2-Clause; license and farming-data notices included as normal JAR resources |
-| Configuration | Public RuneLite config controls; direct accessors for all 129 items |
+| Configuration | Public RuneLite config controls; direct accessors for all 156 items |
 | Storage | Bounded `Filepath` from `Plugin.getPluginDirectory()` |
 | UI | Plugin-owned sidebar and settings; no private UI access or other-plugin configuration changes |
 | Game interaction | Observes public crop state; generates no gameplay input or menu actions |
@@ -25,21 +25,27 @@ The check used unmodified [plugin-hub-tooling at commit 034eaff](https://github.
 
 The harness did not run the source downloader or uploader. Its `LOCAL-OFFLINE-CHECK` URL and zero commit are parser fixtures, not submission values. The harness and reference utilities are outside the production source set and are excluded from the plugin JAR.
 
-Evidence: [hub-check-results.json](hub-check-results.json), [hub-packager.log](hub-packager.log), and [harness instructions](../tools/hub-review/README.md). The JSON and log record the 1.11.0 local preflight. GitHub publication and the project's own CI are documented separately in [GITHUB.md](GITHUB.md).
+Evidence: [hub-check-results.json](hub-check-results.json), [hub-packager.log](hub-packager.log), and [harness instructions](../tools/hub-review/README.md). The JSON and log record the 1.12.0 local preflight. GitHub publication and the project's own CI are documented separately in [GITHUB.md](GITHUB.md).
 
 ## Preset backups
 
 Import and export are explicit, confirmed actions in the native settings cog. Filenames are limited to simple `.json` names inside `Plugin.getPluginDirectory()/preset-backups`; no unrestricted paths, file chooser, external program or network client is used. Exports use a temporary file and replacement move through `Filepath`.
 
-The versioned JSON contains only names, ordered patch selections and supported travel/display settings. The reader rejects duplicate fields, unknown patch IDs or travel choices, action/tracking settings and malformed data. Files are limited to 1 MB and 256 entries. Import planning resolves conflicts and checks free slots before a single local library/slot update. Existing names are preserved, identical copies are skipped, and changed imports receive separate names. The active run, progress and observations are unchanged.
+The versioned JSON contains only names, ordered patch selections and supported crop, supply and travel/display settings. The reader rejects duplicate fields, unknown patch IDs or travel choices, action/tracking settings and malformed data. Files are limited to 1 MB and 256 entries. Import planning resolves conflicts and checks free slots before a single local library/slot update. Existing names are preserved, identical copies are skipped, and changed imports receive separate names. The active run, progress and observations are unchanged.
 
 The codec uses Gson's streaming reader and writer already supplied by RuneLite. It creates no Gson instance and adds no dependency. Imported data does not execute commands or change another plugin's settings.
+
+## Bank supplies display
+
+Start run arms an in-memory filter for the ordinary bank. It uses the public `bankBuildTab` and `bankSearchFilter` script callbacks, scoped to the visible bank and excluding potion storage, plus `BankSearch.layoutBank()` on the client thread. There are no direct client script calls, chatbox writes, withdraw/equip actions, packet-enabled callbacks or menu actions. It preserves other search/tag rejection results and excludes placeholders. The filter clears on bank close, logout, preset/patch/crop changes, profile changes and shutdown.
+
+Inventory and worn equipment are read through public item containers. Counts are transient, noted payments are separated from usable planting supplies, and a shared stack is allocated once. Crop choices never replace observed growth data. The [crop matrix](supply-crops.md) records all 82 planting options and their payments; [supply notes](supplies.md) cover assumptions and limits.
 
 ## Data and testing limits
 
 The offline audit matched 1,376,256 decoder values, all 99 patch bindings and 6,176,768 tile/plane boundary comparisons. Tests cover the native preset controls, migrations, local write failures, route optimization, crop observations, reminder deduplication and sidebar layout. Reproduction commands are in [BUILD-REPORT.md](BUILD-REPORT.md).
 
-No authenticated game session, actual server payload capture, live crop-timing measurement or desktop notification test was performed. Timers remain estimates, and travel costs are relative scores rather than measured journey times. The plugin keeps gameplay actions with the player.
+No authenticated game session, actual server payload capture, live bank rendering, live crop-timing measurement or desktop notification test was performed. Timers remain estimates, and travel costs are relative scores rather than measured journey times. The plugin keeps gameplay actions with the player.
 
 ## Local storage
 

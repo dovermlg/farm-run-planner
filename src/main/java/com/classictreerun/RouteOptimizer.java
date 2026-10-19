@@ -88,7 +88,7 @@ final class RouteOptimizer
             int candidate = score(route, entry, travel);
             if (candidate < bestScore) { best = route; bestScore = candidate; }
         }
-        // Directed relocate moves: evaluate complete costs, including first-stop entry, after each move.
+        // Score each directed relocation from its changed edges, including first-stop entry.
         for (int pass = 0; pass < Math.min(n, 100); pass++)
         {
             int bestFrom = -1, bestTo = -1;

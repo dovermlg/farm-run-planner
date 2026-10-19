@@ -1,122 +1,70 @@
 # Farm Run Planner
 
-[Source](https://github.com/dovermlg/farm-run-planner) · [Report an issue](https://github.com/dovermlg/farm-run-planner/issues) · [Offline build checks](https://github.com/dovermlg/farm-run-planner/actions/workflows/check.yml)
+Build your own farming runs in RuneLite. Pick the patches you use, save them under a name, and follow the route from the sidebar.
 
-Source is published in `dovermlg/farm-run-planner` and linked to GitHub Desktop. The repository is currently private; its links require repository access. GitHub's offline build, tests and farming-reference checks passed. See [GitHub setup and publishing status](docs/GITHUB.md).
+By **Astral** · [Source](https://github.com/dovermlg/farm-run-planner) · [Issues](https://github.com/dovermlg/farm-run-planner/issues) · [Build checks](https://github.com/dovermlg/farm-run-planner/actions/workflows/check.yml)
 
-A local RuneLite development plugin for choosing patches, saving named farming runs and optimizing estimated travel. **Version 1.10 removes submission blockers, adopts RuneLite’s bounded file storage and passes the official local packager checks**, covering all 99 recurring crop patches across 21 crop types. It includes newer Varlamore and Sailing locations, while keeping the original classic tree run as a starter selection.
+## Features
 
-Author: **Astral**. See [the Plugin Hub readiness review](docs/HUB-REVIEW.md) for fixes, official local check results and remaining submission steps. The source is on GitHub; the plugin has not been submitted to or approved by Plugin Hub.
+- Choose from 99 recurring farming patches across 21 crop types.
+- Create named presets in RuneLite's normal plugin settings cog.
+- Start a saved run from the sidebar, with travel instructions and a patch checklist.
+- Reorder selected patches using your travel preferences and estimated travel costs.
+- Track observed crops, estimated ready times and full-run reminders.
+- Keep preset libraries, checklist progress and crop observations in local files.
 
-## Start locally
+The starting selection is the classic 16-patch tree run: six normal trees, six fruit trees, three Fossil Island hardwoods and the Tai Bwo Wannai calquat. Herbs, Trees and Herbs + trees are also included as starter presets. Adjust them for your account's unlocks.
 
-Install a **JDK 11**, set `JAVA_HOME` to it, and open a terminal in this project folder:
+![Completed classic tree run — offline sidebar preview](docs/completion-preview.png)
 
-```powershell
-.\gradlew.bat test build
-.\gradlew.bat run
-```
+## Create a preset
 
-On macOS/Linux, use `chmod +x gradlew`, then `./gradlew test build` and `./gradlew run`.
+1. Enable **Farm Run Planner** and open its settings cog in RuneLite's Configuration tab.
+2. Under **Your run → Preset to edit**, choose an **Empty** slot.
+3. Leave and reopen the settings page to refresh its fields.
+4. Enter a **Preset name**, select patches, and choose your travel and display settings.
+5. Click **Save preset** and confirm.
+6. Open the green tree sidebar tab and select the saved name under **Choose your run**.
 
-For account-free testing, run `test build` and the reference check below. Those tasks never launch RuneLite or log into RuneScape. The separate `run` task launches a real development client; it is not a private game test server.
+Save and Delete use RuneLite's checkbox controls. Toggling either one performs the action after confirmation; the tick does not enable automatic saving. The plugin must be enabled for these actions to work.
 
-The first build downloads Gradle and RuneLite dependencies. The supplied official-template Gradle wrapper downloads Gradle 8.10 from `downloads.gradle.org` and verifies its published SHA-256 checksum. `run` starts a separate development client with the plugin loaded through RuneLite's `ExternalPluginManager.loadBuiltin` API. Enable **Farm Run Planner**, then open its green tree sidebar button.
+### Edit, copy or delete
 
-For IntelliJ, import `build.gradle`, select JDK 11 as the Gradle JVM, and run the Gradle `run` task or `ClassicTreeRunLauncher.main()` with `--developer-mode --debug`. For a Jagex account, follow RuneLite's [development-client authentication guide](https://github.com/runelite/runelite/wiki/Using-Jagex-Accounts).
+To edit a preset, select its slot, leave and reopen the cog, then make your changes and save. Changing the name in an occupied slot renames that preset. To make a copy, choose an empty slot; it starts with your current settings. Give it a new name and save.
 
-`build/libs/farm-run-planner-1.10.1.jar` is the compiled plugin, not a standalone application. Use the development launcher rather than copying it into the installed client's directory. The existing Java package name and configuration group are retained for compatibility with earlier Classic Tree Run versions.
+Switching slots replaces the working draft, so save any changes you want to keep first. **Delete named preset** removes the selected saved slot and keeps the current working run. Names must be unique and between 1 and 60 characters.
 
-## Make and edit presets in the RuneLite cog
+There are 32 editable slots, including the starter presets. Older libraries with more names remain available in the sidebar; freeing a slot and restarting assigns another older preset to it. Deleted starter presets stay deleted.
 
-1. **Enable Farm Run Planner.** Open RuneLite's Configuration (wrench) tab, find the plugin, and click its normal gear cog.
-2. Under **Your run → Preset to edit**, choose an **Empty** slot. The dropdown has 32 stable slots; saved slots show their number and your preset name.
-3. **Leave and reopen the cog page** to refresh its native fields. An empty slot starts as a copy of your current patches/travel, with a temporary name such as New preset 4.
-4. Enter your own **Preset name** (1-60 characters), choose patches, and set travel/display preferences. All 99 patches remain standard checkboxes across 21 crop sections.
-5. Click **Save preset** and confirm. The selected slot now holds that named snapshot.
-6. Open the green tree main tab. Select the saved name in **Choose your run** to start its route with a fresh checklist.
+## Follow a run
 
-### Editing, copying and renaming
+Selecting a saved run in the sidebar starts a fresh checklist. Loading its slot for editing keeps the current completion marks. Check **Completed** after each patch, or uncheck it to correct a mark. The next unfinished patch has a green border, and the progress bar turns green when the run is complete.
 
-Select an occupied slot in the cog, leave and reopen that page, edit, then click Save preset. Selecting a saved slot restores its snapshot but **does not save any edits automatically**. Existing checklist marks are preserved while editing; selecting a run in the main tab starts a fresh checklist. Choosing another slot replaces the current working draft, so save first if you want to keep it.
+**Reset run** clears all completion marks, including marks for patches currently excluded from the route. It keeps your presets and settings. Progress is saved between sessions; there is no daily or logout reset.
 
-To make a separate copy, select an empty slot: it inherits the current working settings. Give it a unique name and Save. To rename an existing preset, select its occupied slot, change Preset name and Save; the old name is replaced in that slot, rather than creating an extra copy. Names already used by a different slot are rejected, preserving both saved runs.
+Removing or adding a patch recalculates the route when **Optimize route** is enabled. With optimization off, the stored order is kept. Travel settings include a **Catherby charter ship** option for Brimhaven: walk from Catherby fruit patch to the docks, charter to Brimhaven, then walk to its fruit patch. Bring coins for the fare.
 
-**Delete named preset** deletes the selected occupied slot after confirmation, even if you have typed an unsaved different name. It keeps the working run and frees that slot. Choosing New / current run keeps the current draft; saving it resolves an existing matching name or allocates a free slot. The main tab automatically selects the matching editor slot so that returning to the cog makes that run available for editing.
+Bring your seeds or saplings, tools, compost or protection payments, and travel supplies. The checklist tracks each patch as one stop; it does not separately track harvesting, clearing, planting and protection.
 
-**RuneLite renders Save and Delete as checkbox actions.** Clicking either control in either direction performs that action. The tick is not an auto-save setting. Cancelled confirmations make no changes. These actions require the plugin to be enabled. The main tab has no Save/Delete buttons and no secondary settings window opens.
+## Crop tracking and reminders
 
-### Native UI limits and existing data
+These options are under **Your run** in the settings cog:
 
-After changing Preset to edit, leave and reopen the cog before touching its fields or patch checkboxes. RuneLite's standard controls do not refresh themselves when a plugin loads new values. Slot labels can be shortened to fit; Preset name and the main dropdown keep your full name. Existing named presets are assigned stable free slots automatically without changing their snapshots. The three starter presets occupy slots as well.
-
-The cog has **32 editable slots** plus New / current run. If an older local library contains more than 32 names, none are deleted: all remain selectable in the main tab. Free an editor slot and restart the plugin to assign another older unassigned name. New saves need a free slot or an existing assigned slot.
-
-This uses RuneLite's supported enum setting controls and public custom-label behavior: [ConfigPanel renderer](https://github.com/runelite/runelite/blob/master/runelite-client/src/main/java/net/runelite/client/plugins/config/ConfigPanel.java), [Text.titleCase](https://github.com/runelite/runelite/blob/master/runelite-client/src/main/java/net/runelite/client/util/Text.java). No private UI access, enum mutation or detached editor is used.
-
-Working cog settings persist normally and recalculate the route automatically. Saved snapshots capture patches, travel/display choices, optimization preference and route order. Completion marks, slot selection and Save/Delete action flags are excluded. Only explicit Save changes a snapshot. Resetting configuration does not execute management commands.
-
-| Starter preset | Selection |
+| Setting | Behavior |
 | --- | --- |
-| Herbs | All 10 herb patches |
-| Trees | All 25 normal, fruit, hardwood, calquat, crystal, celastrus and redwood patches |
-| Herbs + trees | The 35 patches from Herbs and Trees combined |
+| Track crop readiness | Shows the observed crop and its estimated ready time on each patch card. On by default. |
+| Notify when run is ready | Sends a RuneLite notification when every patch in a saved preset is estimated ready. On by default. |
+| Auto-mark replanted patches | Checks a stop after a stable replanting transition is observed during that visit. Off by default. |
 
-Starter presets are added once without replacing existing names. Deleting one does not recreate it on restart. The fresh working run starts with the classic 16 patches. Spirit-tree patches are opt-in. Remove locations you cannot access. Starter selections do not check unlocks or crop readiness; the optional tracker reports observed crop readiness separately. With Optimize route disabled, stored stop order is retained. With it enabled, loading a preset recalculates the order using restored travel choices.
+These tracking settings apply across presets. Visit patches with tracking enabled to record their crop states. Unknown, empty, diseased, dead or stump states block a full-run reminder. A mixed herb-and-tree preset waits for the trees as well as the herbs. Reminders cover all saved presets, and RuneLite's notification settings control their sound and display.
 
-Under **Travel → Brimhaven travel**, choose **Catherby charter ship** to walk from the Catherby fruit patch west along the shore to the docks, charter to Brimhaven, and walk to its fruit patch. Bring fare coins. The optimizer accounts for this connection when both fruit patches are selected. If Catherby fruit is excluded, instructions take you independently to the docks using your Catherby/Camelot preference, without adding the patch.
+RuneLite must be running with the plugin enabled to send reminders. After restarting, log into the character to load its observations. The running client can continue reminders after logout. First seeing an already mature crop does not trigger an alert; a growing or regrowing crop must have armed that preset's cycle first.
 
-## Crop countdowns and next-run reminders
+**Ready times are estimates based on the last observed growth stage.** The tracker does not know your exact farming-tick offset or detect disease while you are away. Revisit patches to update their health and growth. Fruit trees, bushes and cacti estimate full regrowth; anima shows an estimated replacement time. Resetting the checklist does not restart crop timers. Auto-completion requires an observed replant, rather than arrival or a health check.
 
-Under **Your run** in the normal cog:
+## Patch coverage
 
-* **Track crop readiness** (on by default): observes nearby patches and shows each crop's name, estimated time remaining and local ready-at time on its checklist card. The header shows the estimated time until **every selected patch** is ready.
-* **Notify when run is ready** (on by default): sends one RuneLite notification per saved preset and observed crop cycle, after all of that preset's selected patches are estimated ready. A mixed herb/tree preset waits for the slower trees; it does not send the full-run alert when only the herbs finish. RuneLite's own notification preferences control display and sound.
-* **Auto-mark replanted patches** (off by default): optionally checks a selected stop after a stable observed transition from an empty, harvested or unhealthy patch to a newly planted crop during that visit. It does not mark a stop merely because you arrive. Manual correction stays available. Health-check-only completion is not implemented.
-
-These switches are global within the RuneLite configuration profile and are not overwritten when you load another preset. Reminders cover all locally saved presets, not only the currently selected run. Save the patch selection first if you want it monitored as a named group.
-
-Visit your patches with the plugin enabled to obtain observations. Until then, a patch says **Growth unknown**. Unknown, empty, diseased or dead patches prevent a full-run alert. No specific seed selection is needed in settings: the plugin decodes the crop state sent by the game. A row shows the observed crop, such as ranarr or magic, rather than assuming every tree takes the same time. Regrowing bushes/cacti/fruit trees use an estimate for full yield. Clearable tree stumps have no growth timer and block full-run alerts while last observed as a stump. Anima explicitly shows active/withering status and an estimated replacement point, rather than a harvest time.
-
-**Countdowns are estimates, not guarantees.** They use the last observed growth stage and a conservative remaining-time bound, without learning your precise farming-tick offset. They may be late by a growth tick. Unseen disease, protection changes, growth skips/modifiers or activity in another client can invalidate an estimate. Visiting again updates the observation; confirmed unhealthy crops block readiness. A past estimate is labelled estimated ready, with a reminder to revisit and confirm health. Live play and exact timing have not been validated in this development build.
-
-**RuneLite must remain running and the plugin enabled to deliver notifications.** Records and deduplication markers survive restarts. Log into the character after restarting so the plugin can select the correct local observations; an elapsed armed timer can then notify once. After that character logs out, the running client can still remind them at the login screen. Loading/hopping sessions temporarily suppress alerts. The plugin provides no notification service while RuneLite is closed.
-
-Already mature crops seen on the first visit do not generate a flood of alerts. A group must have at least one observed growing/regrowing crop in its current cycle before its full-run notification is armed. Resetting checklist marks or choosing a preset does not restart its crop timers. Replanting/regrowth starts a new notification cycle. Manual completion marks do not assert that a new crop was planted.
-
-The reference maps all 99 catalogue patches to RuneLite 1.13.2 farming payloads. An exhaustive offline check matched 1,376,256 raw decoder values across 21 families, all 99 unique patch bindings and 6,176,768 tile/plane boundary checks. See [the data audit](docs/DATA-AUDIT.md) for exact evidence, fixes and limits. Region-boundary and two-read settling guards prevent common stale-varbit readings. Growth observations are partitioned locally by a one-way character/world-mode key, preventing another character's crops or seasonal worlds from being combined with the current character. The normal, seasonal (fivefold tick-rate estimate) and Deadman contexts are separate. Values not recognized by the bundled decoder have no reliable timer. New game content requires a reviewed reference update; matching the audited client does not guarantee compatibility with every future update.
-
-The attributed reference tables and their BSD notices are in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), also embedded in the JAR. Runtime code uses public RuneLite APIs and bundled data, without reflection into private farming classes. To check the bundled reference against the development dependency (and optionally export replacement candidates):
-
-```powershell
-.\gradlew.bat -I tools/reference-export.gradle '-PruneliteVersion=1.13.2' verifyFarmingReference
-# Optional: generate candidate replacement tables for review
-.\gradlew.bat -I tools/reference-export.gradle '-PruneliteVersion=1.13.2' exportFarmingReference
-```
-
-These optional offline utilities use reflection against the development dependency. The verifier fails on a changed decoder, missing/duplicate patch binding, changed region alias or mismatched boundary. The exporter writes `build/reference/`; it is not part of the runtime plugin and does not contact or log into RuneScape. Review the exported tables and location matches before replacing the bundled data after a game/client update.
-
-## Privacy and storage
-
-**No database, hosting, signup, analytics, telemetry or developer backend is needed.** The plugin has no network client or direct network requests. No farming data is sent to the plugin author.
-
-Saved preset snapshots, slot/name mappings, checklist completion, growth observations and readiness notification markers use local files:
-
-```text
-<RuneLite data folder>/plugin-data/farm-run-planner/profile-<RuneLite profile ID>.properties
-```
-
-Normally on Windows this is `%USERPROFILE%\.runelite\plugin-data\farm-run-planner\`. Version 1.10 obtains this bounded directory through RuneLite’s `Plugin.getPluginDirectory()` and uses `Filepath` for disk operations. RuneLite migrates the old `farm-run-planner` folder when the new destination does not already exist; it does not merge existing old/new folders. Existing property formats are unchanged. There is one file per RuneLite configuration profile, not per OSRS character. Copy these files while the client is closed to back up your presets. Avoid simultaneous clients editing the same profile; the last local writer wins. These are ordinary settings files, not encrypted vaults. An OS backup service can independently copy local files.
-
-**Active cog settings use RuneLite's normal ConfigManager**, including the current preset name, patch choices and travel/display settings. Those active values may sync if the player enables synchronization for their RuneLite profile. Saved preset library entries and completion marks are not written to ConfigManager. Loading a preset copies its values into the active cog settings, which then follow that normal sync behavior. For every active setting to remain local as well, keep RuneLite profile synchronization off. The plugin does not change the player's sync preferences. See [RuneLite ConfigManager](https://github.com/runelite/runelite/blob/master/runelite-client/src/main/java/net/runelite/client/config/ConfigManager.java).
-
-RuneLite still performs its normal networking for the game, updates and other features. The growth observer reads the public account hash locally and immediately derives a one-way character/world-mode key to separate observations. The raw hash is not stored or sent anywhere by this plugin. No username, password, bank or inventory data is requested or stored. Active cog settings still follow the normal optional RuneLite synchronization described above; observed crop data and notification markers stay in the separate local file.
-
-Existing settings and named presets are migrated automatically. Version 1.5's local working run is copied back into native settings once for each profile; later native edits take precedence. Earlier named selections and fixed slots are imported into local snapshots. Imported old patch-only presets inherit current travel/display preferences. Existing local library names are kept. Previous RuneLite settings/synced copies are not retroactively erased. Local file writes use temporary files and atomic replacement where supported; write failures are reported and the stored file preserved.
-
-## Catalogue coverage
-
-| Type | Patches | Type | Patches |
+| Crop type | Patches | Crop type | Patches |
 | --- | ---: | --- | ---: |
 | Normal tree | 7 | Fruit tree | 7 |
 | Hardwood | 5 | Calquat | 3 |
@@ -130,48 +78,62 @@ Existing settings and named presets are migrated automatically. Version 1.5's lo
 | Redwood | 1 | Hespori | 1 |
 | Anima | 1 | **Total** | **99** |
 
-The catalogue covers regular plantable crop patches. Quest-only plots, Tithe Farm/raid/activity plots, rake-only scenery, compost bins and player-owned-house construction spaces are outside its scope. Hespori is selectable but still requires preparing for and manually completing its fight. Seaweed diving and Entrana equipment restrictions appear in access notes.
+The catalogue includes regular plantable patches, including newer Varlamore and Sailing locations. Quest-only plots, activity plots, compost bins and POH construction spaces are excluded. Spirit trees are opt-in; the Trees starter preset excludes them. The included starter presets select 10 herb patches, 25 tree-related patches, or their 35-patch union.
 
-See [the individual patch catalogue](docs/PATCH-CATALOGUE.md) and [source audit](docs/VERIFICATION.md). Your account's unlocks are not automatically detected. Uncheck patches you cannot access. Minimum crop levels do not replace seed-specific requirements. Access notes describe key gates and selected travel requirements, not a complete quest dependency tree.
+Check the [patch catalogue](docs/PATCH-CATALOGUE.md) for locations and access notes. Unlocks are not detected automatically. Seed-specific levels, equipment restrictions and Hespori combat preparation still apply.
 
-## What optimization does
+## How routes are ordered
 
-The optimizer visits exactly your selected patches and looks for lower estimated travel effort. It groups patches at the same farm or location and supplies walking instructions between them. Large-run relocation checks compare only the affected edges, instead of repeatedly copying and rescoring the entire route. Countdown polling updates existing labels without rebuilding the preset selector or checklist. It respects the existing configurable travel choices for the classic route, with documented entry routes/alternatives for added locations.
+Routes use relative travel-effort scores, rather than measured seconds or live pathfinding. Runs with up to 16 patches use an exact solver for those scores. Runs with 17–99 patches use a bounded search that keeps the existing order if it cannot improve the score. Nearby patches are grouped where the travel model supports a walking connection.
 
-* **Up to 16 selected patches:** exact subset dynamic programming finds the least-cost open route under the estimated cost model.
-* **17â€“99 selected patches:** multi-start nearest-neighbour search followed by directed relocate improvements keeps calculation bounded. It retains the current order as a candidate and never returns a route with a higher score under that model. This is a heuristic, not a proof of the globally best large route.
+This gives a suggested route. It does not check your current position, bank, spellbook, teleport charges or unlocks, and it does not plan banking. Choose travel methods you can use. See [the travel verification notes](docs/VERIFICATION.md) for sources and limitations.
 
-Costs are **hand-authored relative travel-effort scores**, not measured seconds or tile distances. The plugin does not read your current position, check unlocks/charges, enforce spellbook compatibility, choose the best teleport from every item in your bank, or optimize banking. First-stop entry is generic. Island, underwater and other separately accessed areas remain separate travel groups. In particular, hardwoods on different islands do not share a walking leg merely because they have the same crop type.
+## Privacy and backups
 
-The result is an estimated route, not a guaranteed fastest in-game run. Choose usable travel options and adjust the route for your account. Optimization runs in the background; changes to relevant settings or configuration profile invalidate a pending result.
+The plugin has no database, hosting service, signup, analytics or developer backend. It makes no network requests and sends no farming data to the author.
 
-## Progress and migration
+Saved presets, slot names, checklist marks, crop observations and reminder records use a local file for each RuneLite configuration profile:
 
-Check Completed after finishing a patch. The progress bar turns green when every selected patch is complete; resetting or unchecking a patch restores the normal progress color. Uncheck it to correct a mark. NEXT and the green border identify the first unfinished selected stop. Hide completed is optional. Reset run asks for confirmation and clears all completion marks, including excluded patches, while preserving saved runs and route settings.
-
-Working settings persist in RuneLite configuration; saved presets and progress persist in the local profile file. Use separate RuneLite profiles for separate characters. There is no daily/logout checklist reset. Optional growth estimates and confirmed-replant completion are described above. Selecting a preset from the main tab resets completion; loading a slot for editing does not. Reset run clears marks while preserving presets and settings.
-
-## Prepare for the selected run
-
-Bring the right seeds/saplings, seed dibber, spade, rake where needed, gardener payments or compost, coins and selected travel supplies. Bank as needed. Include gloves for belladonna, suitable diving equipment for seaweed, and combat supplies for Hespori. Check health, harvest, clear, plant and protect as appropriate; a patch checkbox does not track these subtasks separately.
-
-## Build and test
-
-```powershell
-.\gradlew.bat '-PruneliteVersion=1.13.2' clean test build
-# Refresh dependencies after a RuneLite update:
-.\gradlew.bat --refresh-dependencies test build
+```text
+<RuneLite data folder>/plugin-data/farm-run-planner/profile-<profile ID>.properties
 ```
 
-The default dependency version is `latest.release`; the property above reproduces the tested RuneLite client version. Reports: `build/reports/tests/test/index.html`. Headless Swing previews: `build/reports/sidebar-preview.png`, `build/reports/preset-controls-preview.png` and `build/reports/growth-preview.png`. The catalogue test also generates `build/reports/patch-catalogue.md`.
+On Windows, the folder is normally `%USERPROFILE%\.runelite\plugin-data\farm-run-planner\`. Copy it with RuneLite closed to back up your data. Avoid editing the same profile from simultaneous clients, since the last writer wins. Use separate RuneLite profiles for separate preset libraries. Crop observations are also separated by character and world mode using a local one-way key; the raw account hash is not saved.
 
-Tests cover named slot creation, copying, rename/delete/collision handling, migration, real RuneLite enum-label rendering, restart/profile isolation, capacity and imported overflow, local write failure, configuration-event dispatch, cog editing versus main-tab selection, no management controls on the main tab, crop decoding and timing, payload boundaries/stabilization, full-preset reminders, deduplication/restart, character isolation, opt-in completion, notification suppression and sidebar layout, plus the existing route, travel and optimizer checks. See [build results](docs/BUILD-REPORT.md).
+**Active cog settings follow RuneLite's normal optional configuration sync.** Loading a preset copies its settings into that active configuration. The separate preset library and crop records remain local. Keep RuneLite profile sync off if you want the active settings to stay local too. The plugin does not change your sync preferences.
 
-Native preset/cog UI checks can be performed while logged out. The automated suite covers the account-free behavior with fictional fixtures. No authenticated live game run, actual server payload capture or live timing benchmark was performed. That limitation is disclosed for review; there is no requirement here to test using a main account.
+Existing presets are migrated automatically. RuneLite moves the old `farm-run-planner` data directory when the new destination does not exist. If both directories already exist, back up both before resolving them with the client closed.
 
-## Optional Plugin Hub submission
+## Build and run locally
 
-The source is published at [dovermlg/farm-run-planner](https://github.com/dovermlg/farm-run-planner), currently a private repository. No Plugin Hub submission or release has been made. The author is Astral and the internal submission name is `farm-run-planner`. The official local packager passed with RuneLite 1.13.2, all 92 offline tests pass, and this repository's GitHub build and reference checks passed. Before submission, make the repository public and follow [Plugin Hub's submission instructions](https://github.com/runelite/plugin-hub#submitting-a-plugin). The Hub manifest references the repository and a full 40-character commit SHA. `python tools/make-submission-manifest.py --repository https://github.com/dovermlg/farm-run-planner.git --commit <full-SHA>` writes the local marker; it does not submit anything or verify public visibility. Never submit the local harness’s fictional repository/commit. See [HUB-REVIEW.md](docs/HUB-REVIEW.md). This project uses `build=standard` and no additional production dependencies. Passing this repository's workflow is separate from Plugin Hub CI and maintainer acceptance.
+Install **JDK 11**, set `JAVA_HOME`, and open a terminal in the project folder:
 
-The plugin only displays guidance and updates user-selected configuration. It does not walk, teleport, click objects, invoke game menus or schedule gameplay input. It imports no private farming-plugin implementation and makes no runtime network requests. Preset-library and completion persistence use local files; active cog settings use RuneLite configuration and its optional sync. This remains a local development build requiring normal Plugin Hub review before any Hub release.
+```powershell
+.\gradlew.bat test build
+.\gradlew.bat run
+```
 
+On macOS or Linux, use `./gradlew test build` and `./gradlew run`. The wrapper downloads Gradle 8.10 and verifies its checksum. The first build also downloads RuneLite dependencies.
+
+`test build` runs without launching the game or using an account. `run` launches a RuneLite development client with the plugin loaded. Enable Farm Run Planner to open its sidebar. The JAR in `build/libs/` is a plugin, not a standalone application or a file to copy into an installed client's directory.
+
+IntelliJ can import `build.gradle` with JDK 11 as the Gradle JVM. Run the Gradle `run` task or `ClassicTreeRunLauncher.main()` with `--developer-mode --debug`. Jagex account setup is covered by [RuneLite's development guide](https://github.com/runelite/runelite/wiki/Using-Jagex-Accounts).
+
+## Tests and reference data
+
+The default RuneLite dependency is `latest.release`. To reproduce the audited version:
+
+```powershell
+.\gradlew.bat '-PruneliteVersion=1.13.2' test build
+.\gradlew.bat -I tools/reference-export.gradle '-PruneliteVersion=1.13.2' verifyFarmingReference
+```
+
+Test results are in `build/reports/tests/test/index.html`. The reference check compares the bundled farming tables and patch boundaries against the RuneLite dependency. Tests use offline fixtures and do not log into RuneScape. Live crop timing and desktop notification delivery have not been validated.
+
+- [Build results](docs/BUILD-REPORT.md)
+- [Farming data audit and sources](docs/DATA-AUDIT.md)
+- [Plugin Hub review notes](docs/HUB-REVIEW.md)
+- [GitHub and submission setup](docs/GITHUB.md)
+- [Third-party notices](THIRD-PARTY-NOTICES.md)
+
+The plugin displays guidance and tracks progress. Walking, teleporting, harvesting and planting are performed by the player. It has not been submitted to or approved by Plugin Hub.

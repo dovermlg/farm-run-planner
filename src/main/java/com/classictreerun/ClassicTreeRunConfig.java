@@ -31,7 +31,7 @@ public interface ClassicTreeRunConfig extends net.runelite.client.config.Config
     @ConfigSection(name="Checklist display", description="Control the run tab", position=2, closedByDefault=true)
     String DISPLAY = "display";
 
-    @ConfigItem(keyName="preset", name="Preset", description="Legacy preset identifier; the local editor now manages named snapshots.", section=RUN, position=0, hidden=true)
+    @ConfigItem(keyName="preset", name="Preset", description="Legacy preset identifier retained for migration", section=RUN, position=0, hidden=true)
     default RunPreset preset() { return RunPreset.CUSTOM; }
     @ConfigItem(keyName="editorPreset", name="Preset to edit", description="Choose a saved slot or an empty slot. After switching, leave and reopen this cog page so its controls refresh. Changes are saved only with Save preset.", section=RUN, position=0)
     default EditorPreset editorPreset() { return EditorPreset.CURRENT; }
@@ -66,7 +66,7 @@ public interface ClassicTreeRunConfig extends net.runelite.client.config.Config
     default boolean hideCompleted() { return false; }
     @ConfigItem(keyName="otherPatches", name="Other crop types", description="Legacy category switch", hidden=true)
     default boolean otherPatches() { return true; }
-    @ConfigItem(keyName="selectionV2", name="Patch selection", description="Managed by the sidebar patch picker", hidden=true)
+    @ConfigItem(keyName="selectionV2", name="Patch selection", description="Mirrors the selected patch settings", hidden=true)
     default String selection() { return ""; }
     @ConfigItem(keyName="faladorTravel", name="Falador travel", description="Preferred travel instruction", section=TRAVEL, position=10)
     default FaladorTravel faladorTravel() { return FaladorTravel.RING_OF_WEALTH; }

@@ -27,7 +27,7 @@ Travel costs are separate hand-authored relative scores. The game does not provi
 | Live OSRS Wiki regular patch tables | All seven refreshed tables unchanged from the earlier 99-patch audit |
 | Regression suite | **87 tests passed, 0 failed, 0 skipped** |
 
-The live Wiki pages include [allotment/flower/herb patches](https://oldschool.runescape.wiki/w/Allotment_patch/Patches), [normal trees](https://oldschool.runescape.wiki/w/Tree_patch/Patches), [fruit trees](https://oldschool.runescape.wiki/w/Fruit_tree_patch/Patches), [hops](https://oldschool.runescape.wiki/w/Hops_patch/Patches), [bushes](https://oldschool.runescape.wiki/w/Bush_patch/Patches), [spirit trees](https://oldschool.runescape.wiki/w/Spirit_Tree_(Farming)/Patches) and [special patches](https://oldschool.runescape.wiki/w/Special_patches/Patches). They were fetched as live wikitext because search caches can predate newer patches. Catherby/Brimhaven charter access and Tai Bwo Wannai scroll requirements were checked again. No fare or travel-time guarantee was introduced.
+The checked Wiki pages cover [allotment/flower/herb patches](https://oldschool.runescape.wiki/w/Allotment_patch/Patches), [normal trees](https://oldschool.runescape.wiki/w/Tree_patch/Patches), [fruit trees](https://oldschool.runescape.wiki/w/Fruit_tree_patch/Patches), [hops](https://oldschool.runescape.wiki/w/Hops_patch/Patches), [bushes](https://oldschool.runescape.wiki/w/Bush_patch/Patches), [spirit trees](https://oldschool.runescape.wiki/w/Spirit_Tree_(Farming)/Patches) and [special patches](https://oldschool.runescape.wiki/w/Special_patches/Patches). The audit also checked Catherby/Brimhaven charter access and Tai Bwo Wannai scroll requirements. Travel scores do not assume a fixed fare or measured journey time.
 
 Exact tagged-source URLs and SHA-256 hashes for the downloaded RuneLite files and bundled tables are recorded in [reference-provenance.json](reference-provenance.json). This checks agreement with the audited client and documents the source of the interpretation; it is not independent verification against Jagex's server code.
 
@@ -42,7 +42,7 @@ Exact tagged-source URLs and SHA-256 hashes for the downloaded RuneLite files an
 * The character digest is cached for the current account/world-mode context. Saved-preset selections are reparsed only when the local library changes.
 * Large-route relocation checks score only changed edges, preserving directed costs and first-stop entry costs. Selection CSVs are parsed once per route read.
 
-No new database, networking, telemetry, gameplay input or private runtime farming dependency was added. Active cog preferences still follow RuneLite's optional configuration sync; saved presets, observations and reminder markers use the existing local files.
+Active cog preferences follow RuneLite's optional configuration sync; saved presets, observations and reminder markers use local files. The runtime has no network client or private farming dependency and generates no gameplay input.
 
 ## Reproduce
 
@@ -55,4 +55,4 @@ From the project folder with JDK 11:
 
 To check a newer release, substitute its version and review failures before replacing tables. The verifier fails on decoder, coverage, binding, alias or boundary differences. Optional `exportFarmingReference` writes candidate tables under `build/reference/`; exporting alone does not update the reviewed resources or the separate stump supplement.
 
-Headless sidebar previews were rendered and inspected at 225 pixels. No authenticated OSRS run, live growth-timing measurement or desktop-notification test was performed. Plugin Hub review has not been requested. Those live checks remain necessary before treating this development build as release-ready.
+Headless sidebar previews were rendered and inspected at 225 pixels. No authenticated OSRS run, live growth-timing measurement or desktop-notification test was performed. Plugin Hub review has not been requested. Crop countdowns remain estimates; live timing and notification delivery are unverified.

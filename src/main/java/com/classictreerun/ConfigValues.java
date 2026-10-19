@@ -9,6 +9,11 @@ final class ConfigValues
 {
     private ConfigValues() { }
     static final Set<String> KEYS = Set.of(
+        "loadPlanning",
+        "loadReservedSlots",
+        "loadNotedProtection",
+        "loadBank",
+        "loadBankInstructions",
         "cropTree",
         "cropFruit",
         "cropHardwood",
@@ -169,6 +174,11 @@ final class ConfigValues
     static Map<String,String> read(ClassicTreeRunConfig config)
     {
         Map<String,String> values = new LinkedHashMap<>();
+        values.put("loadPlanning", wire(config.loadPlanning()));
+        values.put("loadReservedSlots", wire(config.loadReservedSlots()));
+        values.put("loadNotedProtection", wire(config.loadNotedProtection()));
+        values.put("loadBank", wire(config.loadBank()));
+        values.put("loadBankInstructions", wire(config.loadBankInstructions()));
         values.put("cropTree", wire(config.cropTree()));
         values.put("cropFruit", wire(config.cropFruit()));
         values.put("cropHardwood", wire(config.cropHardwood()));

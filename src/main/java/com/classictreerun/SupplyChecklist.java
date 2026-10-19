@@ -79,7 +79,8 @@ final class SupplyChecklist extends JPanel
             String status=!snapshot.known ? "Log in to check carried items." : "Carried: "+have+" / "+requirement.quantity+". "
                 +(have<requirement.quantity ? "Short "+(requirement.quantity-have)+"." : "Packed.");
             String detail=requirement.label+"\n"+status;
-            if(requirement.notes)detail+="\nOptional protection payment. Noted items count.";
+            if(requirement.notedOnly)detail+="\nOptional protection payment. Withdraw as notes for this inventory; unnoted items do not count.";
+            else if(requirement.notes)detail+="\nOptional protection payment. Noted items count.";
             else detail+="\nPlanting items and tools must be unnoted.";
             if(requirement.item==ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED)
                 detail+="\nPossession of a filled bucket only. Check its compost type and charges yourself.";
@@ -98,7 +99,7 @@ final class SupplyChecklist extends JPanel
         String name=requirement.label.replace(" (optional protection)","").replace(" (your budget)","")
             .replace(" (magic recommended)","").replace(" (optional if paying for removal)","");
         if(name.endsWith(" buckets"))name=name.substring(0,name.length()-8);
-        return name.substring(0,1).toUpperCase(Locale.ROOT)+name.substring(1);
+        return name.substring(0,1).toUpperCase(Locale.ROOT)+name.substring(1)+(requirement.notedOnly?" (noted)":"");
     }
 
     private static String tooltip(String text)

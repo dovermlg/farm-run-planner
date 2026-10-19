@@ -23,7 +23,7 @@ public class GrowthSidebarTest
     @Test public void perPatchCountdownAndFullRunSummaryFitInsideTheSidebar() throws Exception
     {
         SwingUtilities.invokeAndWait(()->{
-            ConfigFixture f=new ConfigFixture();f.set("selectionV2","TROLL_HERB,LUMBRIDGE_TREE");f.set("runName","Herbs and trees");
+            ConfigFixture f=new ConfigFixture();f.set("loadPlanning","false");f.set("selectionV2","TROLL_HERB,LUMBRIDGE_TREE");f.set("runName","Herbs and trees");
             new PresetLibrary(f).save("Herbs and trees",f.config);
             ClassicTreeRunPanel panel=new ClassicTreeRunPanel(f.config,f);CropGrowth growth=new CropGrowth(new CropReference());long now=Instant.now().getEpochSecond();
             growth.observe(Patch.TROLL_HERB,32,now,false);growth.observe(Patch.LUMBRIDGE_TREE,48,now,false);panel.setGrowth(growth);

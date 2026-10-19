@@ -176,7 +176,7 @@ public class SupplyPlanTest
     @Test public void sidebarShowsShortagesInRedAndStartClearButtonsAreDisplayActions() throws Exception
     {
         SwingUtilities.invokeAndWait(()->{
-            ConfigFixture f=new ConfigFixture();f.set("selectionV2","TROLL_HERB,WEISS_HERB");f.set("cropHerb","RANARR");
+            ConfigFixture f=new ConfigFixture();f.set("loadPlanning","false");f.set("selectionV2","TROLL_HERB,WEISS_HERB");f.set("cropHerb","RANARR");
             ClassicTreeRunPanel panel=new ClassicTreeRunPanel(f.config,f);panel.setConfirmReset(false);
             panel.setSupplies(new SupplySnapshot(true,Map.of(ItemID.RANARR_SEED,1L),Map.of()));
             JLabel label=findLabel(panel,"Ranarr seed");assertNotNull(label);assertEquals("2 x Ranarr seed",label.getText());

@@ -22,7 +22,8 @@ final class PresetBackup
     private static final int MAX_PRESETS = 256;
     private static final String FORMAT = "farm-run-planner-presets";
     private static final Set<String> BOOLEAN_SETTINGS = Set.of("autoOptimize", "hideCompleted", "showDetails",
-        "supplyProtection", "supplyTools", "supplyRake", "supplyDibber");
+        "supplyProtection", "supplyTools", "supplyRake", "supplyDibber", "loadPlanning", "loadNotedProtection");
+    private static final Set<String> NUMBER_SETTINGS=Set.of("supplyCoins","loadReservedSlots");
 
     static final class Entry
     {
@@ -85,6 +86,7 @@ final class PresetBackup
         values.put("fossilTravel", config.fossilTravel().name());
         values.put("guildTravel", config.guildTravel().name());
         values.putAll(CropChoices.settings(config));
+        values.putAll(InventoryLoadPlanner.settings(config));
         return values;
     }
 
@@ -95,7 +97,7 @@ final class PresetBackup
         try (JsonWriter writer = new JsonWriter(text))
         {
             writer.setIndent("  ");
-            writer.beginObject().name("format").value(FORMAT).name("version").value(2);
+            writer.beginObject().name("format").value(FORMAT).name("version").value(3);
             writer.name("presets").beginArray();
             for (Entry preset : presets)
             {
@@ -107,7 +109,7 @@ final class PresetBackup
                 {
                     writer.name(key);
                     if (BOOLEAN_SETTINGS.contains(key)) { writer.value(Boolean.parseBoolean(preset.settings.get(key))); }
-                    else if ("supplyCoins".equals(key)) { writer.value(Integer.parseInt(preset.settings.get(key))); }
+                    else if (NUMBER_SETTINGS.contains(key)) { writer.value(Integer.parseInt(preset.settings.get(key))); }
                     else { writer.value(preset.settings.get(key)); }
                 }
                 writer.endObject().endObject();
@@ -142,7 +144,7 @@ final class PresetBackup
                     case "version":
                         if (reader.peek() != JsonToken.NUMBER) { throw invalid("This preset backup version is not supported."); }
                         String encodedVersion=reader.nextString();
-                        if (!("1".equals(encodedVersion) || "2".equals(encodedVersion)))
+                        if (!("1".equals(encodedVersion) || "2".equals(encodedVersion) || "3".equals(encodedVersion)))
                         { throw invalid("This preset backup version is not supported."); }
                         version=Integer.parseInt(encodedVersion);
                         break;
@@ -167,8 +169,7 @@ final class PresetBackup
             List<Entry> normalized=new ArrayList<>();
             for(Entry entry:presets)
             {
-                boolean hasSupplies=entry.settings.containsKey("cropTree");
-                if(hasSupplies!=(version==2))throw invalid("The preset settings do not match the backup version.");
+                if(!entry.settings.keySet().equals(keysForVersion(version)))throw invalid("The preset settings do not match the backup version.");
                 Map<String,String> values=new LinkedHashMap<>(settings(new ClassicTreeRunConfig() { }));
                 values.putAll(entry.settings);
                 normalized.add(new Entry(entry.name,entry.patches,values));
@@ -217,23 +218,25 @@ final class PresetBackup
                             if (reader.peek() != JsonToken.BOOLEAN) { throw invalid("A preset setting must be true or false."); }
                             values.put(key, Boolean.toString(reader.nextBoolean()));
                         }
-                        else if ("supplyCoins".equals(key))
+                        else if (NUMBER_SETTINGS.contains(key))
                         {
-                            if(reader.peek()!=JsonToken.NUMBER)throw invalid("The coin budget must be a whole number.");
-                            String value=reader.nextString();CropChoices.validate(key,value);values.put(key,value);
+                            if(reader.peek()!=JsonToken.NUMBER)throw invalid("The inventory setting must be a whole number.");
+                            String value=reader.nextString();
+                            if(key.startsWith("load"))InventoryLoadPlanner.validate(key,value);else CropChoices.validate(key,value);
+                            values.put(key,value);
                         }
                         else
                         {
                             String value = string(reader);
                             if(key.startsWith("crop") || key.startsWith("supply"))CropChoices.validate(key,value);
+                            else if(key.startsWith("load"))InventoryLoadPlanner.validate(key,value);
                             else validateTravel(key, value);
                             values.put(key, value);
                         }
                     }
                     reader.endObject();
-                    Set<String> legacy=new HashSet<>(allowed.keySet());
-                    legacy.removeIf(key->key.startsWith("crop") || key.startsWith("supply"));
-                    if (!keys.equals(allowed.keySet()) && !keys.equals(legacy)) { throw invalid("A preset is missing required settings."); }
+                    if (!keys.equals(keysForVersion(3)) && !keys.equals(keysForVersion(2)) && !keys.equals(keysForVersion(1)))
+                    { throw invalid("A preset is missing required settings."); }
                     break;
                 default: throw invalid("A preset contains an unrecognized field.");
             }
@@ -241,6 +244,14 @@ final class PresetBackup
         reader.endObject();
         if (!fields.equals(Set.of("name", "patches", "settings"))) { throw invalid("A preset is missing required fields."); }
         return new Entry(name, patches, values);
+    }
+
+    private static Set<String> keysForVersion(int version)
+    {
+        Set<String> keys=new HashSet<>(settings(new ClassicTreeRunConfig() { }).keySet());
+        if(version<3)keys.removeIf(key->key.startsWith("load"));
+        if(version<2)keys.removeIf(key->key.startsWith("crop") || key.startsWith("supply"));
+        return keys;
     }
 
     private static void validateTravel(String key, String value)

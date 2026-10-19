@@ -87,10 +87,11 @@ final class PresetLibrary
         Properties snapshot = decode(saved.getProperty(name));
         Map<String, String> changes = new LinkedHashMap<>();
         changes.putAll(CropChoices.settings(new ClassicTreeRunConfig() { }));
+        changes.putAll(InventoryLoadPlanner.settings(new ClassicTreeRunConfig() { }));
         snapshot.forEach((key, value) -> { if (snapshotKey((String) key)) { changes.put((String) key, (String) value); } });
         changes.put("runName", name);
         // Loading a run starts a fresh checklist; completion is never part of a preset.
-        if (resetCompletion) { changes.put(ClassicTreeRunPanel.PROGRESS_KEY, ""); }
+        if (resetCompletion) { changes.put(ClassicTreeRunPanel.PROGRESS_KEY, "");changes.put(InventoryLoadPlanner.BANKS_KEY,""); }
         preferences.update(changes);
     }
 
@@ -135,7 +136,7 @@ final class PresetLibrary
 
     private static boolean snapshotKey(String key)
     {
-        return key.startsWith("patch_") || key.startsWith("crop") || key.startsWith("supply") || key.endsWith("Travel") || "runName".equals(key)
+        return key.startsWith("patch_") || key.startsWith("crop") || key.startsWith("supply") || key.startsWith("load") || key.endsWith("Travel") || "runName".equals(key)
             || "autoOptimize".equals(key) || "showDetails".equals(key) || "hideCompleted".equals(key)
             || "order".equals(key) || "selectionV2".equals(key) || "excluded".equals(key)
             || "trees".equals(key) || "fruit".equals(key) || "hardwood".equals(key)

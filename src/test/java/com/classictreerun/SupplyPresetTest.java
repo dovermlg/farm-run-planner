@@ -26,13 +26,13 @@ public class SupplyPresetTest
         assertEquals(CropChoices.Tree.OAK,f.config.cropTree());assertTrue(f.config.supplyProtection());
     }
 
-    @Test public void backupVersionTwoPreservesChosenCropsAndSupplySettings()
+    @Test public void backupVersionThreePreservesChosenCropsAndSupplySettings()
     {
         ConfigFixture f=new ConfigFixture();f.set("cropHerb","HUASCA");f.set("cropHardwood","ROSEWOOD");
         f.set("supplyCoins","32100");f.set("supplyDibber","false");f.set("supplyCompost","BOTTOMLESS");
         PresetBackup.Entry captured=PresetBackup.capture("Mine",f.config);
         String json=PresetBackup.write(List.of(captured));
-        assertTrue(json.contains("\"version\": 2"));
+        assertTrue(json.contains("\"version\": 3"));
         PresetBackup.Entry read=PresetBackup.read(json).get(0);assertTrue(captured.matches(read));
         ConfigFixture target=new ConfigFixture();new PresetSlots(target).importPresets(List.of(read));
         new PresetLibrary(target).load("Mine");assertEquals(CropChoices.Herb.HUASCA,target.config.cropHerb());
@@ -43,7 +43,7 @@ public class SupplyPresetTest
     @Test public void versionOneBackupsRemainReadableEvenIfVersionComesLast()
     {
         JsonObject json=example();JsonObject settings=json.getAsJsonArray("presets").get(0).getAsJsonObject().getAsJsonObject("settings");
-        for(String key:List.copyOf(settings.keySet()))if(key.startsWith("crop")||key.startsWith("supply"))settings.remove(key);
+        for(String key:List.copyOf(settings.keySet()))if(key.startsWith("crop")||key.startsWith("supply")||key.startsWith("load"))settings.remove(key);
         json.remove("version");json.addProperty("version",1);
         PresetBackup.Entry read=PresetBackup.read(json.toString()).get(0);
         assertEquals("OAK",read.settings.get("cropTree"));assertEquals("true",read.settings.get("supplyProtection"));

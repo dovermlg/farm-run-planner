@@ -21,6 +21,7 @@ public class SidebarTest
         SwingUtilities.invokeAndWait(() ->
         {
             ConfigFixture f = new ConfigFixture();
+            f.set("loadPlanning","false");
             f.set("selectionV2", "TROLL_HERB,WEISS_HERB");
             f.set("runName", "Daily herbs");
             ClassicTreeRunPanel panel = new ClassicTreeRunPanel(f.config, f);

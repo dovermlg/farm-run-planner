@@ -28,6 +28,9 @@ final class ClassicTreeRunPanel extends PluginPanel
     private final ClassicTreeRunConfig config;
     private final Preferences preferences;
     private final java.util.function.BiConsumer<Integer,JLabel> supplyIcons;
+    private final InventoryPreparation inventories;
+    private String displayedLoad;
+    private boolean routePreparing;
     private final RouteState state = new RouteState();
     private boolean confirmReset = true;
     private String status = "";
@@ -61,6 +64,11 @@ final class ClassicTreeRunPanel extends PluginPanel
     void setPresetLoaded(Runnable loaded) { this.loaded = loaded; }
     void setSupplyActions(java.util.function.Consumer<SupplyPlan> start,Runnable clear)
     { startSupplies=start;clearSupplies=clear; }
+    void setInventoryDataRequest(java.util.function.Consumer<java.util.Set<Integer>> request)
+    { inventories.setRequest(request);reload(); }
+    void setInventoryData(InventoryItemData data) { inventories.accept(data); }
+    void setRoutePreparing(boolean preparing) { routePreparing=preparing; }
+    void dispose() { inventories.dispose(); }
     void setSupplies(SupplySnapshot snapshot)
     {
         if(supplies.known==snapshot.known && supplies.plain.equals(snapshot.plain) && supplies.notes.equals(snapshot.notes))return;
@@ -69,7 +77,7 @@ final class ClassicTreeRunPanel extends PluginPanel
     void setBankFilterActive(boolean active)
     {
         bankFilterActive=active;if(clearBankFilter!=null)clearBankFilter.setEnabled(active);
-        if(bankFilterStatus!=null)updateText(bankFilterStatus,active ? "Bank filter: ready until the bank closes." : "Bank filter: off. Click Start run to filter supplies.");
+        if(bankFilterStatus!=null)updateText(bankFilterStatus,active ? "Bank filter: ready until the bank closes." : "Bank filter: off. Click Filter this inventory to pack.");
     }
     void presetSaved(String name) { selectedPreset = name; setStatus("Saved locally: " + name); }
     void presetEditing(String name)
@@ -85,6 +93,7 @@ final class ClassicTreeRunPanel extends PluginPanel
         this.config = config;
         this.preferences = preferences;
         this.supplyIcons = supplyIcons;
+        this.inventories = new InventoryPreparation(config,this::reload);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         reload();
     }
@@ -98,37 +107,71 @@ final class ClassicTreeRunPanel extends PluginPanel
         removeAll();
         readiness=null;cropLabels.clear();
         List<Patch> route = RouteState.active(config);
+        inventories.update(route);
+        InventoryLoadPlanner.Plan inventoryPlan=inventories.get();
+        int currentInventory=inventoryPlan==null?-1:inventoryPlan.current(state);
+        boolean loadsReady=!config.loadPlanning() || inventoryPlan!=null;
+        boolean bankNeeded=config.loadPlanning() && currentInventory>0
+            && !inventoryPlan.bankConfirmed(preferences.get(InventoryLoadPlanner.BANKS_KEY),currentInventory);
+        String loadKey=!config.loadPlanning()?"all":inventoryPlan==null?"waiting":inventoryPlan.signature+":"+currentInventory;
+        if(displayedLoad!=null && !displayedLoad.equals(loadKey) && bankFilterActive)
+        {clearSupplies.run();setBankFilterActive(false);}
+        displayedLoad=loadKey;
+        List<Patch> remaining=new java.util.ArrayList<>();
+        List<Patch> packingPatches=config.loadPlanning() && inventoryPlan!=null
+            ? currentInventory<0?java.util.Collections.emptyList():inventoryPlan.loads.get(currentInventory).patches : route;
+        for(Patch patch:packingPatches)if(!state.isDone(patch))remaining.add(patch);
+        SupplyPlan packing=loadsReady && config.loadPlanning()
+            ? InventoryLoadPlanner.supplies(config,remaining,inventories.data()) : SupplyPlan.build(config,remaining);
         displayedRoute=route;
         add(text("Farm Run Planner"));
         add(text(config.runName().trim()));
         add(text("Create and save presets in RuneLite’s plugin cog. Choose your run below."));
         add(new PresetControls(config, preferences, loaded, selectedPreset, name -> selectedPreset = name, this::setStatus));
-        JButton start=new JButton("Start run");start.setName("startRun");start.setEnabled(!route.isEmpty());
+        JButton start=new JButton("Start run");start.setName("startRun");start.setEnabled(!route.isEmpty() && loadsReady && !routePreparing);
         start.addActionListener(event -> {
             if(state.count(route)>0 && confirmReset && JOptionPane.showConfirmDialog(this,
                 "Start a fresh run and clear completion marks?","Start farming run",JOptionPane.OK_CANCEL_OPTION)!=JOptionPane.OK_OPTION)return;
             try
             {
-                preferences.set(PROGRESS_KEY,"");
-                startSupplies.accept(SupplyPlan.build(config,route));
-                setStatus("Run started. Open your bank and withdraw supplies yourself. Clear other searches or tag tabs if items are hidden.");
+                preferences.update(java.util.Map.of(PROGRESS_KEY,"",InventoryLoadPlanner.BANKS_KEY,""));
+                clearSupplies.run();setBankFilterActive(false);displayedLoad=null;
+                List<Patch> first=inventoryPlan==null?route:inventoryPlan.loads.get(0).patches;
+                startSupplies.accept(config.loadPlanning()?InventoryLoadPlanner.supplies(config,first,inventories.data()):SupplyPlan.build(config,first));
+                setStatus("Run started. Pack the first inventory at your bank and withdraw supplies yourself. Clear other searches or tag tabs if items are hidden.");
             }
             catch(IllegalStateException error){setStatus(error.getMessage());}
         });
         add(start);
+        JButton pack=new JButton("Filter this inventory");pack.setName("packInventory");
+        pack.setEnabled(loadsReady && !routePreparing && !remaining.isEmpty());
+        pack.addActionListener(event->{startSupplies.accept(packing);setStatus("Filter ready for this inventory. Withdraw supplies manually; completion marks are kept.");});
+        add(pack);
         clearBankFilter=new JButton("Clear bank filter");clearBankFilter.setName("clearBankFilter");
         clearBankFilter.setEnabled(bankFilterActive);
         clearBankFilter.addActionListener(event -> {clearSupplies.run();setBankFilterActive(false);});
         add(clearBankFilter);
         bankFilterStatus=text("");add(bankFilterStatus);setBankFilterActive(bankFilterActive);
-        List<Patch> remaining=new java.util.ArrayList<>();
-        for(Patch patch:route)if(!state.isDone(patch))remaining.add(patch);
-        supplyChecklist=new SupplyChecklist(SupplyPlan.build(config,remaining),supplies,supplyIcons);
+        if(config.loadPlanning())
+        {
+            if(inventoryPlan==null)add(text(inventories.error()==null?"Preparing inventory loads from RuneLite item data...":inventories.error()));
+            else if(currentInventory>=0)
+            {
+                int slots=InventoryLoadPlanner.slots(packing,inventories.data());
+                JLabel loadInfo=text("Inventory "+(currentInventory+1)+" of "+inventoryPlan.loads.size()+" - "+slots+" / "+inventoryPlan.capacity+" slots ("+InventoryLoadPlanner.reserved(config)+" reserved)");
+                loadInfo.setName("inventoryLoad");
+                loadInfo.setToolTipText(html("Starting-supply estimate. Tools count as backpack slots even if worn. Reserved slots cover travel items, other gear and harvested crops; note or bank produce manually."));
+                add(loadInfo);
+                JLabel bankInfo=text("Bank: "+config.loadBank());bankInfo.setToolTipText(html(config.loadBank().instructions(config)));add(bankInfo);
+                if(slots>inventoryPlan.capacity)add(text("This patch's supplies exceed the available slots. Adjust reserved space, noted payments or tools before leaving the bank."));
+            }
+        }
+        supplyChecklist=loadsReady?new SupplyChecklist(packing,supplies,supplyIcons):null;
         JCheckBox showPacking=new JCheckBox("Show packing checklist",showSupplies);
         showPacking.setName("showPackingChecklist");showPacking.setOpaque(false);showPacking.setForeground(Color.LIGHT_GRAY);
-        showPacking.addActionListener(event->{showSupplies=showPacking.isSelected();supplyChecklist.setVisible(showSupplies);resizeRows();revalidate();});
-        add(showPacking);supplyChecklist.setVisible(showSupplies);
-        add(supplyChecklist);
+        showPacking.addActionListener(event->{showSupplies=showPacking.isSelected();if(supplyChecklist!=null)supplyChecklist.setVisible(showSupplies);resizeRows();revalidate();});
+        add(showPacking);
+        if(supplyChecklist!=null){supplyChecklist.setVisible(showSupplies);add(supplyChecklist);}
         JProgressBar progress = new JProgressBar(0, Math.max(1, route.size()));
         int completed = state.count(route);
         progress.setValue(completed);
@@ -147,7 +190,8 @@ final class ClassicTreeRunPanel extends PluginPanel
         if(config.trackGrowth()) { readiness=text("");add(readiness); }
         if (!status.isEmpty()) { add(text(status)); }
         Patch next = state.next(route);
-        add(text(route.isEmpty() ? "No patches selected. Open the settings cog to choose them."
+        add(text(bankNeeded ? "NEXT: Bank at "+config.loadBank()+" for inventory "+(currentInventory+1)+"."
+            : route.isEmpty() ? "No patches selected. Open the settings cog to choose them."
             : next == null ? "Run complete. Reset when you're ready to start again."
             : "NEXT: " + next.getLabel()));
         JButton reset = new JButton("Reset run");
@@ -159,7 +203,7 @@ final class ClassicTreeRunPanel extends PluginPanel
             {
                 state.reset();
                 clearSupplies.run();
-                try { preferences.set(PROGRESS_KEY, state.save()); reload(); }
+                try { preferences.update(java.util.Map.of(PROGRESS_KEY,state.save(),InventoryLoadPlanner.BANKS_KEY,"")); reload(); }
                 catch (IllegalStateException error) { setStatus(error.getMessage()); }
             }
         });
@@ -167,11 +211,14 @@ final class ClassicTreeRunPanel extends PluginPanel
         for (int i = 0; i < route.size(); i++)
         {
             Patch patch = route.get(i);
+            int starts=inventoryPlan==null?-1:inventoryPlan.startsAt(patch);
+            if(starts>0 && !(config.hideCompleted() && inventoryPlan.loads.get(starts).patches.stream().allMatch(state::isDone)))
+                add(bankCard(inventoryPlan,starts,currentInventory,bankNeeded));
             if (config.hideCompleted() && state.isDone(patch)) { continue; }
             JPanel card = new JPanel(new BorderLayout());
             card.setBackground(new Color(48, 48, 48));
             card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(patch == next ? new Color(103, 188, 116) : Color.DARK_GRAY),
+                BorderFactory.createLineBorder(patch == next && !bankNeeded ? new Color(103, 188, 116) : Color.DARK_GRAY),
                 BorderFactory.createEmptyBorder(5, 5, 7, 5)));
             JPanel content = new JPanel();
             content.setOpaque(false);
@@ -184,12 +231,19 @@ final class ClassicTreeRunPanel extends PluginPanel
             complete.addActionListener(event ->
             {
                 state.setDone(patch, complete.isSelected());
-                try { preferences.set(PROGRESS_KEY, state.save()); reload(); }
+                try
+                {
+                    java.util.Map<String,String> changes=new java.util.LinkedHashMap<>();
+                    changes.put(PROGRESS_KEY,state.save());
+                    if(!complete.isSelected() && inventoryPlan!=null)
+                        changes.put(InventoryLoadPlanner.BANKS_KEY,inventoryPlan.reopenPatch(preferences.get(InventoryLoadPlanner.BANKS_KEY),patch));
+                    preferences.update(changes);reload();
+                }
                 catch (IllegalStateException error) { setStatus(error.getMessage()); }
             });
             content.add(complete);
-            Patch previous = i > 0 ? route.get(i - 1) : null;
-            String walking = TravelCosts.walkingInstruction(previous, patch, config);
+            Patch previous = i > 0 && starts<=0 ? route.get(i - 1) : null;
+            String walking = starts>0 ? config.loadBank().departureInstructions(patch) : TravelCosts.walkingInstruction(previous, patch, config);
             content.add(text(walking == null ? TravelGuide.instructions(patch, config) : walking));
             if(config.trackGrowth()) { JLabel cropLabel=text("");cropLabels.put(patch,cropLabel);content.add(cropLabel); }
             if (config.showDetails())
@@ -205,6 +259,30 @@ final class ClassicTreeRunPanel extends PluginPanel
         resizeRows();
         revalidate();
         repaint();
+    }
+
+    private JPanel bankCard(InventoryLoadPlanner.Plan plan,int index,int current,boolean waiting)
+    {
+        JPanel card=new JPanel();card.setName("bankStop_"+index);card.setLayout(new BoxLayout(card,BoxLayout.Y_AXIS));
+        boolean confirmed=plan.bankConfirmed(preferences.get(InventoryLoadPlanner.BANKS_KEY),index);
+        card.setBackground(new Color(38,45,49));
+        card.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(index==current && waiting
+            ?new Color(103,188,116):Color.DARK_GRAY),BorderFactory.createEmptyBorder(5,5,7,5)));
+        card.add(text("BANK STOP - "+config.loadBank()));
+        card.add(text("Prepare inventory "+(index+1)+" of "+plan.loads.size()+". Deposit harvested produce and unneeded supplies; keep your tools and travel items."));
+        List<Patch> before=plan.loads.get(index-1).patches;
+        card.add(text(config.loadBank().instructions(before.get(before.size()-1),config)));
+        JButton packed=new JButton(confirmed?"Bank stop complete":"Banked - continue");packed.setName("bankReady_"+index);
+        packed.setEnabled(index==current && !confirmed);
+        packed.addActionListener(event->{
+            try
+            {
+                preferences.set(InventoryLoadPlanner.BANKS_KEY,plan.confirmBank(preferences.get(InventoryLoadPlanner.BANKS_KEY),index));
+                setStatus("Bank stop marked complete. Continue to inventory "+(index+1)+"'s first patch.");
+            }
+            catch(IllegalStateException error){setStatus(error.getMessage());}
+        });
+        card.add(packed);return card;
     }
 
     private void resizeRows()

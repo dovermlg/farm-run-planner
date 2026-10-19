@@ -88,6 +88,7 @@ final class RunSettings
 
     private void queue()
     {
+        panel.setRoutePreparing(true);
         version++;
         dirty = true;
         panel.setStatus("Preparing your run...");
@@ -99,7 +100,7 @@ final class RunSettings
         if (disposed || !dirty) { panel.reload(); return; }
         dirty = false;
         delay.stop();
-        if (!config.autoOptimize()) { panel.setStatus(""); panel.reload(); return; }
+        if (!config.autoOptimize()) { panel.setRoutePreparing(false);panel.setStatus(""); panel.reload(); return; }
         int requestedVersion = version;
         List<Patch> selected = RouteState.active(config);
         TravelCosts costs = new TravelCosts(selected, config);
@@ -109,6 +110,7 @@ final class RunSettings
             protected void done()
             {
                 if (disposed || requestedVersion != version) { return; }
+                panel.setRoutePreparing(false);
                 try
                 {
                     List<Patch> order = new ArrayList<>(get());

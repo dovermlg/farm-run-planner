@@ -5,6 +5,24 @@ final class LocalRunConfig implements ClassicTreeRunConfig
 {
     private final ClassicTreeRunPanel.Preferences values;
     LocalRunConfig(ClassicTreeRunPanel.Preferences values) { this.values = values; }
+    static ClassicTreeRunConfig snapshot(ClassicTreeRunConfig source)
+    {
+        java.util.Map<String,String> copy=java.util.Map.copyOf(ConfigValues.read(source));
+        return new LocalRunConfig(new ClassicTreeRunPanel.Preferences()
+        {
+            public String get(String key){return copy.get(key);}
+            public void set(String key,String value){throw new UnsupportedOperationException("Read-only settings snapshot");}
+        });
+    }
+    @Override public boolean loadPlanning() { return bool("loadPlanning",ClassicTreeRunConfig.super.loadPlanning()); }
+    @Override public int loadReservedSlots()
+    {
+        try{return Math.max(0,Math.min(27,Integer.parseInt(values.get("loadReservedSlots"))));}
+        catch(NumberFormatException error){return ClassicTreeRunConfig.super.loadReservedSlots();}
+    }
+    @Override public boolean loadNotedProtection() { return bool("loadNotedProtection",ClassicTreeRunConfig.super.loadNotedProtection()); }
+    @Override public BankDestination loadBank() { return choice("loadBank",ClassicTreeRunConfig.super.loadBank()); }
+    @Override public String loadBankInstructions() { return string("loadBankInstructions",ClassicTreeRunConfig.super.loadBankInstructions()); }
     private boolean bool(String key, boolean fallback) {
         String value = values.get(key);
         return "true".equals(value) ? true : "false".equals(value) ? false : fallback;

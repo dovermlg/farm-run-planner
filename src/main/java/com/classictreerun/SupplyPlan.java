@@ -25,11 +25,13 @@ public final class SupplyPlan
     {
         final String label;
         final int item, quantity;
-        final boolean notes;
+        final boolean notes, notedOnly;
         final Set<Integer> alternatives;
         Requirement(String label, int item, int quantity, boolean notes, Integer... alternatives)
+        { this(label,item,quantity,notes,false,alternatives); }
+        private Requirement(String label,int item,int quantity,boolean notes,boolean notedOnly,Integer... alternatives)
         {
-            this.label=label; this.item=item; this.quantity=quantity; this.notes=notes;
+            this.label=label; this.item=item; this.quantity=quantity; this.notes=notes;this.notedOnly=notedOnly;
             java.util.HashSet<Integer> ids=new java.util.HashSet<>(List.of(alternatives));
             ids.add(item); this.alternatives=Set.copyOf(ids);
         }
@@ -139,6 +141,18 @@ public final class SupplyPlan
         rows.put(item,new Requirement(label,item,quantity+(previous==null?0:previous.quantity),notes));
     }
 
+    SupplyPlan forInventory(boolean notedPayments,InventoryItemData data)
+    {
+        List<Requirement> rows=new ArrayList<>();
+        for(Requirement row:requirements)
+        {
+            InventoryItemData.ItemInfo info=data.get(row.item);
+            boolean notedOnly=notedPayments && row.notes && info.noteable && !info.stackable;
+            rows.add(new Requirement(row.label,row.item,row.quantity,row.notes,notedOnly,row.alternatives.toArray(new Integer[0])));
+        }
+        return new SupplyPlan(rows,reminders);
+    }
+
     /** Allocates shared supplies once (e.g. compost used both on a patch and as payment). */
     List<Long> carried(SupplySnapshot snapshot)
     {
@@ -149,13 +163,13 @@ public final class SupplyPlan
             long available=0;
             for(int id:row.alternatives)
             {
-                available+=plain.getOrDefault(id,0L);
+                if(!row.notedOnly)available+=plain.getOrDefault(id,0L);
                 if(row.notes)available+=notes.getOrDefault(id,0L);
             }
             counts.add(available);
             long needed=row.quantity;
             if(row.notes)needed=consume(notes,row.alternatives,needed);
-            consume(plain,row.alternatives,needed);
+            if(!row.notedOnly)consume(plain,row.alternatives,needed);
         }
         return Collections.unmodifiableList(counts);
     }

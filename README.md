@@ -11,6 +11,7 @@ By **Astral** · [Source](https://github.com/dovermlg/farm-run-planner) · [Issu
 - Import and export saved presets as local JSON files.
 - Save a chosen crop tier for each patch type, with no lower-tier substitutions.
 - Filter bank supplies with **Start run**, and see carried-item shortages in red.
+- Split supplies into inventories, with a saved bank choice and packing list for each load.
 - Start a saved run from the sidebar, with travel instructions and a patch checklist.
 - Reorder selected patches using your travel preferences and estimated travel costs.
 - Track observed crops, estimated ready times and full-run reminders.
@@ -61,24 +62,29 @@ To restore or import a shared file, copy it into that folder, enter its filename
 
 Imports keep the current draft, checklist and existing presets. An identical preset with the same name is skipped. If the name exists with different settings, the imported copy receives a name such as `Herbs (imported)`. The entire file is validated before saving; invalid files or insufficient free editor slots cancel the whole import. Files must be valid Farm Run Planner JSON, no larger than 1 MB, with at most 256 entries. New presets must fit within the 32 editor slots.
 
-Backups contain preset names, selected patches in route order, crop choices, supply options and travel/display preferences. Version 2 exports include crop supplies; version 1 imports remain supported and use the default crop choices. Review these defaults before starting an older preset. Character identifiers, crop observations, reminder records, completion marks and tracking controls are excluded. Files stay local unless you choose to copy or share them.
+Backups contain preset names, selected patches in route order, crop choices, supply options, inventory planning and travel/display preferences. Version 3 exports include bank and inventory options. Versions 1 and 2 remain importable: both use default inventory options, and version 1 also uses default crop choices. Review the defaults before starting an older preset. Character identifiers, crop observations, reminder records, patch and bank completion marks, and tracking controls are excluded. Files stay local unless you choose to copy or share them.
 
 ## Pack for a run
 
-1. In the cog, open **Crops and supplies** and choose one crop for each patch type you use. Choose **Harvest / check only** for patches you will not replant. Click **Save preset** to keep the choices.
-2. Select that preset in the sidebar and click **Start run**. Starting again asks before clearing existing completion marks.
-3. Open a bank. Its normal item display is filtered to your chosen crops, farming tools, compost, protection payments and coin budget. Withdraw items yourself. Missing items and empty placeholders do not appear.
-4. Use **Item requirements** at the top of the sidebar. Compact lines such as `6 x Magic sapling` show the required quantity with an item icon on the right. Red means short; green means enough carried supplies. Hover a line or icon for the carried count and exact shortage. Hide it with **Show packing checklist** when ready to follow your route.
+1. In the cog, open **Crops and supplies** and choose one crop for each patch type you use. Choose **Harvest / check only** for patches you will not replant.
+2. Open **Inventory planning**. Choose **Bank between inventories**, set **Reserved inventory slots** for travel gear and harvested crops, and decide whether to **Pack protection as notes**. Click **Save preset** to keep these choices.
+3. Select that preset in the sidebar and click **Start run**. Starting again asks before clearing existing completion marks.
+4. Open a bank. Its normal item display is filtered to the current inventory's crops, farming tools, compost, protection payments and coin budget. Withdraw items yourself. Missing items and empty placeholders do not appear.
+5. Use **Item requirements** at the top of the sidebar. Compact lines such as `6 x Magic sapling` show the required quantity with an item icon on the right. Red means short; green means enough carried supplies. Hover a line or icon for the carried count and exact shortage. Hide it with **Show packing checklist** when ready to follow your route.
+
+The sidebar shows **Inventory N of M** and inserts stops at your chosen bank between loads. When you finish a load's patches, its checklist switches to the next inventory. At the bank, click **Filter this inventory**, deposit harvested produce, and withdraw the listed supplies. Click **Banked - continue** on the bank card when ready; this keeps your patch progress. The same bank is used for every resupply stop in that preset. **Custom bank** lets you enter directions for another bank.
+
+The planner uses RuneLite's item definitions to count stacks and individual items. It starts with eight reserved slots, counts tools as backpack space even when worn, and does not predict harvested quantities or stored supplies. Increase the reserve for a large harvest, or note produce at a leprechaun yourself. A single patch that exceeds capacity stays in the route with a warning. Disable **Plan inventory loads** for the full remaining-run list. See [inventory planning](docs/inventory-planning.md) for the calculation and bank travel options.
 
 Hover **Packing notes** for tool, protection and travel reminders. A gray line means the carried quantity is unknown. Icons identify the item; they do not indicate bank availability.
 
-Counts include your inventory and worn equipment, not your bank, leprechaun storage, seed-box contents or bottomless bucket charges. Planting supplies must be unnoted; protection payments may be noted. Mark each finished patch complete to remove its planting supplies from the remaining quantities. Counts are unknown while logged out.
+Counts include your inventory and worn equipment, not your bank, leprechaun storage, seed-box contents or bottomless bucket charges. Planting supplies must be unnoted. With **Pack protection as notes** enabled, noteable protection rows require notes so the supplies use the planned space. Disable that option to plan loose payments. Mark each finished patch complete to remove its planting supplies from the current inventory's remaining quantities. Counts are unknown while logged out.
 
 For a bottomless bucket, select **Crops and supplies → Compost → Bottomless compost bucket**, then **Save preset**. This replaces regular application buckets with one filled bottomless bucket. The filter also shows an empty bucket for refilling. The checklist confirms possession only; check the stored compost type and charges yourself. Gardener payments still require their usual items.
 
 Protection payments are included by default wherever a gardener is listed. They are optional, and you can start without them. Payments use the exact required form, including filled baskets or sacks. Disable **Include protection payments** if you do not want to pack them. Protected trees omit compost except celastrus, which can use it to improve yield. A **Coin budget** of 10,000 is a starting allowance, not a calculated fare or removal total. Adjust it for your route.
 
-**Clear bank filter**, closing the bank, logging out, changing crops or patches, switching presets, changing profile or disabling the plugin removes the filter. Click **Start run** again to reapply it. Other bank searches and Bank Tags still apply; clear them if wanted supplies are hidden. The filter does not edit saved bank tabs or another plugin’s configuration.
+**Clear bank filter**, closing the bank, moving to another inventory, logging out, changing crops or patches, switching presets, changing profile or disabling the plugin removes the filter. Click **Filter this inventory** to reapply it without clearing progress. Other bank searches and Bank Tags still apply; clear them if wanted supplies are hidden. The filter does not edit saved bank tabs or another plugin’s configuration.
 
 You choose which axe you can use, travel equipment, combat gear, diving equipment and belladonna gloves. The checklist includes common axes and shows reminders for special equipment. Turn off the rake, dibber or other tool recommendations if your unlocks or stored tools replace them. Read the [supply reference and limits](docs/supplies.md) for details.
 
@@ -86,7 +92,7 @@ You choose which axe you can use, travel equipment, combat gear, diving equipmen
 
 Selecting a saved run in the sidebar starts a fresh checklist. Loading its slot for editing keeps the current completion marks. Check **Completed** after each patch, or uncheck it to correct a mark. The next unfinished patch has a green border, and the progress bar turns green when the run is complete.
 
-**Reset run** clears all completion marks, including marks for patches currently excluded from the route. It keeps your presets and settings. Progress is saved between sessions; there is no daily or logout reset.
+**Reset run** clears patch and bank completion marks, including marks for patches currently excluded from the route. It keeps your presets and settings. Progress is saved between sessions; there is no daily or logout reset. Undoing a patch restores any bank stops after that inventory.
 
 Removing or adding a patch recalculates the route when **Optimize route** is enabled. With optimization off, the stored order is kept. Travel settings include a **Catherby charter ship** option for Brimhaven: walk from Catherby fruit patch to the docks, charter to Brimhaven, then walk to its fruit patch. Bring coins for the fare.
 

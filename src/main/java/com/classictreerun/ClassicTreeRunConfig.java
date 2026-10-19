@@ -36,6 +36,20 @@ public interface ClassicTreeRunConfig extends net.runelite.client.config.Config
     @ConfigSection(name="Crops and supplies", description="Choose what to replant for each patch type. Save preset to keep these choices. No lower-tier substitutions.", position=4, closedByDefault=true)
     String CROPS = "crops";
 
+    @ConfigSection(name="Inventory planning", description="Split your run into loads and choose where to bank", position=5, closedByDefault=true)
+    String INVENTORIES = "inventories";
+    @ConfigItem(keyName="loadPlanning", name="Plan inventory loads", description="Split the prepared patch order into loads with bank stops. Uses RuneLite item definitions; banking and withdrawing stay manual.", section=INVENTORIES, position=0)
+    default boolean loadPlanning() { return true; }
+    @ConfigItem(keyName="loadReservedSlots", name="Reserved inventory slots", description="Leave room for travel items, other gear and harvested crops. Planned tools are counted separately, even when worn. Harvest quantities and stored tools are not predicted.", section=INVENTORIES, position=1)
+    @net.runelite.client.config.Range(min=0, max=27)
+    default int loadReservedSlots() { return 8; }
+    @ConfigItem(keyName="loadNotedProtection", name="Pack protection as notes", description="Plan noteable protection payments as one stack and require notes in the packing list. Withdraw these payments as notes yourself. Disable to plan unnoted payments.", section=INVENTORIES, position=2)
+    default boolean loadNotedProtection() { return true; }
+    @ConfigItem(keyName="loadBank", name="Bank between inventories", description="Use this bank for every resupply stop in this preset. Choose Custom bank for another location and enter its instructions below.", section=INVENTORIES, position=3)
+    default BankDestination loadBank() { return BankDestination.GRAND_EXCHANGE; }
+    @ConfigItem(keyName="loadBankInstructions", name="Custom bank instructions", description="For Custom bank: describe where to go and how to reach it (up to 500 characters). This is guidance only; no teleport or banking action is performed.", section=INVENTORIES, position=4)
+    default String loadBankInstructions() { return "Travel to your chosen bank and resupply manually."; }
+
     @ConfigItem(keyName="cropTree", name="Tree", description="Chosen crop for every selected tree patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=0)
     default CropChoices.Tree cropTree() { return CropChoices.Tree.OAK; }
     @ConfigItem(keyName="cropFruit", name="Fruit tree", description="Chosen crop for every selected fruit patch. Harvest / check only omits replanting supplies and payments.", section=CROPS, position=1)

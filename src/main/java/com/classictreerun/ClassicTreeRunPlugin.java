@@ -77,7 +77,7 @@ public class ClassicTreeRunPlugin extends Plugin
         presetActions = null;
         if (settings != null) { settings.dispose(); }
         if (navigation != null) { toolbar.removeNavigation(navigation); navigation = null; }
-        settings = null; panel = null;
+        settings = null;if(panel!=null)panel.dispose();panel = null;
         try
         {
             String profile = configManager.getProfile() == null ? "default" : Long.toString(configManager.getProfile().getId());
@@ -115,6 +115,14 @@ public class ClassicTreeRunPlugin extends Plugin
                     supplyFilter.start(plan);bankSearch.layoutBank();publishFilterState();
                 });
             },this::clearSupplyFilter);
+            ClassicTreeRunPanel inventoryPanel=panel;
+            panel.setInventoryDataRequest(ids->clientThread.invokeLater((java.util.function.BooleanSupplier)()->{
+                if(inventoryPanel!=panel)return true;
+                if(client.getGameState()==GameState.STARTING || client.getGameState()==GameState.UNKNOWN)return false;
+                InventoryItemData data=InventoryItemData.read(ids,itemManager::getItemComposition);
+                SwingUtilities.invokeLater(()->{if(inventoryPanel==panel)inventoryPanel.setInventoryData(data);});
+                return true;
+            }));
             growthMonitor=new GrowthMonitor(config,combined,panel,message->notifier.notify(message),cropReference,
                 ()->java.time.Instant.now().getEpochSecond(),true);
             panel.reload();
@@ -176,7 +184,7 @@ public class ClassicTreeRunPlugin extends Plugin
             if(growthMonitor!=null){growthMonitor.dispose();growthMonitor=null;}
             if (settings != null) { settings.dispose(); settings = null; }
             if (navigation != null) { toolbar.removeNavigation(navigation); navigation = null; }
-            panel = null;
+            if(panel!=null)panel.dispose();panel = null;
         });
     }
 
@@ -199,11 +207,11 @@ public class ClassicTreeRunPlugin extends Plugin
         }
         else
         {
-            if (!(key.startsWith("patch_") || key.startsWith("crop") || key.startsWith("supply") || key.endsWith("Travel") || "runName".equals(key)
+            if (!(key.startsWith("patch_") || key.startsWith("crop") || key.startsWith("supply") || key.startsWith("load") || key.endsWith("Travel") || "runName".equals(key)
                 || "autoOptimize".equals(key) || "hideCompleted".equals(key) || "showDetails".equals(key)
                 || "trackGrowth".equals(key) || "notifyWhenReady".equals(key) || "autoCompleteReplanted".equals(key))) { return; }
             changed.add(key.startsWith("patch_") ? "patch_" : key);
-            if(key.startsWith("patch_") || key.startsWith("crop") || key.startsWith("supply"))clearSupplyFilter();
+            if(key.startsWith("patch_") || key.startsWith("crop") || key.startsWith("supply") || key.startsWith("load"))clearSupplyFilter();
         }
         if (!refreshQueued.compareAndSet(false, true)) { return; }
         SwingUtilities.invokeLater(() -> {

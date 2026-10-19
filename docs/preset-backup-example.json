@@ -1,6 +1,6 @@
 {
   "format": "farm-run-planner-presets",
-  "version": 2,
+  "version": 3,
   "presets": [
     {
       "name": "Classic trees",
@@ -60,7 +60,12 @@
         "supplyRake": true,
         "supplyDibber": true,
         "supplyCoins": 10000,
-        "supplyCompost": "ULTRACOMPOST"
+        "supplyCompost": "ULTRACOMPOST",
+        "loadPlanning": true,
+        "loadReservedSlots": 8,
+        "loadNotedProtection": true,
+        "loadBank": "GRAND_EXCHANGE",
+        "loadBankInstructions": "Travel to your chosen bank and resupply manually."
       }
     },
     {
@@ -107,7 +112,12 @@
         "supplyRake": true,
         "supplyDibber": true,
         "supplyCoins": 10000,
-        "supplyCompost": "ULTRACOMPOST"
+        "supplyCompost": "ULTRACOMPOST",
+        "loadPlanning": true,
+        "loadReservedSlots": 8,
+        "loadNotedProtection": true,
+        "loadBank": "GRAND_EXCHANGE",
+        "loadBankInstructions": "Travel to your chosen bank and resupply manually."
       }
     }
   ]

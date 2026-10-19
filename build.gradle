@@ -32,6 +32,15 @@ tasks.register('benchmarkInventoryPlanning', JavaExec) {
     mainClass = 'com.classictreerun.InventoryPlanningBenchmark'
     systemProperty 'java.awt.headless', 'true'
 }
+
+tasks.register('verifyRouteCombinations', JavaExec) {
+    group = 'verification'
+    description = 'Exhaustively audit patch groups and classic selections against independent offline solvers.'
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.classictreerun.RouteCombinationAudit'
+    maxHeapSize = '512m'
+    systemProperty 'java.awt.headless', 'true'
+}
 tasks.register('run', JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
     mainClass = 'com.classictreerun.ClassicTreeRunLauncher'

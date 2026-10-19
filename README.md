@@ -97,6 +97,8 @@ Selecting a saved run in the sidebar starts a fresh checklist. Loading its slot 
 
 Removing or adding a patch recalculates the route when **Optimize route** is enabled. With optimization off, the stored order is kept. Travel settings include a **Catherby charter ship** option for Brimhaven: walk from Catherby fruit patch to the docks, charter to Brimhaven, then walk to its fruit patch. Bring coins for the fare.
 
+Every selection from the current catalogue has an exact minimum order for the plugin's estimated travel scores, including all 99 patches. The [route-combination audit and proof](docs/route-optimality.md) cover all current travel settings. Actual journey times and a combined search over patch order and banking are outside that guarantee.
+
 Bring your seeds or saplings, tools, compost or protection payments, and travel supplies. The checklist tracks each patch as one stop; it does not separately track harvesting, clearing, planting and protection.
 
 ### Next teleport highlight

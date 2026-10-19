@@ -39,7 +39,7 @@ Access notes list the main gates and transport requirements. They do not replace
 
 ## Route model
 
-`TravelCosts` contains relative travel-effort scores. These are not measured timings, exact tile distances or a navigation graph. Up to 16 selected patches use an exact solver for those scores. Larger runs use bounded nearest-neighbour and directed-relocation searches, retaining the existing order when no improvement is found.
+`TravelCosts` contains relative travel-effort scores. These are not measured timings, exact tile distances or a navigation graph. The current catalogue is solved exactly for those scores by decomposing independent travel groups, whose largest size is 13 across all 1,728 travel configurations. The [optimality proof and exhaustive audit](route-optimality.md) cover every patch selection. A bounded search remains only as a fallback for future cost models that do not satisfy the decomposition conditions.
 
 Shared walking legs apply to actual sites. Hardwoods on different islands do not share a walking leg simply because they have the same crop type. Underwater seaweed, the Great Conch surface and coral nurseries remain separate access areas. The model does not infer the player's starting position, banking needs, teleport charges, spellbook or unlocks.
 

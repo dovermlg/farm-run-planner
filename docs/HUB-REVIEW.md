@@ -1,5 +1,7 @@
 # Plugin Hub review notes
 
+This preflight applies to 1.14.2. The working 1.14.3 route changes passed direct compilation and offline tests; their current-source packaging preflight remains pending. See [route optimality](route-optimality.md) for their executed checks and validation scope.
+
 **Farm Run Planner 1.14.2** · Author: **Astral** · Internal name: `farm-run-planner`
 
 The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongside 175 regression tests and the farming-reference audit. This is a development preflight; maintainer review and hosted Plugin Hub CI have not taken place.

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.function.BooleanSupplier;
 
-/** Exact for <=16 stops; bounded multi-start nearest-neighbour and relocate search for larger runs. */
+/** Exact independent travel groups; bounded fallback only for unsupported large cost models. */
 final class RouteOptimizer
 {
     private RouteOptimizer() { }
@@ -22,7 +22,61 @@ final class RouteOptimizer
         if (entry.length != n || travel.length != n) { throw new IllegalArgumentException("Invalid route dimensions"); }
         if (n == 0) { return new ArrayList<>(); }
         for (int[] row : travel) { if (row.length != n) { throw new IllegalArgumentException("Invalid cost matrix"); } }
+        List<List<Integer>> groups = independentGroups(entry,travel,cancelled);
+        if(groups!=null && groups.size()>1)
+        {
+            List<Patch> result=new ArrayList<>();
+            for(List<Integer> group:groups)
+            {
+                checkCancelled(cancelled);
+                int m=group.size();int[] localEntry=new int[m];int[][] localTravel=new int[m][m];
+                List<Patch> localPatches=new ArrayList<>();
+                for(int i=0;i<m;i++)
+                {
+                    int original=group.get(i);localPatches.add(patches.get(original));localEntry[i]=entry[original];
+                    for(int j=0;j<m;j++)localTravel[i][j]=travel[original][group.get(j)];
+                }
+                result.addAll(exactRoute(localPatches,localEntry,localTravel,cancelled));
+            }
+            return result;
+        }
         if (n > 16) { return largeRoute(patches, entry, travel, cancelled); }
+        return exactRoute(patches,entry,travel,cancelled);
+    }
+
+    /**
+     * Cross-group travel must equal the next patch's entry cost, and all other edges
+     * may only save cost. Any route's within-group chains can then be joined without
+     * increasing cost. Solving each group exactly and concatenating is globally optimal.
+     * Removing patches cannot enlarge these groups. See docs/route-optimality.md.
+     */
+    private static List<List<Integer>> independentGroups(int[] entry,int[][] travel,BooleanSupplier cancelled)
+    {
+        int n=entry.length;
+        for(int i=0;i<n;i++)for(int j=0;j<n;j++)
+            if(i!=j && travel[i][j]>entry[j])return null;
+        List<List<Integer>> groups=new ArrayList<>();boolean[] used=new boolean[n];
+        for(int start=0;start<n;start++)if(!used[start])
+        {
+            checkCancelled(cancelled);
+            List<Integer> group=new ArrayList<>();group.add(start);used[start]=true;
+            for(int at=0;at<group.size();at++)
+            {
+                int from=group.get(at);
+                for(int to=0;to<n;to++)if(!used[to] && (travel[from][to]<entry[to] || travel[to][from]<entry[from]))
+                {
+                    used[to]=true;group.add(to);
+                    if(group.size()>16)return null;
+                }
+            }
+            Collections.sort(group);groups.add(group);
+        }
+        return groups;
+    }
+
+    private static List<Patch> exactRoute(List<Patch> patches,int[] entry,int[][] travel,BooleanSupplier cancelled)
+    {
+        int n=patches.size();
         int size = 1 << n;
         int[] best = new int[size * n];
         byte[] previous = new byte[size * n];

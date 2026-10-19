@@ -1,5 +1,7 @@
 # Build results
 
+The working 1.14.3 route changes have passed direct Java 11 compilation, 179 JUnit tests and the [combination audit](route-optimality.md). Their standard Gradle/Plugin Hub build remains pending. The results below record the last fully packaged release, 1.14.2.
+
 Version **1.14.2**, tested with **JDK 11** and **RuneLite 1.13.2**.
 
 | Check | Result |

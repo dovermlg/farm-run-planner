@@ -17,7 +17,7 @@ jobs:
           distribution: temurin
           java-version: '11'
           cache: gradle
-      - name: Build and check farming reference without launching the game
+      - name: Build and audit farming data and route combinations without launching the game
         run: >-
           bash ./gradlew --no-daemon -I tools/reference-export.gradle
-          test build verifyFarmingReference
+          test build verifyFarmingReference verifyRouteCombinations

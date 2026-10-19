@@ -16,7 +16,7 @@ The game does **not** supply this plugin with a guaranteed per-patch harvest tim
 
 Consequently, the displayed time is a conservative stage-based estimate and can be late by up to one growth interval under ordinary healthy growth. Unseen disease, gardener intervention, Kronos skips, special modifiers, another client or changed game data can invalidate it. An unchanged state observed after the predicted deadline revises the estimate. A timer passing is not proof of crop health. All estimated-ready text and notifications retain that distinction. The seasonal fivefold rate follows the audited RuneLite implementation, excluding Deadman; future seasonal mechanics need review.
 
-Travel costs are separate hand-authored relative scores. The game does not provide the cost matrix or a globally fastest farming route. The optimizer is exact for its model at up to 16 stops; larger selections use a heuristic. It does not measure tile paths, current player position, spellbooks, unlocks, banking or teleport charges. See [catalogue/travel verification](VERIFICATION.md) for sources and scope.
+Travel costs are separate hand-authored relative scores. The game does not provide the cost matrix or a globally fastest farming route. Version 1.14.3 solves every selection from the current catalogue exactly for its model using independent groups of at most 13 patches. The [optimality proof and combination audit](route-optimality.md) cover all travel settings. It does not measure tile paths, current player position, spellbooks, unlocks, banking or teleport charges. See [catalogue/travel verification](VERIFICATION.md) for sources and scope.
 
 ## Verification performed
 

@@ -1,0 +1,19 @@
+{
+  "result": "passed",
+  "travelConfigurations": 1728,
+  "largestIndependentGroup": 13,
+  "distinctGroupProfiles": 65,
+  "exhaustiveGroupSubsets": 29184,
+  "permutedGroupInputs": 1516,
+  "exhaustiveClassicSubsets": 65536,
+  "full99PatchRoutes": 1728,
+  "bruteForceCases": 128,
+  "bruteForcePermutations": 647278,
+  "wholeRoute17StopOracleCases": 12,
+  "all99SubsetsLiterallyEnumerated": false,
+  "globalGuarantee": "All subsets of the current 99-patch catalogue under all current travel settings, by the independent-group proof; minimum estimated travel score only.",
+  "bankPlacementJointlyOptimized": false,
+  "liveTravelTimesVerified": false,
+  "gameAccountUsed": false,
+  "elapsedSeconds": 6.7162826
+}

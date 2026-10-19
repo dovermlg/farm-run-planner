@@ -72,6 +72,8 @@ Backups contain preset names, selected patches in route order, crop choices, sup
 
 Counts include your inventory and worn equipment, not your bank, leprechaun storage, seed-box contents or bottomless bucket charges. Planting supplies must be unnoted; protection payments may be noted. Mark each finished patch complete to remove its planting supplies from the remaining quantities. Counts are unknown while logged out.
 
+For a bottomless bucket, select **Crops and supplies → Compost → Bottomless compost bucket**, then **Save preset**. This replaces regular application buckets with one filled bottomless bucket. The filter also shows an empty bucket for refilling. The checklist confirms possession only; check the stored compost type and charges yourself. Gardener payments still require their usual items.
+
 Protection payments are included by default wherever a gardener is listed. They are optional, and you can start without them. Payments use the exact required form, including filled baskets or sacks. Disable **Include protection payments** if you do not want to pack them. Protected trees omit compost except celastrus, which can use it to improve yield. A **Coin budget** of 10,000 is a starting allowance, not a calculated fare or removal total. Adjust it for your route.
 
 **Clear bank filter**, closing the bank, logging out, changing crops or patches, switching presets, changing profile or disabling the plugin removes the filter. Click **Start run** again to reapply it. Other bank searches and Bank Tags still apply; clear them if wanted supplies are hidden. The filter does not edit saved bank tabs or another plugin’s configuration.

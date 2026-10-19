@@ -29,7 +29,7 @@ public class SupplyPresetTest
     @Test public void backupVersionTwoPreservesChosenCropsAndSupplySettings()
     {
         ConfigFixture f=new ConfigFixture();f.set("cropHerb","HUASCA");f.set("cropHardwood","ROSEWOOD");
-        f.set("supplyCoins","32100");f.set("supplyDibber","false");f.set("supplyCompost","NONE");
+        f.set("supplyCoins","32100");f.set("supplyDibber","false");f.set("supplyCompost","BOTTOMLESS");
         PresetBackup.Entry captured=PresetBackup.capture("Mine",f.config);
         String json=PresetBackup.write(List.of(captured));
         assertTrue(json.contains("\"version\": 2"));
@@ -37,7 +37,7 @@ public class SupplyPresetTest
         ConfigFixture target=new ConfigFixture();new PresetSlots(target).importPresets(List.of(read));
         new PresetLibrary(target).load("Mine");assertEquals(CropChoices.Herb.HUASCA,target.config.cropHerb());
         assertEquals(32100,target.config.supplyCoins());assertFalse(target.config.supplyDibber());
-        assertEquals(SupplyPlan.Compost.NONE,target.config.supplyCompost());
+        assertEquals(SupplyPlan.Compost.BOTTOMLESS,target.config.supplyCompost());
     }
 
     @Test public void versionOneBackupsRemainReadableEvenIfVersionComesLast()

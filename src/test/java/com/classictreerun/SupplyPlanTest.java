@@ -114,6 +114,37 @@ public class SupplyPlanTest
         assertEquals(2,row(plan,ItemID.BUCKET_COMPOST,true).quantity);
     }
 
+    @Test public void bottomlessPacksOneFilledBucketAndNeverTreatsAnEmptyBucketAsCompost()
+    {
+        ConfigFixture f=new ConfigFixture();f.set("supplyCompost","BOTTOMLESS");
+        SupplyPlan plan=SupplyPlan.build(f.config,List.of(Patch.TROLL_HERB,Patch.WEISS_HERB));
+        SupplyPlan.Requirement bucket=row(plan,ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED,false);
+        assertEquals(1,bucket.quantity);
+        assertTrue(plan.items.contains(ItemID.BOTTOMLESS_COMPOST_BUCKET));
+        assertFalse(plan.items.contains(ItemID.BUCKET_ULTRACOMPOST));
+        assertTrue(plan.reminders.stream().anyMatch(text->text.contains("2 remaining patches") && text.contains("Charges are not counted")));
+        int index=plan.requirements.indexOf(bucket);
+        assertEquals(Long.valueOf(0),plan.carried(new SupplySnapshot(true,Map.of(ItemID.BOTTOMLESS_COMPOST_BUCKET,1L),Map.of())).get(index));
+        assertEquals(Long.valueOf(1),plan.carried(new SupplySnapshot(true,Map.of(ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED,1L),Map.of())).get(index));
+        assertEquals(Long.valueOf(0),plan.carried(new SupplySnapshot(true,Map.of(),Map.of(ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED,1L))).get(index));
+    }
+
+    @Test public void bottomlessDoesNotReplaceProtectionPaymentsOrAppearWithoutEligiblePatches()
+    {
+        ConfigFixture f=new ConfigFixture();f.set("supplyCompost","BOTTOMLESS");
+        SupplyPlan plan=SupplyPlan.build(f.config,List.of(Patch.FALADOR_ALLOTMENT_NW));
+        assertEquals(1,row(plan,ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED,false).quantity);
+        assertEquals(2,row(plan,ItemID.BUCKET_COMPOST,true).quantity);
+        for(List<Patch> patches:List.of(List.<Patch>of(),List.of(Patch.CORAL_E),List.of(Patch.LUMBRIDGE_TREE)))
+        {
+            SupplyPlan noCompost=SupplyPlan.build(f.config,patches);
+            assertFalse(noCompost.items.contains(ItemID.BOTTOMLESS_COMPOST_BUCKET));
+            assertFalse(noCompost.items.contains(ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED));
+        }
+        f.set("cropHerb","NONE");
+        assertFalse(SupplyPlan.build(f.config,List.of(Patch.TROLL_HERB)).items.contains(ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED));
+    }
+
     @Test public void coralCannotReceiveCompostAndGrapesNeedSaltpetreAndTrowel()
     {
         ConfigFixture f=new ConfigFixture();f.set("cropCoral","UMBRAL");

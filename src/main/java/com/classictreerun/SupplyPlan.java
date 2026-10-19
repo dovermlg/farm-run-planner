@@ -13,9 +13,12 @@ public final class SupplyPlan
 {
     public enum Compost
     {
-        NONE, COMPOST, SUPERCOMPOST, ULTRACOMPOST;
+        NONE, COMPOST, SUPERCOMPOST, ULTRACOMPOST, BOTTOMLESS;
         @Override public String toString()
-        { return this==NONE ? "No compost" : name().substring(0,1)+name().substring(1).toLowerCase(java.util.Locale.ROOT); }
+        {
+            if(this==BOTTOMLESS)return "Bottomless compost bucket";
+            return this==NONE ? "No compost" : name().substring(0,1)+name().substring(1).toLowerCase(java.util.Locale.ROOT);
+        }
     }
 
     static final class Requirement
@@ -40,7 +43,12 @@ public final class SupplyPlan
     {
         this.requirements=List.copyOf(requirements); this.reminders=List.copyOf(reminders);
         java.util.HashSet<Integer> ids=new java.util.HashSet<>();
-        for(Requirement requirement:requirements)ids.addAll(requirement.alternatives);
+        for(Requirement requirement:requirements)
+        {
+            ids.addAll(requirement.alternatives);
+            // Let players find an empty bucket to fill, without counting it as usable compost.
+            if(requirement.item==ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED)ids.add(ItemID.BOTTOMLESS_COMPOST_BUCKET);
+        }
         items=Set.copyOf(ids);
     }
 
@@ -87,9 +95,17 @@ public final class SupplyPlan
         result.addAll(planting.values());
         if(compost>0 && config.supplyCompost()!=Compost.NONE)
         {
-            int item=config.supplyCompost()==Compost.COMPOST ? ItemID.BUCKET_COMPOST
-                : config.supplyCompost()==Compost.SUPERCOMPOST ? ItemID.BUCKET_SUPERCOMPOST : ItemID.BUCKET_ULTRACOMPOST;
-            result.add(new Requirement(config.supplyCompost().name().toLowerCase(java.util.Locale.ROOT)+" buckets",item,compost,false));
+            if(config.supplyCompost()==Compost.BOTTOMLESS)
+            {
+                result.add(new Requirement("Filled bottomless bucket (presence only)",ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED,1,false));
+                reminders.add("Bottomless bucket: check its compost type and charges for "+compost+" remaining patches. Charges are not counted.");
+            }
+            else
+            {
+                int item=config.supplyCompost()==Compost.COMPOST ? ItemID.BUCKET_COMPOST
+                    : config.supplyCompost()==Compost.SUPERCOMPOST ? ItemID.BUCKET_SUPERCOMPOST : ItemID.BUCKET_ULTRACOMPOST;
+                result.add(new Requirement(config.supplyCompost().name().toLowerCase(java.util.Locale.ROOT)+" buckets",item,compost,false));
+            }
         }
         if(!patches.isEmpty())
         {

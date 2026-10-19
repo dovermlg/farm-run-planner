@@ -1,8 +1,8 @@
 # Plugin Hub review notes
 
-**Farm Run Planner 1.12.0** · Author: **Astral** · Internal name: `farm-run-planner`
+**Farm Run Planner 1.12.1** · Author: **Astral** · Internal name: `farm-run-planner`
 
-The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongside 129 regression tests and the farming-reference audit. This is a development preflight; maintainer review and hosted Plugin Hub CI have not taken place.
+The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongside 131 regression tests and the farming-reference audit. This is a development preflight; maintainer review and hosted Plugin Hub CI have not taken place.
 
 ## Implementation
 
@@ -25,7 +25,7 @@ The check used unmodified [plugin-hub-tooling at commit 034eaff](https://github.
 
 The harness did not run the source downloader or uploader. Its `LOCAL-OFFLINE-CHECK` URL and zero commit are parser fixtures, not submission values. The harness and reference utilities are outside the production source set and are excluded from the plugin JAR.
 
-Evidence: [hub-check-results.json](hub-check-results.json), [hub-packager.log](hub-packager.log), and [harness instructions](../tools/hub-review/README.md). The JSON and log record the 1.12.0 local preflight. GitHub publication and the project's own CI are documented separately in [GITHUB.md](GITHUB.md).
+Evidence: [hub-check-results.json](hub-check-results.json), [hub-packager.log](hub-packager.log), and [harness instructions](../tools/hub-review/README.md). The JSON and log record the 1.12.1 local preflight. GitHub publication and the project's own CI are documented separately in [GITHUB.md](GITHUB.md).
 
 ## Preset backups
 

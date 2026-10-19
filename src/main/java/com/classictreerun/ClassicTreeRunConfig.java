@@ -89,7 +89,7 @@ public interface ClassicTreeRunConfig extends net.runelite.client.config.Config
     @ConfigItem(keyName="supplyCoins", name="Coin budget", description="Coins to pack. Choose a budget for your fares and gardener removal fees; this is not a calculated total.", section=CROPS, position=34)
     @net.runelite.client.config.Range(min=0)
     default int supplyCoins() { return 10000; }
-    @ConfigItem(keyName="supplyCompost", name="Compost", description="Buckets for replanting eligible crops. Paid trees without variable yields and crops that cannot use compost are omitted. Bottomless bucket charges and leprechaun storage are not counted.", section=CROPS, position=35)
+    @ConfigItem(keyName="supplyCompost", name="Compost", description="Choose regular buckets or one bottomless compost bucket for eligible crops. Bottomless checks possession of a filled bucket only; verify its compost type and charges yourself. Leprechaun storage is not counted.", section=CROPS, position=35)
     default SupplyPlan.Compost supplyCompost() { return SupplyPlan.Compost.ULTRACOMPOST; }
 
     @ConfigItem(keyName="backupFilename", name="Backup filename", description="A .json filename inside plugin-data/farm-run-planner/preset-backups, for example presets.json. Save draft edits before exporting.", section=BACKUPS, position=0)

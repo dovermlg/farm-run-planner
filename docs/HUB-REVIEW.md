@@ -1,6 +1,6 @@
 # Plugin Hub review notes
 
-This preflight applies to 1.14.2. The working 1.14.3 route changes passed direct compilation and offline tests; their current-source packaging preflight remains pending. See [route optimality](route-optimality.md) for their executed checks and validation scope.
+The recorded local preflight below applies to 1.14.2. Version 1.14.3 passed the [GitHub build and offline audits](https://github.com/dovermlg/farm-run-planner/actions/runs/39202638670). Version 1.14.4 removes the disabled-by-default override requested by the [Plugin Hub review bot](https://github.com/runelite/plugin-hub/pull/18909#issuecomment-6260228390), so a newly installed plugin uses RuneLite's normal enabled default. Its readiness regression checks that behavior. See [route optimality](route-optimality.md) for the route audit and proof.
 
 **Farm Run Planner 1.14.2** · Author: **Astral** · Internal name: `farm-run-planner`
 
@@ -11,7 +11,7 @@ The local Plugin Hub packager and API checks passed with RuneLite 1.13.2, alongs
 | Area | Approach |
 | --- | --- |
 | Build | Java 11, `build=standard`, no extra production dependencies |
-| Metadata | Explicit internal name, legacy data directory and disabled-by-default descriptor |
+| Metadata | Explicit internal name and legacy data directory; current installation default described above |
 | License | BSD-2-Clause; license and farming-data notices included as normal JAR resources |
 | Configuration | Public RuneLite config controls; direct accessors for all 162 items |
 | Storage | Bounded `Filepath` from `Plugin.getPluginDirectory()` |

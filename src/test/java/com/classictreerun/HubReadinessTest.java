@@ -41,12 +41,12 @@ public class HubReadinessTest
         assertEquals(expected,ConfigValues.read(config));
     }
 
-    @Test public void descriptorSelectsTheApprovedDirectoryAndLegacyMigration()
+    @Test public void descriptorPreservesDirectoryMigrationAndEnablesInstalledPlugin()
     {
         PluginDescriptor descriptor=ClassicTreeRunPlugin.class.getAnnotation(PluginDescriptor.class);
         assertEquals("farm-run-planner",descriptor.internalName());
         assertEquals("farm-run-planner",descriptor.legacyDataDirectory());
-        assertFalse(descriptor.enabledByDefault());
+        assertTrue(descriptor.enabledByDefault());
     }
 
     @Test public void licenseNoticesAreNormalResourcesWithNoCustomBuildStep() throws Exception

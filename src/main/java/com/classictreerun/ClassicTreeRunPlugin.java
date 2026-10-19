@@ -37,7 +37,7 @@ import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.overlay.OverlayManager;
 
-@PluginDescriptor(name="Farm Run Planner", internalName="farm-run-planner", legacyDataDirectory="farm-run-planner", description="Local named farming presets and estimated travel routes", tags={"farming", "tree", "herb", "route"}, enabledByDefault=false)
+@PluginDescriptor(name="Farm Run Planner", internalName="farm-run-planner", legacyDataDirectory="farm-run-planner", description="Local named farming presets and estimated travel routes", tags={"farming", "tree", "herb", "route"})
 public class ClassicTreeRunPlugin extends Plugin
 {
     @Inject private ClientToolbar toolbar;

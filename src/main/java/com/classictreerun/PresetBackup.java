@@ -22,7 +22,7 @@ final class PresetBackup
     private static final int MAX_PRESETS = 256;
     private static final String FORMAT = "farm-run-planner-presets";
     private static final Set<String> BOOLEAN_SETTINGS = Set.of("autoOptimize", "hideCompleted", "showDetails",
-        "supplyProtection", "supplyTools", "supplyRake", "supplyDibber", "loadPlanning", "loadNotedProtection");
+        "supplyProtection", "supplyTools", "supplyRake", "supplyDibber", "supplyTeleports", "supplyFairyStaff", "loadPlanning", "loadNotedProtection");
     private static final Set<String> NUMBER_SETTINGS=Set.of("supplyCoins","loadReservedSlots");
 
     static final class Entry
@@ -90,7 +90,7 @@ final class PresetBackup
         try (JsonWriter writer = new JsonWriter(text))
         {
             writer.setIndent("  ");
-            writer.beginObject().name("format").value(FORMAT).name("version").value(3);
+            writer.beginObject().name("format").value(FORMAT).name("version").value(7);
             writer.name("presets").beginArray();
             for (Entry preset : presets)
             {
@@ -137,7 +137,7 @@ final class PresetBackup
                     case "version":
                         if (reader.peek() != JsonToken.NUMBER) { throw invalid("This preset backup version is not supported."); }
                         String encodedVersion=reader.nextString();
-                        if (!("1".equals(encodedVersion) || "2".equals(encodedVersion) || "3".equals(encodedVersion)))
+                        if (!("1".equals(encodedVersion) || "2".equals(encodedVersion) || "3".equals(encodedVersion) || "4".equals(encodedVersion) || "5".equals(encodedVersion) || "6".equals(encodedVersion) || "7".equals(encodedVersion)))
                         { throw invalid("This preset backup version is not supported."); }
                         version=Integer.parseInt(encodedVersion);
                         break;
@@ -164,6 +164,8 @@ final class PresetBackup
             {
                 if(!entry.settings.keySet().equals(keysForVersion(version)))throw invalid("The preset settings do not match the backup version.");
                 Map<String,String> values=new LinkedHashMap<>(settings(new ClassicTreeRunConfig() { }));
+                // These older formats predate bank choices; retain their historical default.
+                if(version<=2)values.put("loadBank",BankDestination.GRAND_EXCHANGE.name());
                 values.putAll(entry.settings);
                 normalized.add(new Entry(entry.name,entry.patches,values));
             }
@@ -228,7 +230,7 @@ final class PresetBackup
                         }
                     }
                     reader.endObject();
-                    if (!keys.equals(keysForVersion(3)) && !keys.equals(keysForVersion(2)) && !keys.equals(keysForVersion(1)))
+                    if (!keys.equals(keysForVersion(7)) && !keys.equals(keysForVersion(6)) && !keys.equals(keysForVersion(5)) && !keys.equals(keysForVersion(4)) && !keys.equals(keysForVersion(3)) && !keys.equals(keysForVersion(2)) && !keys.equals(keysForVersion(1)))
                     { throw invalid("A preset is missing required settings."); }
                     break;
                 default: throw invalid("A preset contains an unrecognized field.");
@@ -242,6 +244,10 @@ final class PresetBackup
     private static Set<String> keysForVersion(int version)
     {
         Set<String> keys=new HashSet<>(settings(new ClassicTreeRunConfig() { }).keySet());
+        if(version<7)keys.remove("supplyInventory");
+        if(version<6)keys.remove("supplyBankView");
+        if(version<5)keys.remove("supplyEquipment");
+        if(version<4)keys.removeAll(Set.of("supplyTeleports","supplyTeleportMode","supplyFairyStaff"));
         if(version<3)keys.removeIf(key->key.startsWith("load"));
         if(version<2)keys.removeIf(key->key.startsWith("crop") || key.startsWith("supply"));
         return keys;

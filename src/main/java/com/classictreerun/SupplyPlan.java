@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import net.runelite.api.gameval.ItemID;
 
-/** Display-only packing list for the chosen crops. Does not inspect or change game actions. */
+/** Display-only packing list for chosen crops and route travel. Never performs game actions. */
 public final class SupplyPlan
 {
     public enum Compost
@@ -24,29 +24,38 @@ public final class SupplyPlan
     static final class Requirement
     {
         final String label;
+        final String detail;
         final int item, quantity;
         final boolean notes, notedOnly, reusable;
         final Set<Integer> alternatives;
         Requirement(String label, int item, int quantity, boolean notes, Integer... alternatives)
-        { this(label,item,quantity,notes,false,false,alternatives); }
-        private Requirement(String label,int item,int quantity,boolean notes,boolean notedOnly,boolean reusable,Integer... alternatives)
+        { this(label,item,quantity,notes,false,false,"",alternatives); }
+        private Requirement(String label,int item,int quantity,boolean notes,boolean notedOnly,boolean reusable,String detail,Integer... alternatives)
         {
             this.label=label; this.item=item; this.quantity=quantity; this.notes=notes;this.notedOnly=notedOnly;this.reusable=reusable;
+            this.detail=detail;
             java.util.HashSet<Integer> ids=new java.util.HashSet<>(List.of(alternatives));
             ids.add(item); this.alternatives=Set.copyOf(ids);
         }
         static Requirement once(String label,int item,int quantity,Integer... alternatives)
-        { return new Requirement(label,item,quantity,false,false,true,alternatives); }
+        { return new Requirement(label,item,quantity,false,false,true,"",alternatives); }
+        static Requirement travel(String label,int item,int quantity,boolean reusable,String detail,Set<Integer> alternatives)
+        { return new Requirement(label,item,quantity,false,false,reusable,detail,alternatives.toArray(new Integer[0])); }
     }
 
     final List<Requirement> requirements;
     final Set<Integer> items;
     final List<String> reminders;
+    final EquipmentSetup equipment;
 
-    private SupplyPlan(List<Requirement> requirements, List<String> reminders)
+    SupplyPlan(List<Requirement> requirements, List<String> reminders)
+    { this(requirements,reminders,EquipmentSetup.EMPTY); }
+    private SupplyPlan(List<Requirement> requirements,List<String> reminders,EquipmentSetup equipment)
     {
         this.requirements=List.copyOf(requirements); this.reminders=List.copyOf(reminders);
+        this.equipment=equipment;
         java.util.HashSet<Integer> ids=new java.util.HashSet<>();
+        ids.addAll(equipment.items());
         for(Requirement requirement:requirements)
         {
             ids.addAll(requirement.alternatives);
@@ -54,6 +63,24 @@ public final class SupplyPlan
             if(requirement.item==ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED)ids.add(ItemID.BOTTOMLESS_COMPOST_BUCKET);
         }
         items=Set.copyOf(ids);
+    }
+
+    SupplyPlan plus(SupplyPlan other)
+    {
+        List<Requirement> rows=new ArrayList<>(requirements);rows.addAll(other.requirements);
+        List<String> notes=new ArrayList<>(reminders);notes.addAll(other.reminders);
+        return new SupplyPlan(rows,notes,equipment);
+    }
+
+    static SupplyPlan forRoute(ClassicTreeRunConfig config,List<Patch> route,boolean fromBank,boolean returnToBank)
+    { return forRoute(config,route,patch->true,fromBank,returnToBank,null); }
+
+    static SupplyPlan forRoute(ClassicTreeRunConfig config,List<Patch> route,java.util.function.Predicate<Patch> unfinished,
+        boolean fromBank,boolean returnToBank,Patch bankFrom)
+    {
+        List<Patch> remaining=new ArrayList<>();for(Patch patch:route)if(unfinished.test(patch))remaining.add(patch);
+        SupplyPlan supplies=build(config,remaining).plus(TravelSupplies.build(config,route,unfinished,fromBank,returnToBank,bankFrom));
+        return new SupplyPlan(supplies.requirements,supplies.reminders,remaining.isEmpty()?EquipmentSetup.EMPTY:EquipmentSetup.read(config));
     }
 
     static SupplyPlan build(ClassicTreeRunConfig config, List<Patch> patches)
@@ -150,9 +177,9 @@ public final class SupplyPlan
         {
             InventoryItemData.ItemInfo info=data.get(row.item);
             boolean notedOnly=notedPayments && row.notes && info.noteable && !info.stackable;
-            rows.add(new Requirement(row.label,row.item,row.quantity,row.notes,notedOnly,row.reusable,row.alternatives.toArray(new Integer[0])));
+            rows.add(new Requirement(row.label,row.item,row.quantity,row.notes,notedOnly,row.reusable,row.detail,row.alternatives.toArray(new Integer[0])));
         }
-        return new SupplyPlan(rows,reminders);
+        return new SupplyPlan(rows,reminders,equipment);
     }
 
     /** Allocates shared supplies once (e.g. compost used both on a patch and as payment). */

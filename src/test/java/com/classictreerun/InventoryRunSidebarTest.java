@@ -70,7 +70,7 @@ public class InventoryRunSidebarTest
         ClassicTreeRunPanel[] panel={null};List<SupplyPlan> filters=new ArrayList<>();
         SwingUtilities.invokeAndWait(()->{
             panel[0]=new ClassicTreeRunPanel(f.config,f);panel[0].setConfirmReset(false);
-            panel[0].setSupplyActions(filters::add,()->{ });supplyData(panel[0],data);
+            panel[0].setSupplyActions((plan,focus)->filters.add(plan),()->{ });supplyData(panel[0],data);
         });
         awaitReady(panel[0]);
         SwingUtilities.invokeAndWait(()->{
@@ -84,7 +84,7 @@ public class InventoryRunSidebarTest
             assertEquals("2 x Oak sapling",((JLabel)find(panel[0],"supplyItem_"+ItemID.PLANTPOT_OAK_SAPLING)).getText());
             String progress=f.get(ClassicTreeRunPanel.PROGRESS_KEY);
             ((AbstractButton)find(panel[0],"packInventory")).doClick();
-            assertEquals(progress,f.get(ClassicTreeRunPanel.PROGRESS_KEY));assertEquals(2,quantity(filters.get(1),ItemID.PLANTPOT_OAK_SAPLING));
+            assertEquals(progress,f.get(ClassicTreeRunPanel.PROGRESS_KEY));assertEquals(2,quantity(filters.get(filters.size()-1),ItemID.PLANTPOT_OAK_SAPLING));
             ((AbstractButton)find(panel[0],"bankReady_1")).doClick();
             assertEquals(progress,f.get(ClassicTreeRunPanel.PROGRESS_KEY));
             assertTrue(labels(panel[0]).contains("NEXT: Falador Park"));
@@ -127,6 +127,43 @@ public class InventoryRunSidebarTest
             assertFalse(((AbstractButton)find(panel,"startRun")).isEnabled());
             assertFalse(((AbstractButton)find(panel,"packInventory")).isEnabled());
             assertNull(find(panel,"inventoryLoad"));assertTrue(labels(panel).contains("RuneLite item data"));panel.dispose();
+        });
+    }
+
+    @Test public void teleportPackingAdvancesThroughTheBankStopAndDropsItsArrivalAfterAcknowledgment() throws Exception
+    {
+        ConfigFixture f=InventoryFixtures.light();f.set("supplyTeleports","true");f.set("loadReservedSlots","25");
+        f.set("packingView","GRID");
+        List<Patch> route=List.of(Patch.LUMBRIDGE_TREE,Patch.VARROCK_TREE);
+        f.set("selectionV2",RouteState.encode(route));f.set("order",RouteState.encode(route));
+        ClassicTreeRunPanel[] panel={null};List<SupplyPlan> filters=new ArrayList<>();
+        SwingUtilities.invokeAndWait(()->{
+            panel[0]=new ClassicTreeRunPanel(f.config,f);panel[0].setConfirmReset(false);
+            panel[0].setSupplyActions((plan,focus)->filters.add(plan),()->{ });supplyData(panel[0],InventoryFixtures.data(f.config,route));
+        });
+        awaitReady(panel[0]);
+        SwingUtilities.invokeAndWait(()->{
+            try
+            {
+                assertTrue(labels(panel[0]).contains("Inventory 1 of 2"));
+                assertTrue(find(panel[0],"supplyGrid").isVisible());
+                ((AbstractButton)find(panel[0],"startRun")).doClick();
+                assertTrue(filters.get(0).items.contains(ItemID.POH_TABLET_LUMBRIDGETELEPORT));
+                assertTrue(filters.get(0).items.contains(ItemID.RING_OF_DUELING_8));
+                assertFalse(filters.get(0).items.contains(ItemID.POH_TABLET_VARROCKTELEPORT));
+                ((AbstractButton)find(panel[0],"LUMBRIDGE_TREE")).doClick();
+                assertEquals(TeleportDevice.DUELING,panel[0].nextTeleport());
+                assertNotNull(find(panel[0],"supplyItem_"+TeleportDevice.DUELING.representative()));
+                ((AbstractButton)find(panel[0],"bankReady_1")).doClick();
+                assertEquals(TeleportDevice.VARROCK,panel[0].nextTeleport());
+                assertTrue(((JLabel)find(panel[0],"inventorySlot_1")).getToolTipText().contains("Varrock"));
+                assertNull(find(panel[0],"supplyItem_"+TeleportDevice.DUELING.representative()));
+                ((AbstractButton)find(panel[0],"packInventory")).doClick();
+                assertTrue(filters.get(filters.size()-1).items.contains(ItemID.POH_TABLET_VARROCKTELEPORT));
+                assertFalse(filters.get(filters.size()-1).items.contains(ItemID.RING_OF_DUELING_8));
+                assertFalse(filters.get(filters.size()-1).items.contains(ItemID.POH_TABLET_LUMBRIDGETELEPORT));
+            }
+            finally { panel[0].dispose(); }
         });
     }
 

@@ -35,4 +35,27 @@ public class SupplySnapshotTest
         SupplySnapshot counts=SupplySnapshot.read(id->definition(-1,-1,-1),null,container());
         assertFalse(counts.known);assertTrue(counts.plain.isEmpty());
     }
+    @Test public void capturePreservesBackpackPositionsAndNoteFormsWithoutTreatingPlaceholdersAsItems()
+    {
+        Map<Integer,ItemComposition> definitions=Map.of(10,definition(-1,-1,-1),11,definition(799,10,-1),12,definition(-1,-1,14401));
+        SupplySnapshot counts=SupplySnapshot.read(definitions::get,container(new Item(-1,0),new Item(10,2),new Item(11,7),new Item(12,20)),container());
+        assertTrue(counts.backpack.captured);assertEquals(28,counts.backpack.slots.size());assertNull(counts.backpack.slots.get(0));
+        assertEquals(10,counts.backpack.slots.get(1).item);assertFalse(counts.backpack.slots.get(1).noted);assertEquals(2,counts.backpack.slots.get(1).quantity);
+        assertEquals(10,counts.backpack.slots.get(2).item);assertTrue(counts.backpack.slots.get(2).noted);assertEquals(7,counts.backpack.slots.get(2).quantity);
+        assertNull(counts.backpack.slots.get(3));assertFalse(SupplySnapshot.UNKNOWN.backpack.captured);
+        assertTrue(SupplySnapshot.read(definitions::get,container(),container()).backpack.captured);
+    }
+    @Test public void preservesWornSlotsAndDistinguishesMovingAnItemFromInventoryToEquipment()
+    {
+        Item[] slots=new Item[14];java.util.Arrays.fill(slots,new Item(-1,0));
+        slots[net.runelite.api.EquipmentInventorySlot.RING.getSlotIdx()]=new Item(10,1);
+        slots[net.runelite.api.EquipmentInventorySlot.AMMO.getSlotIdx()]=new Item(20,100);
+        slots[net.runelite.api.EquipmentInventorySlot.WEAPON.getSlotIdx()]=new Item(30,250);
+        SupplySnapshot equipped=SupplySnapshot.read(id->definition(-1,-1,-1),container(),container(slots));
+        SupplySnapshot carried=SupplySnapshot.read(id->definition(-1,-1,-1),container(new Item(10,1),new Item(20,100),new Item(30,250)),container());
+        assertEquals(carried.plain,equipped.plain);assertFalse(carried.worn.equals(equipped.worn));
+        assertEquals(10,equipped.worn.get(net.runelite.api.EquipmentInventorySlot.RING).item);
+        assertEquals(100,equipped.worn.get(net.runelite.api.EquipmentInventorySlot.AMMO).quantity);
+        assertEquals(250,equipped.worn.get(net.runelite.api.EquipmentInventorySlot.WEAPON).quantity);
+    }
 }

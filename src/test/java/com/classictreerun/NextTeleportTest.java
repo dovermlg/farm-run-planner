@@ -132,8 +132,11 @@ public class NextTeleportTest
     {
         SwingUtilities.invokeAndWait(() -> {
             ConfigFixture f = new ConfigFixture(); f.set("loadPlanning", "false");
+            f.set("supplyBankView","OFF");
             f.set("selectionV2", "FOSSIL_EAST,FOSSIL_MIDDLE"); f.set("order", "FOSSIL_EAST,FOSSIL_MIDDLE");
             ClassicTreeRunPanel panel = new ClassicTreeRunPanel(f.config, f);
+            assertEquals(TeleportDevice.NONE,panel.nextTeleport());
+            ((AbstractButton)find(panel,"startRun")).doClick();
             assertEquals(TeleportDevice.DIGSITE, panel.nextTeleport());
             ((AbstractButton)find(panel, "FOSSIL_EAST")).doClick();
             assertEquals(TeleportDevice.NONE, panel.nextTeleport());

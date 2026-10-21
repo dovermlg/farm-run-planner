@@ -353,6 +353,12 @@ public final class CropChoices
         values.put("supplyDibber",Boolean.toString(config.supplyDibber()));
         values.put("supplyCoins",Integer.toString(config.supplyCoins()));
         values.put("supplyCompost",config.supplyCompost().name());
+        values.put("supplyTeleports",Boolean.toString(config.supplyTeleports()));
+        values.put("supplyTeleportMode",config.supplyTeleportMode().name());
+        values.put("supplyFairyStaff",Boolean.toString(config.supplyFairyStaff()));
+        values.put("supplyEquipment",config.supplyEquipment());
+        values.put("supplyInventory",config.supplyInventory());
+        values.put("supplyBankView",config.supplyBankView().name());
         return values;
     }
 
@@ -382,8 +388,12 @@ public final class CropChoices
             case "cropCoral": Coral.valueOf(value); return;
             case "cropSpirit": Spirit.valueOf(value); return;
             case "supplyCompost": SupplyPlan.Compost.valueOf(value); return;
+            case "supplyTeleportMode": ClassicTreeRunConfig.TeleportSupplies.valueOf(value); return;
+            case "supplyEquipment": EquipmentSetup.parse(value); return;
+            case "supplyInventory": BackpackSetup.parse(value); return;
+            case "supplyBankView": ClassicTreeRunConfig.SetupBankView.valueOf(value); return;
             case "supplyCoins": if(!value.matches("[0-9]{1,10}") || Long.parseLong(value)>Integer.MAX_VALUE)throw new IllegalArgumentException("Invalid coin budget"); return;
-            default: if(!List.of("supplyProtection","supplyTools","supplyRake","supplyDibber").contains(key) || !("true".equals(value)||"false".equals(value)))throw new IllegalArgumentException("Invalid supply option");
+            default: if(!List.of("supplyProtection","supplyTools","supplyRake","supplyDibber","supplyTeleports","supplyFairyStaff").contains(key) || !("true".equals(value)||"false".equals(value)))throw new IllegalArgumentException("Invalid supply option");
         }
     }
 }

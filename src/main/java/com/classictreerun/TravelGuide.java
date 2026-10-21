@@ -92,7 +92,7 @@ final class TravelGuide
     private static String charterToBrimhaven()
     { return "Choose Charter on a Trader Crewmember, select Brimhaven, then walk to the nearby fruit patch. Bring coins for the fare."; }
 
-    private static String guild(ClassicTreeRunConfig c)
+    static String guild(ClassicTreeRunConfig c)
     {
         switch (c.guildTravel())
         {

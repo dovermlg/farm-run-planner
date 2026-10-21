@@ -6,6 +6,14 @@ final class LocalRunConfig implements ClassicTreeRunConfig
     private final ClassicTreeRunPanel.Preferences values;
     LocalRunConfig(ClassicTreeRunPanel.Preferences values) { this.values = values; }
     @Override public boolean highlightNextTeleport() { return bool("highlightNextTeleport",ClassicTreeRunConfig.super.highlightNextTeleport()); }
+    @Override public boolean showRunOverlay() { return bool("showRunOverlay",ClassicTreeRunConfig.super.showRunOverlay()); }
+    @Override public boolean supplyTeleports() { return bool("supplyTeleports",ClassicTreeRunConfig.super.supplyTeleports()); }
+    @Override public TeleportSupplies supplyTeleportMode() { return choice("supplyTeleportMode",ClassicTreeRunConfig.super.supplyTeleportMode()); }
+    @Override public boolean supplyFairyStaff() { return bool("supplyFairyStaff",ClassicTreeRunConfig.super.supplyFairyStaff()); }
+    @Override public PackingView packingView() { return choice("packingView",ClassicTreeRunConfig.super.packingView()); }
+    @Override public String supplyEquipment() { return string("supplyEquipment",ClassicTreeRunConfig.super.supplyEquipment()); }
+    @Override public String supplyInventory() { return string("supplyInventory",ClassicTreeRunConfig.super.supplyInventory()); }
+    @Override public SetupBankView supplyBankView() { return choice("supplyBankView",ClassicTreeRunConfig.super.supplyBankView()); }
     static ClassicTreeRunConfig snapshot(ClassicTreeRunConfig source)
     {
         java.util.Map<String,String> copy=java.util.Map.copyOf(ConfigValues.read(source));

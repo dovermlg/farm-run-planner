@@ -42,11 +42,12 @@ final class GrowthMonitor
         {
             flush(); // Queue failed writes under the old character before changing context.
             characterKey=character;growth=new CropGrowth(reference);
-            growth.load(pendingWrites.containsKey(dataKey())?pendingWrites.get(dataKey()):preferences.get(dataKey()));panel.setGrowth(growth);
+            growth.load(pendingWrites.containsKey(dataKey())?pendingWrites.get(dataKey()):preferences.get(dataKey()));panel.setGrowth(growth,clock.getAsLong());
         }
         allowNotifications=true;long now=clock.getAsLong();boolean changed=false,completionChanged=false;
+        panel.refreshGrowth(now);
         RouteState progress=null;
-        Set<Patch> active=config.autoCompleteReplanted() && !samples.isEmpty()?new HashSet<>(RouteState.active(config)):Collections.emptySet();
+        Set<Patch> active=config.autoCompleteReplanted() && !samples.isEmpty()?new HashSet<>(panel.plannedRoute()):Collections.emptySet();
         for(GrowthSampler.Sample sample:samples)
         {
             CropGrowth.Observation old=growth.observations.get(sample.patch);
@@ -60,14 +61,15 @@ final class GrowthMonitor
                     progress=new RouteState();
                     progress.load(pendingWrites.containsKey(ClassicTreeRunPanel.PROGRESS_KEY)?pendingWrites.get(ClassicTreeRunPanel.PROGRESS_KEY):preferences.get(ClassicTreeRunPanel.PROGRESS_KEY));
                 }
-                if(!progress.isDone(sample.patch)){progress.setDone(sample.patch,true);completionChanged=true;}
+                if(!progress.isDone(sample.patch)){panel.lockRun();progress.setDone(sample.patch,true);completionChanged=true;}
             }
             changed|=growth.observe(sample.patch,sample.raw,now,seasonal);
         }
         dirty|=changed;
         if(completionChanged)pendingProgress=progress.save();
         flush();
-        if(completionChanged)panel.reload();else if(changed)panel.refreshGrowth(now);
+        if(completionChanged || changed)panel.refreshGrowth(now);
+        if(completionChanged)panel.reload();
     }
     private boolean flush()
     {

@@ -58,6 +58,13 @@ final class CropGrowth
         CropReference.Crop crop=reference.decode(patch,value.raw);
         return crop!=null && crop.healthy() && !reference.isStump(patch,value.raw) && value.readyAt>0 && value.readyAt<=now;
     }
+    boolean isKnownGrowing(Patch patch,long now)
+    {
+        Observation value=observations.get(patch);if(value==null || value.observedAt>now || value.readyAt<=now)return false;
+        CropReference.Crop crop=reference.decode(patch,value.raw);
+        return crop!=null && crop.healthy() && "GROWING".equals(crop.state) && !crop.ready()
+            && !reference.isStump(patch,value.raw);
+    }
     Group group(Collection<Patch> patches,long now)
     {
         int unknown=0,blocked=0,ready=0;long end=0;boolean armed=false;StringBuilder fingerprint=new StringBuilder();

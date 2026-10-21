@@ -19,6 +19,7 @@ public enum BankDestination
     @Override public String toString() { return label; }
     String instructions(ClassicTreeRunConfig config)
     {
+        if(this==FARMING_GUILD)return TravelGuide.guild(config)+" Use the central bank chest (45 Farming to enter).";
         return this==CUSTOM ? InventoryLoadPlanner.customInstructions(config.loadBankInstructions()) : directions;
     }
     String instructions(Patch from,ClassicTreeRunConfig config)

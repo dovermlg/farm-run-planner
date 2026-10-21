@@ -92,7 +92,17 @@ final class InventoryLoadPlanner
     }
 
     static SupplyPlan supplies(ClassicTreeRunConfig config,List<Patch> patches,InventoryItemData data)
-    { return SupplyPlan.build(config,patches).forInventory(config.loadNotedProtection(),data); }
+    { return supplies(config,patches,data,false,false); }
+    static SupplyPlan supplies(ClassicTreeRunConfig config,List<Patch> patches,InventoryItemData data,boolean fromBank,boolean returnToBank)
+    { return SupplyPlan.forRoute(config,patches,fromBank,returnToBank).forInventory(config.loadNotedProtection(),data); }
+
+    static java.util.Set<Integer> requiredItems(ClassicTreeRunConfig config,List<Patch> route)
+    {
+        java.util.Set<Integer> items=new java.util.HashSet<>(SupplyPlan.build(config,route).items);
+        items.addAll(TravelSupplies.requiredItems(config,route));
+        items.addAll(BackpackSetup.read(config).items());
+        items.addAll(EquipmentSetup.read(config).items());return items;
+    }
 
     static int slots(SupplyPlan plan,InventoryItemData data)
     {
@@ -131,8 +141,11 @@ final class InventoryLoadPlanner
     {
         Map<String,String> travel=new java.util.TreeMap<>();
         travel.putAll(TravelCosts.settings(config));
-        String source=RouteState.encode(route)+"\n"+CropChoices.settings(config)+"\n"+settings(config)+"\n"+travel+"\n"
-            +data.fingerprint(SupplyPlan.build(config,route).items);
+        Map<String,String> crops=new LinkedHashMap<>(CropChoices.settings(config));
+        crops.keySet().removeAll(java.util.Set.of("supplyEquipment","supplyInventory","supplyBankView"));
+        java.util.Set<Integer> planningItems=new java.util.HashSet<>(SupplyPlan.build(config,route).items);
+        planningItems.addAll(TravelSupplies.requiredItems(config,route));
+        String source=RouteState.encode(route)+"\n"+crops+"\n"+settings(config)+"\n"+travel+"\n"+data.fingerprint(planningItems);
         return Digests.sha256(source);
     }
 
@@ -144,14 +157,16 @@ final class InventoryLoadPlanner
         java.util.Arrays.fill(count,Integer.MAX_VALUE);java.util.Arrays.fill(cost,Integer.MAX_VALUE);count[n]=0;cost[n]=0;
         BankDestination bank=config.loadBank();
         List<SupplyPlan> perPatch=new ArrayList<>();
-        for(Patch patch:route)perPatch.add(supplies(config,List.of(patch),data));
+        for(Patch patch:route)perPatch.add(SupplyPlan.build(config,List.of(patch)).forInventory(config.loadNotedProtection(),data));
         for(int i=n-1;i>=0;i--)
         {
             SlotCounter counter=new SlotCounter(data);
             for(int j=i+1;j<=n;j++)
             {
-                int slots=counter.add(perPatch.get(j-1));
-                if(slots>capacity && j>i+1)break;
+                int slots=counter.add(perPatch.get(j-1))
+                    +slots(TravelSupplies.build(config,route.subList(i,j),i>0,j<n),data);
+                // A later local bank may remove a return teleport, so capacity is not monotonic.
+                if(slots>capacity && j>i+1)continue;
                 int loads=1+count[j];
                 int boundary=j==n?0:bank.approachCost(route.get(j-1))+bank.departureCost(route.get(j),config)
                     -Math.min(TravelCosts.arrival(route.get(j),config),TravelCosts.walking(route.get(j-1),route.get(j),config));
@@ -159,7 +174,6 @@ final class InventoryLoadPlanner
                 // Prefer fewer loads, then cheaper banking boundaries, then a fuller first inventory.
                 if(loads<count[i] || loads==count[i] && (travel<cost[i] || travel==cost[i] && j>next[i]))
                 {count[i]=loads;cost[i]=travel;next[i]=j;occupied[i]=slots;}
-                if(slots>capacity)break; // An oversized single-patch load is retained and visibly flagged.
             }
         }
         List<Load> loads=new ArrayList<>();

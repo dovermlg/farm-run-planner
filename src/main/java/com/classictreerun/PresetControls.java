@@ -4,7 +4,7 @@ import java.awt.Dimension;
 import java.util.function.Consumer;
 import javax.swing.*;
 
-/** The main tab selects runs; all creation and management live in the native cog. */
+/** Farming presets are selected here; their crop and route settings stay in the native cog. */
 final class PresetControls extends JPanel
 {
     PresetControls(ClassicTreeRunConfig config, ClassicTreeRunPanel.Preferences preferences, Runnable loaded,
@@ -22,7 +22,7 @@ final class PresetControls extends JPanel
         if (library.contains(selectedName)) { names.setSelectedItem(selectedName); }
         else if (library.contains(config.runName())) { names.setSelectedItem(config.runName()); }
         else { names.setSelectedIndex(-1); }
-        names.setToolTipText("Load a saved run with a fresh checklist. Click Start run to filter bank supplies. Create and save presets in the plugin cog.");
+        names.setToolTipText("Load a saved run with a fresh checklist and its current bank setup. Create and save presets in the plugin cog.");
         names.setMaximumSize(new Dimension(Integer.MAX_VALUE, names.getPreferredSize().height));
         names.addActionListener(event -> {
             String name = (String) names.getSelectedItem();
@@ -32,7 +32,7 @@ final class PresetControls extends JPanel
                 library.load(name);
                 selected.accept(name);
                 loaded.run();
-                status.accept("Loaded: " + name + ". Click Start run for the bank supplies filter.");
+                status.accept("Loaded: " + name + ". Its inventory setup follows this run and current load.");
             }
             catch (IllegalArgumentException | IllegalStateException error) { status.accept(error.getMessage()); }
         });

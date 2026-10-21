@@ -16,7 +16,7 @@ public class LocalHubCheck
             try
             {
                 Files.createDirectories(plugin.repositoryDirectory.toPath());
-                for(String name:new String[]{"src","docs","tools",".github","gradle","README.md","LICENSE",
+                for(String name:new String[]{"src","docs","tools",".github","gradle","README.md","CHANGELOG.md","icon.png","LICENSE",
                     "THIRD-PARTY-NOTICES.md","build.gradle","settings.gradle","runelite-plugin.properties",".gitignore","gradlew","gradlew.bat"})
                 {
                     Path from=source.resolve(name);if(!Files.exists(from))continue;

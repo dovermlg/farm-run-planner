@@ -9,3 +9,16 @@ Thumbs.db
 !docs/hub-packager.log
 __pycache__/
 *.pyc
+
+# Local login and RuneLite profile data must never be published.
+credentials.properties
+profile-*.properties
+.env
+.env.*
+!.env.example
+/.runelite/
+/runelite/
+/profiles/
+/profiles2/
+/plugin-data/
+/settings.properties

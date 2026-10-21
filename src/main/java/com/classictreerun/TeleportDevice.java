@@ -74,4 +74,17 @@ enum TeleportDevice
     }
 
     boolean matches(int itemId) { return items.contains(itemId); }
+    Set<Integer> items() { return items; }
+    int representative() { return items.stream().mapToInt(Integer::intValue).min().orElseThrow(); }
+    boolean consumable()
+    {
+        switch(this)
+        {
+            case LUMBRIDGE: case VARROCK: case FALADOR: case CAMELOT: case CATHERBY:
+            case ARDOUGNE: case TAVERLEY: case BRIMHAVEN: case YANILLE: case RIMMINGTON:
+            case HARMONY: case DRAYNOR_MANOR: case FORTIS: case TAI_BWO_WANNAI:
+            case STONY_BASALT: case ICY_BASALT: return true;
+            default: return false;
+        }
+    }
 }

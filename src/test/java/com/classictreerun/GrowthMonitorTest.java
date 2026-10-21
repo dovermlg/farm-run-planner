@@ -13,7 +13,7 @@ public class GrowthMonitorTest
             for(String action:List.of("resetRun","startRun","TROLL_HERB","savedPresets"))
             {
                 ConfigFixture f=new ConfigFixture();preset(f,"Herbs","TROLL_HERB,WEISS_HERB");
-                f.set("autoCompleteReplanted","true");f.set("loadPlanning","false");boolean[] fail={false};
+                f.set("autoCompleteReplanted","true");f.set("loadPlanning","false");f.set("supplyBankView","OFF");boolean[] fail={false};
                 new PresetLibrary(f).save("Other",f.config);
                 ClassicTreeRunPanel.Preferences storage=new ClassicTreeRunPanel.Preferences(){
                     public String get(String key){return f.get(key);}

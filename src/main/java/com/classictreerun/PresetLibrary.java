@@ -13,6 +13,7 @@ import java.util.TreeSet;
 final class PresetLibrary
 {
     static final String KEY = "localPresetsV2";
+    static final String GUILD_BANK_DEFAULT = "guildBankDefaultV1";
     private final ClassicTreeRunPanel.Preferences preferences;
     private final Properties saved;
     PresetLibrary(ClassicTreeRunPanel.Preferences preferences)
@@ -22,6 +23,26 @@ final class PresetLibrary
     }
     Set<String> names() { return new TreeSet<>(saved.stringPropertyNames()); }
     boolean contains(String name) { return name != null && saved.containsKey(name); }
+    void migrateGuildBankDefault()
+    {
+        if("true".equals(preferences.get(GUILD_BANK_DEFAULT)))return;
+        Properties next=new Properties();next.putAll(saved);boolean changed=false;
+        for(String name:names())
+        {
+            Properties snapshot=decode(saved.getProperty(name));
+            if(BankDestination.GRAND_EXCHANGE.name().equals(snapshot.getProperty("loadBank")))
+            {
+                snapshot.setProperty("loadBank",BankDestination.FARMING_GUILD.name());
+                next.setProperty(name,encode(snapshot));changed=true;
+            }
+        }
+        Map<String,String> changes=new LinkedHashMap<>();changes.put(GUILD_BANK_DEFAULT,"true");
+        if(changed)changes.put(KEY,encode(next));
+        if(BankDestination.GRAND_EXCHANGE.name().equals(preferences.get("loadBank")))
+            changes.put("loadBank",BankDestination.FARMING_GUILD.name());
+        preferences.update(changes);
+        saved.clear();saved.putAll(next);
+    }
     static String validName(String name)
     {
         String clean = name.trim();
@@ -96,6 +117,18 @@ final class PresetLibrary
     }
 
     void delete(String name) { delete(name, java.util.Collections.emptyMap()); }
+
+    void saveSetup(String name,SavedPackingSetup expected,SavedPackingSetup setup,boolean active)
+    {
+        if(!contains(name))throw new IllegalStateException("This farming preset was removed. Return to the run and select a saved preset.");
+        if(!SavedPackingSetup.read(config(name)).same(expected))
+            throw new IllegalStateException("This setup changed elsewhere. Go back and reopen the editor before saving.");
+        Properties snapshot=decode(saved.getProperty(name));snapshot.putAll(setup.settings());
+        Properties next=new Properties();next.putAll(saved);next.setProperty(name,encode(snapshot));
+        Map<String,String> changes=new LinkedHashMap<>();changes.put(KEY,encode(next));
+        if(active)changes.putAll(setup.settings());
+        preferences.update(changes);saved.clear();saved.putAll(next);
+    }
 
     void delete(String name, Map<String, String> extras)
     {

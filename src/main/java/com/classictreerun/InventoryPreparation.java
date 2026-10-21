@@ -24,6 +24,8 @@ final class InventoryPreparation
     private InventoryLoadPlanner.Plan plan;
     private boolean disposed;
     private String error;
+    private Boolean lastPlanning;
+    private ClassicTreeRunConfig.PackingView lastView;
     InventoryPreparation(ClassicTreeRunConfig config,Runnable changed) { this.config=config;this.changed=changed; }
     void setRequest(Consumer<ItemRequest> request) { this.request=request;pendingData=null; }
     void accept(ItemRequest source,InventoryItemData incoming)
@@ -43,11 +45,18 @@ final class InventoryPreparation
     InventoryItemData data() { return data; }
     String error() { return error; }
     void update(List<Patch> route)
+    {update(route,java.util.Set.of());}
+    void update(List<Patch> route,Set<Integer> previewItems)
     {
         if(disposed)return;
-        if(!config.loadPlanning())
+        if(lastPlanning!=null && (lastPlanning!=config.loadPlanning() || lastView!=config.packingView()))
+        {pendingData=null;error=null;}
+        lastPlanning=config.loadPlanning();lastView=config.packingView();
+        boolean needsData=config.loadPlanning() || config.packingView()==ClassicTreeRunConfig.PackingView.GRID || config.supplyBankView()==ClassicTreeRunConfig.SetupBankView.LAYOUT
+            || !EquipmentSetup.read(config).entries.isEmpty() || !previewItems.isEmpty() || BackpackSetup.read(config).captured;
+        if(!needsData)
         {if(worker!=null)worker.cancel(false);worker=null;plan=null;requestedPlan=null;pendingData=null;error=null;return;}
-        Set<Integer> items=SupplyPlan.build(config,route).items;
+        Set<Integer> items=new java.util.HashSet<>(InventoryLoadPlanner.requiredItems(config,route));items.addAll(previewItems);
         if(!data.covers(items))
         {
             if(worker!=null)worker.cancel(false);
@@ -57,6 +66,8 @@ final class InventoryPreparation
             return;
         }
         pendingData=null;
+        if(!config.loadPlanning())
+        {if(worker!=null)worker.cancel(false);worker=null;plan=null;requestedPlan=null;error=null;return;}
         String signature=InventoryLoadPlanner.signature(config,route,data);
         if(signature.equals(requestedPlan))return;
         if(worker!=null)worker.cancel(false);

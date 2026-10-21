@@ -54,7 +54,14 @@ final class ConfigValues
         "notifyWhenReady",
         "autoCompleteReplanted",
         "showDetails",
+        "showRunOverlay",
         "highlightNextTeleport",
+        "packingView",
+        "captureEquipmentAction",
+        "clearEquipmentAction",
+        "supplyEquipment",
+        "supplyInventory",
+        "supplyBankView",
         "trees",
         "fruit",
         "hardwood",
@@ -70,6 +77,9 @@ final class ConfigValues
         "calquatTravel",
         "fossilTravel",
         "guildTravel",
+        "supplyTeleports",
+        "supplyTeleportMode",
+        "supplyFairyStaff",
         "order",
         "excluded",
         "patch_LUMBRIDGE_TREE",
@@ -220,7 +230,14 @@ final class ConfigValues
         values.put("notifyWhenReady", wire(config.notifyWhenReady()));
         values.put("autoCompleteReplanted", wire(config.autoCompleteReplanted()));
         values.put("showDetails", wire(config.showDetails()));
+        values.put("showRunOverlay", wire(config.showRunOverlay()));
         values.put("highlightNextTeleport", wire(config.highlightNextTeleport()));
+        values.put("packingView", wire(config.packingView()));
+        values.put("captureEquipmentAction", wire(config.captureEquipmentAction()));
+        values.put("clearEquipmentAction", wire(config.clearEquipmentAction()));
+        values.put("supplyEquipment", wire(config.supplyEquipment()));
+        values.put("supplyInventory", wire(config.supplyInventory()));
+        values.put("supplyBankView", wire(config.supplyBankView()));
         values.put("trees", wire(config.trees()));
         values.put("fruit", wire(config.fruit()));
         values.put("hardwood", wire(config.hardwood()));
@@ -236,6 +253,9 @@ final class ConfigValues
         values.put("calquatTravel", wire(config.calquatTravel()));
         values.put("fossilTravel", wire(config.fossilTravel()));
         values.put("guildTravel", wire(config.guildTravel()));
+        values.put("supplyTeleports", wire(config.supplyTeleports()));
+        values.put("supplyTeleportMode", wire(config.supplyTeleportMode()));
+        values.put("supplyFairyStaff", wire(config.supplyFairyStaff()));
         values.put("order", wire(config.order()));
         values.put("excluded", wire(config.excluded()));
         values.put("patch_LUMBRIDGE_TREE", wire(config.includeLUMBRIDGE_TREE()));

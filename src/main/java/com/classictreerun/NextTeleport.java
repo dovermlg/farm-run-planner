@@ -17,7 +17,7 @@ final class NextTeleport
         {
             List<Patch> previousLoad = plan.loads.get(load - 1).patches;
             return config.loadBank().local(previousLoad.get(previousLoad.size() - 1))
-                ? TeleportDevice.NONE : bank(config);
+                ? TeleportDevice.NONE : highlight(config,bank(config));
         }
         int index = route.indexOf(next);
         int starts = plan == null ? -1 : plan.startsAt(next);
@@ -25,8 +25,12 @@ final class NextTeleport
         Patch previous = index > 0 && starts <= 0 ? route.get(index - 1) : null;
         if (TravelCosts.walkingInstruction(previous, next, config) != null)
         { return TeleportDevice.NONE; }
-        return arrival(next, config);
+        return highlight(config,arrival(next, config));
     }
+
+    private static TeleportDevice highlight(ClassicTreeRunConfig config,TeleportDevice device)
+    { return config.supplyTeleportMode()==ClassicTreeRunConfig.TeleportSupplies.SPELL_RUNES
+        && !TravelSupplies.spellCost(device).isEmpty()?TeleportDevice.NONE:device; }
 
     static TeleportDevice bank(ClassicTreeRunConfig config)
     {
@@ -34,7 +38,7 @@ final class NextTeleport
         {
             case GRAND_EXCHANGE: return TeleportDevice.WEALTH;
             case CASTLE_WARS: case FEROX_ENCLAVE: return TeleportDevice.DUELING;
-            case FARMING_GUILD: return TeleportDevice.SKILLS;
+            case FARMING_GUILD: return arrival(Patch.GUILD_TREE,config);
             case CATHERBY: return TeleportDevice.CATHERBY;
             case SEERS_VILLAGE: return TeleportDevice.CAMELOT;
             case EDGEVILLE: case DRAYNOR: return TeleportDevice.GLORY;

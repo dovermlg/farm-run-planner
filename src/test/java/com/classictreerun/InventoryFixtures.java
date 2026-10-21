@@ -13,13 +13,20 @@ final class InventoryFixtures
     {
         ConfigFixture f=new ConfigFixture();
         for(String key:List.of("supplyTools","supplyRake","supplyDibber","supplyProtection"))f.set(key,"false");
-        f.set("supplyCoins","0");f.set("supplyCompost","NONE");f.set("loadBank","CASTLE_WARS");
+        f.set("supplyCoins","0");f.set("supplyCompost","NONE");f.set("supplyTeleports","false");f.set("loadBank","CASTLE_WARS");f.set("packingView","LIST");f.set("supplyBankView","FILTER");
         return f;
     }
     static InventoryItemData data(ClassicTreeRunConfig config,List<Patch> route)
     {
         Map<Integer,InventoryItemData.ItemInfo> values=new LinkedHashMap<>();
-        for(int id:SupplyPlan.build(config,route).items)values.put(id,new InventoryItemData.ItemInfo(false,true));
+        for(int id:InventoryLoadPlanner.requiredItems(config,route))values.put(id,new InventoryItemData.ItemInfo(false,true));
+        for(int id:TravelSupplies.requiredItems(config,route))
+            values.put(id,new InventoryItemData.ItemInfo(false,false));
+        for(Patch patch:route)
+            for(SupplyPlan.Requirement row:TravelSupplies.build(config,List.of(patch),false,false).requirements)
+                if(!row.reusable)values.put(row.item,new InventoryItemData.ItemInfo(true,false));
+        for(SupplyPlan.Requirement row:TravelSupplies.build(config,route,false,true).requirements)
+            if(!row.reusable)values.put(row.item,new InventoryItemData.ItemInfo(true,false));
         for(Patch patch:route)
         {
             CropChoices.Crop crop=CropChoices.forType(patch.getType(),config);if(crop.item<0)continue;

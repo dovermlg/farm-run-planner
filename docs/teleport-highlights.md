@@ -1,8 +1,12 @@
 # Next teleport item
 
+Teleport outlines are active only after **Start run**. Stop run, Reset run, preset changes and completion clear them. Stopping preserves completion marks and closes the linked bank setup; it does not use a teleport or perform game actions.
+
 Enable or disable **Checklist display → Highlight next teleport** in RuneLite's normal plugin cog. It starts enabled and applies across presets. The run tab names the expected item, and a green outline appears on matching carried items in the ordinary inventory, bank-side inventory or worn-equipment tab. Bank stock and trade offers are not outlined.
 
 The next unfinished patch determines the highlight. It refreshes after completion, optional observed replant completion, undo, reset, preset or travel changes. Between inventories, it follows the bank stop until **Banked - continue** is clicked. If the bank is within walking distance of the preceding patch, no teleport is suggested. Leaving a Catherby or Farming Guild bank for its local patches also produces no outline. Catherby charter departures from Catherby use no additional teleport.
+
+With **Travel → Teleport supplies → Spell runes** selected, supported spell destinations do not outline a tablet. Their rune counts appear in the [item requirements](teleport-supplies.md). Redirected house tablets and other item-based travel still highlight as usual.
 
 The outline remains on the current step's device until progress advances. It does not detect that you have arrived or used a teleport. It is cleared while a route or inventory plan is being prepared, when no patches remain, on plugin shutdown or when highlighting is disabled. It is hidden outside a logged-in game state.
 

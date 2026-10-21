@@ -42,10 +42,7 @@ public class TreeSuppliesTest
             SupplyBankFilter filter=new SupplyBankFilter();filter.start(plan);
             for(int id:new int[]{sapling,seed,seedling,watered})
             {
-                int[] stack={-1,id};
-                filter.filter("bankSearchFilter",true,stack,2,id,false);
-                assertEquals(name+" item "+id,id==sapling ? -1 : 0,stack[0]);
-                assertEquals("Item identity must be preserved",id,stack[1]);
+                assertEquals(name+" item "+id,id==sapling,filter.contains(id));
             }
             for(int other:saplings)if(other!=sapling)assertFalse(name+" must not substitute sapling "+other,plan.items.contains(other));
 

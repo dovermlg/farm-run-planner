@@ -41,6 +41,7 @@ final class RunSettings
         }
         observed = new LinkedHashSet<>(NativePatchSelection.read(config));
         mirrorSelection();
+        panel.setPlanningChanged(this::queue);
         queue();
     }
 
@@ -101,11 +102,11 @@ final class RunSettings
     {
         if(disposed)return;
         if (!dirty) { panel.reload(); return; }
+        List<Patch> selected = panel.plannedRoute();
         dirty = false;
         delay.stop();
         if (!config.autoOptimize()) { panel.setRoutePreparing(false);panel.setStatus(""); panel.reload(); return; }
         int requestedVersion = version;
-        List<Patch> selected = RouteState.active(config);
         TravelCosts costs = new TravelCosts(selected, config);
         worker=new SwingWorker<List<Patch>, Void>()
         {
@@ -132,6 +133,7 @@ final class RunSettings
     void dispose()
     {
         disposed = true;
+        panel.setPlanningChanged(()->{ });
         version++;
         delay.stop();
         if(worker!=null){worker.cancel(false);worker=null;}

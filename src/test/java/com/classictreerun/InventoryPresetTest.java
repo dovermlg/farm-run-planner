@@ -22,7 +22,7 @@ public class InventoryPresetTest
         assertEquals(BankDestination.CUSTOM,f.config.loadBank());assertEquals(12,f.config.loadReservedSlots());assertFalse(f.config.loadNotedProtection());
         ClassicTreeRunConfig restored=new PresetLibrary(f).config("Custom banking");
         assertEquals("Use my chosen bank.",restored.loadBankInstructions());assertEquals(BankDestination.CUSTOM,restored.loadBank());
-        String json=export(f);assertTrue(json.contains("\"version\": 3"));
+        String json=export(f);assertTrue(json.contains("\"version\": 7"));
         ConfigFixture imported=new ConfigFixture();new PresetSlots(imported).importPresets(PresetBackup.read(json));new PresetLibrary(imported).load("My run");
         assertEquals(12,imported.config.loadReservedSlots());assertEquals(BankDestination.CUSTOM,imported.config.loadBank());
     }
@@ -31,6 +31,7 @@ public class InventoryPresetTest
     {
         ConfigFixture f=new ConfigFixture();JsonObject json=new JsonParser().parse(export(f)).getAsJsonObject();
         for(String key:List.copyOf(entry(json).keySet()))if(key.startsWith("load"))entry(json).remove(key);
+        for(String key:List.of("supplyTeleports","supplyTeleportMode","supplyFairyStaff","supplyEquipment","supplyBankView","supplyInventory"))entry(json).remove(key);
         json.addProperty("version",2);
         ConfigFixture target=new ConfigFixture();target.set("loadBank","CUSTOM");target.set("loadReservedSlots","27");
         new PresetSlots(target).importPresets(PresetBackup.read(json.toString()));new PresetLibrary(target).load("My run");

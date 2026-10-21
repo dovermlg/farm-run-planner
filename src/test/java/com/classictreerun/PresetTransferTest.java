@@ -254,7 +254,7 @@ public class PresetTransferTest
             assertThrows(key, IllegalArgumentException.class, () -> PresetBackup.read(json.toString()));
         }
         for (String invalid : new String[]{
-            example().replace("\"version\": 3", "\"version\": 4"),
+            example().replace("\"version\": 7", "\"version\": 8"),
             example().replace("\"format\":", "\"format\": \"farm-run-planner-presets\", \"format\":"),
             example().replace("\"autoOptimize\": true", "\"autoOptimize\": \"true\""),
             example().replace("\"TROLL_HERB\"", "\"TROLL_HERB\", \"TROLL_HERB\""),

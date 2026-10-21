@@ -64,7 +64,7 @@ final class SupplyChecklist extends JPanel
             notes.setForeground(Color.GRAY);notes.setBorder(BorderFactory.createEmptyBorder(3,4,0,0));
             StringBuilder advice=new StringBuilder("Counts cover unfinished patches and carried items only. Protection payments are optional.");
             for(String reminder:plan.reminders)advice.append("\n\n").append(reminder);
-            advice.append("\n\nStored tools, seed boxes and bucket charges aren't counted. Pack your travel items separately.");
+            advice.append("\n\nStored tools, seed boxes and bucket charges aren't counted. Teleport equipment checks possession only; check its charges and daily limits yourself.");
             notes.setToolTipText(tooltip(advice.toString()));add(notes);
         }
         refresh(snapshot);
@@ -84,6 +84,7 @@ final class SupplyChecklist extends JPanel
             else detail+="\nPlanting items and tools must be unnoted.";
             if(requirement.item==ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED)
                 detail+="\nPossession of a filled bucket only. Check its compost type and charges yourself.";
+            if(!requirement.detail.isEmpty())detail+="\n"+requirement.detail;
             String tooltip=tooltip(detail);
             labels.get(i).setToolTipText(tooltip);icons.get(i).setToolTipText(tooltip);rows.get(i).setToolTipText(tooltip);
             labels.get(i).setForeground(!snapshot.known ? Color.LIGHT_GRAY : have<requirement.quantity
@@ -98,6 +99,8 @@ final class SupplyChecklist extends JPanel
         if(requirement.item==ItemID.BOTTOMLESS_COMPOST_BUCKET_FILLED)return "Bottomless compost bucket";
         String name=requirement.label.replace(" (optional protection)","").replace(" (your budget)","")
             .replace(" (magic recommended)","").replace(" (optional if paying for removal)","");
+        name=name.replace("teleport tablet","tablet").replace("teleport scroll","scroll")
+            .replace("Civitas illa Fortis","Fortis");
         if(name.endsWith(" buckets"))name=name.substring(0,name.length()-8);
         return name.substring(0,1).toUpperCase(Locale.ROOT)+name.substring(1)+(requirement.notedOnly?" (noted)":"");
     }

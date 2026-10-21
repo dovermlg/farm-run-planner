@@ -1,8 +1,6 @@
 package com.classictreerun;
 
 import com.google.inject.Provides;
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -18,7 +16,6 @@ import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.widgets.WidgetModalMode;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.GameStateChanged;
-import net.runelite.api.events.ScriptCallbackEvent;
 import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.events.WidgetClosed;
 import net.runelite.api.gameval.InterfaceID;
@@ -26,18 +23,27 @@ import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.game.ItemManager;
-import net.runelite.client.plugins.bank.BankSearch;
+import net.runelite.client.plugins.banktags.BankTagsPlugin;
+import net.runelite.client.plugins.banktags.BankTagsService;
+import net.runelite.client.plugins.banktags.TagManager;
+import net.runelite.client.plugins.banktags.tabs.Layout;
+import net.runelite.client.plugins.banktags.tabs.LayoutManager;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ProfileChanged;
 import net.runelite.client.events.ConfigChanged;
+import net.runelite.client.events.PluginChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.PluginDependency;
+import net.runelite.client.plugins.PluginManager;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.util.ImageUtil;
 
 @PluginDescriptor(name="Farm Run Planner", internalName="farm-run-planner", legacyDataDirectory="farm-run-planner", description="Local named farming presets and estimated travel routes", tags={"farming", "tree", "herb", "route"})
+@PluginDependency(BankTagsPlugin.class)
 public class ClassicTreeRunPlugin extends Plugin
 {
     @Inject private ClientToolbar toolbar;
@@ -45,10 +51,16 @@ public class ClassicTreeRunPlugin extends Plugin
     @Inject private Notifier notifier;
     @Inject private ClientThread clientThread;
     @Inject private ItemManager itemManager;
-    @Inject private BankSearch bankSearch;
+    @Inject private BankTagsService bankTags;
+    @Inject private TagManager tags;
+    @Inject private LayoutManager bankLayouts;
+    @Inject private PluginManager pluginManager;
+    private volatile boolean bankTagsAvailable;
     @Inject private OverlayManager overlayManager;
     private NextTeleportOverlay teleportOverlay;
+    private RunStepOverlay runStepOverlay;
     private final SupplyBankFilter supplyFilter=new SupplyBankFilter();
+    private SetupBankController setupBank;
     private final java.util.concurrent.atomic.AtomicLong supplyGeneration=new java.util.concurrent.atomic.AtomicLong();
     private volatile GrowthMonitor growthMonitor;
     private final CropReference cropReference=new CropReference();
@@ -71,12 +83,39 @@ public class ClassicTreeRunPlugin extends Plugin
 
     @Override protected void startUp() throws Exception
     {
+        bankTagsAvailable=pluginManager.getPlugins().stream().anyMatch(plugin->plugin instanceof BankTagsPlugin && pluginManager.isPluginActive(plugin));
+        setupBank=new SetupBankController(new SetupBankController.View()
+        {
+            public boolean available(){return bankTagsAvailable;}
+            public boolean bankOpen(){return ClassicTreeRunPlugin.this.bankOpen();}
+            public String activeTag(){return bankTags.getActiveTag();}
+            public void show(BankSetupRequest request)
+            {
+                BankSetupRequest normalized=request.normalized(itemManager::canonicalize);
+                supplyFilter.start(normalized.items);
+                tags.registerTag(SetupBankController.TAG,id->id>=0 && supplyFilter.contains(itemManager.canonicalize(id)));
+                if(request.mode==ClassicTreeRunConfig.SetupBankView.LAYOUT)
+                    bankLayouts.saveLayout(new Layout(SetupBankController.TAG,normalized.layout.clone()));
+                else bankLayouts.removeLayout(SetupBankController.TAG);
+                int options=BankTagsService.OPTION_HIDE_TAG_NAME|BankTagsService.OPTION_ITEMS_NOT_IN_LAYOUT_AT_BOTTOM;
+                if(request.mode==ClassicTreeRunConfig.SetupBankView.FILTER)options|=BankTagsService.OPTION_NO_LAYOUT;
+                bankTags.openBankTag(SetupBankController.TAG,options);
+            }
+            public void removeOwnedView()
+            {
+                if(SetupBankController.TAG.equals(bankTags.getActiveTag()))bankTags.closeBankTag();
+                tags.unregisterTag(SetupBankController.TAG);bankLayouts.removeLayout(SetupBankController.TAG);supplyFilter.clear();
+            }
+        });
         onEdt(() -> {
             openProfile();
             teleportOverlay = new NextTeleportOverlay(client,config,
                 () -> { ClassicTreeRunPanel current=panel;return current==null?TeleportDevice.NONE:current.nextTeleport(); },
                 (id,quantity) -> itemManager.getItemOutline(id,quantity,NextTeleportOverlay.COLOR));
             overlayManager.add(teleportOverlay);
+            runStepOverlay=new RunStepOverlay(client,config,
+                ()->{ClassicTreeRunPanel current=panel;return current==null?null:current.runStep();});
+            overlayManager.add(runStepOverlay);
         });
     }
 
@@ -108,8 +147,10 @@ public class ClassicTreeRunPlugin extends Plugin
             PlannerPreferences combined = new PlannerPreferences(nativeValues, preferences);
             combined.importLocalWorkingRun();
             combined.initializeCogActions();
+            new PresetLibrary(combined).migrateGuildBankDefault();
             SupplyItemIcons supplyIcons=new SupplyItemIcons(itemManager);
             panel = new ClassicTreeRunPanel(config, combined, supplyIcons::add);
+            panel.setBankSetupAvailable(bankTagsAvailable);
             settings = new RunSettings(config, combined, panel);
             new PresetLibrary(combined).seedStarters(config);
             presetActions = new PresetActions(config, combined, settings, panel,
@@ -120,14 +161,21 @@ public class ClassicTreeRunPlugin extends Plugin
                 if (presetActions != null) { presetActions.syncForRun(); }
                 if (settings != null) { settings.changed("patch_"); settings.changed("autoOptimize"); settings.prepareNow(); }
             });
-            panel.setSupplyActions(plan -> {
-                long generation=supplyGeneration.get();
+            panel.setSupplyActions((plan,focus) -> {
+                BankSetupRequest request=panel.bankSetupRequest(plan,focus);
+                long generation=supplyGeneration.incrementAndGet();
                 clientThread.invoke(() -> {
                     if(generation!=supplyGeneration.get())return;
-                    supplyFilter.start(plan);bankSearch.layoutBank();publishFilterState();
+                    setupBank.select(request);publishFilterState();
                 });
             },this::clearSupplyFilter);
             ClassicTreeRunPanel inventoryPanel=panel;
+            panel.setEquipmentReader(ready->clientThread.invoke(()->{
+                SupplySnapshot snapshot=client.getGameState()==GameState.LOGGED_IN
+                    ?SupplySnapshot.read(itemManager,client.getItemContainer(InventoryID.INV),client.getItemContainer(InventoryID.WORN))
+                    :SupplySnapshot.UNKNOWN;
+                SwingUtilities.invokeLater(()->{if(inventoryPanel==panel)ready.accept(snapshot);});
+            }));
             panel.setInventoryDataRequest(request->clientThread.invokeLater((java.util.function.BooleanSupplier)()->{
                 if(inventoryPanel!=panel)return true;
                 if(client.getGameState()==GameState.STARTING || client.getGameState()==GameState.UNKNOWN)return false;
@@ -201,6 +249,7 @@ public class ClassicTreeRunPlugin extends Plugin
         clearSupplyFilter();
         onEdt(() -> {
             if(teleportOverlay!=null){overlayManager.remove(teleportOverlay);teleportOverlay=null;}
+            if(runStepOverlay!=null){overlayManager.remove(runStepOverlay);runStepOverlay=null;}
             pendingPresetActions.clear(); presetActions = null; EditorPreset.clearLabels();
             if(growthMonitor!=null){growthMonitor.dispose();growthMonitor=null;}
             if (settings != null) { settings.dispose(); settings = null; }
@@ -214,6 +263,7 @@ public class ClassicTreeRunPlugin extends Plugin
         clearSupplyFilter();
         // RuneLite invokes this after resetting native fields. Reset must not execute a save/delete toggle.
         pendingPresetActions.clear();
+        SwingUtilities.invokeLater(()->{if(panel!=null)panel.invalidateEquipmentCapture();});
     }
 
     @Subscribe public void onConfigChanged(ConfigChanged event)
@@ -229,7 +279,7 @@ public class ClassicTreeRunPlugin extends Plugin
         else
         {
             if (!(key.startsWith("patch_") || key.startsWith("crop") || key.startsWith("supply") || key.startsWith("load") || key.endsWith("Travel") || "runName".equals(key)
-                || "autoOptimize".equals(key) || "hideCompleted".equals(key) || "showDetails".equals(key) || "highlightNextTeleport".equals(key)
+                || "autoOptimize".equals(key) || "hideCompleted".equals(key) || "showDetails".equals(key) || "showRunOverlay".equals(key) || "highlightNextTeleport".equals(key) || "packingView".equals(key)
                 || "trackGrowth".equals(key) || "notifyWhenReady".equals(key) || "autoCompleteReplanted".equals(key))) { return; }
             changed.add(key.startsWith("patch_") ? "patch_" : key);
             if(key.startsWith("patch_") || key.startsWith("crop") || key.startsWith("supply") || key.startsWith("load"))clearSupplyFilter();
@@ -251,7 +301,7 @@ public class ClassicTreeRunPlugin extends Plugin
     {
         if(event.getGameState()!=GameState.LOGGED_IN && event.getGameState()!=GameState.LOADING)
         {
-            clearSupplyFilter();
+            suspendBankSetup();
             SwingUtilities.invokeLater(()->{if(panel!=null)panel.setSupplies(SupplySnapshot.UNKNOWN);});
         }
         growthSampler.reset();sampledCharacter=null;
@@ -303,47 +353,45 @@ public class ClassicTreeRunPlugin extends Plugin
             && client.getVarbitValue(VarbitID.BANK_CURRENTTAB)!=15;
     }
 
-    @Subscribe(priority=-1) public void onScriptCallbackEvent(ScriptCallbackEvent event)
-    {
-        if(!supplyFilter.active() || !bankOpen())return;
-        int[] stack=client.getIntStack();int size=client.getIntStackSize();
-        if("bankBuildTab".equals(event.getEventName()))
-        {
-            // The ordinary all-tabs layout bypasses bankSearchFilter without an active search.
-            // This public callback uses the compact, filtered layout without editing chatbox input.
-            supplyFilter.filter(event.getEventName(),true,stack,size,-1,false);
-            return;
-        }
-        if(!"bankSearchFilter".equals(event.getEventName()))return;
-        if(size<2 || size>stack.length)return;
-        int itemId=stack[size-1];
-        boolean placeholder=itemId<0 || itemManager.getItemComposition(itemId).getPlaceholderTemplateId()!=-1;
-        supplyFilter.filter(event.getEventName(),true,stack,size,itemId<0?itemId:itemManager.canonicalize(itemId),placeholder);
-    }
-
     @Subscribe public void onWidgetLoaded(WidgetLoaded event)
     {
-        if(event.getGroupId()==InterfaceID.BANKMAIN && supplyFilter.active())
-            clientThread.invokeLater(()->{if(bankOpen()){supplyFilter.bankVisible(true);bankSearch.layoutBank();}});
+        if(event.getGroupId()==InterfaceID.BANKMAIN)
+            clientThread.invokeLater(()->{if(setupBank!=null){setupBank.bankOpened();publishFilterState();}});
     }
 
     @Subscribe public void onWidgetClosed(WidgetClosed event)
     {
         if(event.getGroupId()==InterfaceID.BANKMAIN)
-        {supplyFilter.bankVisible(true);supplyFilter.bankVisible(false);publishFilterState();}
+            clientThread.invokeLater(()->{if(setupBank!=null){setupBank.bankClosed();publishFilterState();}});
+    }
+
+    @Subscribe public void onPluginChanged(PluginChanged event)
+    {
+        if(!(event.getPlugin() instanceof BankTagsPlugin))return;
+        bankTagsAvailable=event.isLoaded();
+        clientThread.invokeLater(()->{if(setupBank!=null){setupBank.availabilityChanged();publishFilterState();}});
     }
 
     private void clearSupplyFilter()
     {
         supplyGeneration.incrementAndGet();
         if(clientThread==null)return;
-        clientThread.invoke(()->{supplyFilter.clear();bankSearch.layoutBank();publishFilterState();});
+        clientThread.invoke(()->{if(setupBank!=null)setupBank.clear();publishFilterState();});
+    }
+
+    private void suspendBankSetup()
+    {
+        supplyGeneration.incrementAndGet();
+        clientThread.invokeLater(()->{if(setupBank!=null)setupBank.suspend();publishFilterState();});
     }
 
     private void publishFilterState()
     {
-        boolean active=supplyFilter.active();ClassicTreeRunPanel target=panel;
-        SwingUtilities.invokeLater(()->{if(target!=null && target==panel)target.setBankFilterActive(active);});
+        boolean active=setupBank!=null && setupBank.ready(),available=bankTagsAvailable;ClassicTreeRunPanel target=panel;long generation=supplyGeneration.get();
+        SwingUtilities.invokeLater(()->{
+            if(target!=null && target==panel && generation==supplyGeneration.get())
+            {boolean changed=target.setBankSetupAvailable(available);target.setBankFilterActive(active);if(changed)target.reload();}
+        });
     }
 
     private static void onEdt(Runnable action) throws Exception
@@ -354,16 +402,6 @@ public class ClassicTreeRunPlugin extends Plugin
 
     private static BufferedImage icon()
     {
-        BufferedImage image = new BufferedImage(24, 24, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = image.createGraphics();
-        try
-        {
-            g.setColor(new Color(150, 103, 63));
-            g.fillRect(10, 13, 4, 10);
-            g.setColor(new Color(103, 188, 116));
-            g.fillOval(3, 2, 18, 16);
-        }
-        finally { g.dispose(); }
-        return image;
+        return ImageUtil.loadImageResource(ClassicTreeRunPlugin.class, "farm-run-planner.png");
     }
 }

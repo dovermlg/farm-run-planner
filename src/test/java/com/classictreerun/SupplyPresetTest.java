@@ -26,13 +26,13 @@ public class SupplyPresetTest
         assertEquals(CropChoices.Tree.OAK,f.config.cropTree());assertTrue(f.config.supplyProtection());
     }
 
-    @Test public void backupVersionThreePreservesChosenCropsAndSupplySettings()
+    @Test public void backupVersionFivePreservesChosenCropsAndSupplySettings()
     {
         ConfigFixture f=new ConfigFixture();f.set("cropHerb","HUASCA");f.set("cropHardwood","ROSEWOOD");
         f.set("supplyCoins","32100");f.set("supplyDibber","false");f.set("supplyCompost","BOTTOMLESS");
         PresetBackup.Entry captured=PresetBackup.capture("Mine",f.config);
         String json=PresetBackup.write(List.of(captured));
-        assertTrue(json.contains("\"version\": 3"));
+        assertTrue(json.contains("\"version\": 7"));
         PresetBackup.Entry read=PresetBackup.read(json).get(0);assertTrue(captured.matches(read));
         ConfigFixture target=new ConfigFixture();new PresetSlots(target).importPresets(List.of(read));
         new PresetLibrary(target).load("Mine");assertEquals(CropChoices.Herb.HUASCA,target.config.cropHerb());

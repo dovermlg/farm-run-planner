@@ -27,7 +27,8 @@ final class PresetActions
     static boolean isAction(String key)
     {
         return "savePresetAction".equals(key) || "deletePresetAction".equals(key)
-            || "exportPresetsAction".equals(key) || "importPresetsAction".equals(key);
+            || "exportPresetsAction".equals(key) || "importPresetsAction".equals(key)
+            || "captureEquipmentAction".equals(key) || "clearEquipmentAction".equals(key);
     }
     static boolean isCommand(String key) { return isAction(key) || "editorPreset".equals(key); }
     static boolean shouldQueue(String key, String oldValue, String newValue, boolean uiThread)
@@ -48,6 +49,7 @@ final class PresetActions
         if (!isCommand(key)) { return; }
         try
         {
+            if(!"captureEquipmentAction".equals(key))panel.invalidateEquipmentCapture();
             if ("editorPreset".equals(key))
             {
                 EditorPreset selected = config.editorPreset();
@@ -83,6 +85,8 @@ final class PresetActions
                 slots.delete(config.editorPreset(), config.runName());
                 panel.setStatus("Preset deleted. Current run kept; this slot is now empty.");
             }
+            else if("captureEquipmentAction".equals(key))panel.captureEquipment();
+            else if("clearEquipmentAction".equals(key))panel.clearEquipment();
             else
             {
                 if (transfer == null) { throw new IllegalStateException("Local preset backup storage is unavailable."); }

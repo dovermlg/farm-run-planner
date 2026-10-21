@@ -1,5 +1,9 @@
 # Plugin Hub review notes
 
+## 1.15.0 local release preflight
+
+Prepared October 21, 2026. The development build passes with 261 offline tests against RuneLite 1.13.3, the current Plugin Hub target. The official local packager also passes against its cached RuneLite 1.13.2 API baseline, including the repository-root icon and version metadata. This is a local preflight, not hosted CI or maintainer approval. The release is uncommitted and unpublished pending the author's push and manifest update. [Release changes](../CHANGELOG.md) list the final scope.
+
 The recorded local preflight below applies to 1.14.2. Version 1.14.3 passed the [GitHub build and offline audits](https://github.com/dovermlg/farm-run-planner/actions/runs/39202638670). Version 1.14.4 removes the disabled-by-default override requested by the [Plugin Hub review bot](https://github.com/runelite/plugin-hub/pull/18909#issuecomment-6260228390), so a newly installed plugin uses RuneLite's normal enabled default. Its readiness regression checks that behavior. See [route optimality](route-optimality.md) for the route audit and proof.
 
 **Farm Run Planner 1.14.2** · Author: **Astral** · Internal name: `farm-run-planner`
@@ -39,7 +43,9 @@ The codec uses Gson's streaming reader and writer already supplied by RuneLite. 
 
 ## Bank supplies display
 
-Start run arms an in-memory filter for the first inventory; Filter this inventory refreshes it for the current load without clearing progress. It uses the public `bankBuildTab` and `bankSearchFilter` script callbacks, scoped to the visible bank and excluding potion storage, plus `BankSearch.layoutBank()` on the client thread. There are no direct client script calls, chatbox writes, withdraw/equip actions, packet-enabled callbacks or menu actions. It preserves other search/tag rejection results and excludes placeholders. The filter clears on bank close, load transitions, logout, preset/patch/crop/inventory changes, profile changes and shutdown.
+The current local update replaces the earlier script-callback filter with one saved [inventory setup and bank view](setup-banking.md). It declares the core `BankTagsPlugin` dependency and uses its public `BankTagsService`, `TagManager` and `LayoutManager` APIs on the client thread. Equipment and inventory positions come from the same current-load model as the sidebar. It registers a private custom tag, persists only that tag's generated layout through the core API, and removes its own tag/layout on clear, profile change or shutdown. No unrelated saved tag is edited. Opening the view clears bank search through the normal Bank Tags API. No custom script callbacks, direct widget changes, withdraw/equip actions, packets or menu actions are added. The separate Inventory Setups plugin is not required.
+
+Selecting a saved run links its setup automatically; progress updates refresh only the owned view. Choosing another tag is respected until explicit focus or the next bank opening. Closing the bank retains the setup selection, while Close setup bank view pauses it. Missing layout items may be rendered as core placeholders; carried-item counts never infer ownership from them. The packager evidence above remains historical until a new local check is recorded.
 
 The compact requirements list uses RuneLite fonts and item sprites from the public `ItemManager`/`AsyncBufferedImage` APIs. Sprites load asynchronously, with icon updates and caching on Swing’s EDT. It adds no dependency on Quest Helper and no bank-availability tracking. Item tooltips retain exact shortages, payment notes and bottomless bucket limitations.
 
@@ -81,4 +87,16 @@ RuneLite migrates the legacy directory when the destination does not exist. It d
 2. Generate the marker with its real repository URL and full 40-character SHA.
 3. Follow the official pull-request process, include the testing limits above, and resolve hosted checks and maintainer feedback.
 
-The plugin has not been submitted to or approved by Plugin Hub.
+The published Plugin Hub release predates these local changes. These changes have not been submitted for review.
+
+## Sidebar capture editor (local update)
+
+Backpack and worn equipment are captured into a draft in the main sidebar, using the same public containers and item definitions as existing carried-item checks. The physical Save setup button explicitly stores only item IDs, slots, quantities, note forms and the chosen bank display with the selected local preset. Live observations never autosave. Version 7 backups include explicit captures; versions 1-6 remain readable without a captured backpack. Gear and bank-display cog controls are now hidden legacy fields; farming-preset controls remain native. No window, chatbox input, networking, gameplay action or external Inventory Setups dependency is added. See [setup editor](setup-editor.md).
+
+## Hardwood readiness planning (local update)
+
+Healthy hardwoods with a future ready estimate are excluded from the prepared route and calculated supplies, loads and bank stops. Saved selections and captured setups remain unchanged. The existing public-varbit observations supply all readiness data; there are no additional reads, network calls, game actions or production dependencies. Started runs hold their included patches steady, while full-preset notifications still include the hardwoods. See [hardwood readiness](hardwood-readiness.md).
+
+## Current-step overlay (local update)
+
+A public `OverlayPanel` displays immutable current-step snapshots in the top left, following sidebar progress, bank acknowledgments and readiness. It provides read-only guidance, uses normal RuneLite overlay positioning and resizing, and is removed on shutdown. A global cog toggle controls visibility. Login state, missing profiles and the inventory editor suppress rendering; pending route/load planning suppresses stale directions. It adds no dependency, storage outside normal configuration, network calls or gameplay actions. [Details](run-step-overlay.md).

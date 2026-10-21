@@ -13,7 +13,11 @@ final class InventoryItemData
     static final class ItemInfo
     {
         final boolean stackable, noteable;
-        ItemInfo(boolean stackable,boolean noteable) { this.stackable=stackable;this.noteable=noteable; }
+        final String name;
+        final int noteItem;
+        ItemInfo(boolean stackable,boolean noteable) { this(stackable,noteable,"",-1); }
+        ItemInfo(boolean stackable,boolean noteable,String name,int noteItem)
+        { this.stackable=stackable;this.noteable=noteable;this.name=name==null?"":name;this.noteItem=noteItem; }
         @Override public String toString() { return (stackable?"s":"u")+(noteable?"n":"-"); }
     }
     private final Map<Integer,ItemInfo> items;
@@ -37,7 +41,7 @@ final class InventoryItemData
         for(int id:ids)
         {
             ItemComposition item=definitions.apply(id);
-            values.put(id,new ItemInfo(item.isStackable(),item.getLinkedNoteId()!=-1));
+            values.put(id,new ItemInfo(item.isStackable(),item.getLinkedNoteId()!=-1,item.getName(),item.getLinkedNoteId()));
         }
         return new InventoryItemData(values);
     }

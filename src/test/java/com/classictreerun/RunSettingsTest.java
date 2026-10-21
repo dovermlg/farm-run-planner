@@ -35,7 +35,9 @@ public class RunSettingsTest
             if ("selectionV2".equals(item.keyName()) || "excluded".equals(item.keyName()) || "order".equals(item.keyName())) { assertTrue(item.hidden()); }
         }
         assertEquals(99, patches);
-        assertEquals(27, sections.size());
+        assertEquals(27, sections.size());assertFalse(sections.contains(ClassicTreeRunConfig.EQUIPMENT));
+        for(String method:java.util.List.of("captureEquipmentAction","clearEquipmentAction","supplyBankView","supplyInventory","supplyEquipment"))
+            assertTrue(ClassicTreeRunConfig.class.getMethod(method).getAnnotation(ConfigItem.class).hidden());
     }
 
     @Test public void migrationKeepsLegacySelectionAndProgress() throws Exception

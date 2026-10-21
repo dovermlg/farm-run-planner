@@ -10,12 +10,49 @@ import static org.junit.Assert.*;
 
 public class InventoryLoadPlannerTest
 {
+    @Test public void defaultGuildBankConnectsTheNextInventoryToItsPatchesWithoutAnotherTeleport()
+    {
+        ConfigFixture f=InventoryFixtures.light();f.set("loadBank",new ClassicTreeRunConfig(){}.loadBank().name());
+        assertEquals(BankDestination.FARMING_GUILD,f.config.loadBank());
+        f.set("loadReservedSlots","25");
+        List<Patch> route=List.of(Patch.LUMBRIDGE_TREE,Patch.VARROCK_TREE,Patch.FALADOR_TREE,Patch.GUILD_TREE,Patch.GUILD_FRUIT);
+        InventoryItemData data=InventoryFixtures.data(f.config,route);
+        InventoryLoadPlanner.Plan plan=InventoryLoadPlanner.plan(f.config,route,data);
+        assertEquals(2,plan.loads.size());assertEquals(3,plan.loads.get(0).patches.size());
+        assertEquals(List.of(Patch.GUILD_TREE,Patch.GUILD_FRUIT),plan.loads.get(1).patches);
+        assertTrue(BankDestination.FARMING_GUILD.departureInstructions(Patch.GUILD_TREE,f.config).contains("walk"));
+        RouteState state=new RouteState();for(Patch patch:plan.loads.get(0).patches)state.setDone(patch,true);
+        assertEquals(TeleportDevice.SKILLS,NextTeleport.resolve(f.config,route,state,plan,null));
+        assertEquals(TeleportDevice.NONE,NextTeleport.resolve(f.config,route,state,plan,plan.confirmBank(null,1)));
+        f.set("loadReservedSlots","0");assertEquals(1,InventoryLoadPlanner.plan(f.config,route,data).loads.size());
+    }
+
+    @Test public void guildBankArrivalUsesThePresetsGuildTravelAndTheCorrespondingSupplies()
+    {
+        ConfigFixture f=InventoryFixtures.light();f.set("loadBank","FARMING_GUILD");f.set("supplyTeleports","true");
+        List<Patch> patches=List.of(Patch.LUMBRIDGE_TREE);
+        for(ClassicTreeRunConfig.GuildTravel travel:ClassicTreeRunConfig.GuildTravel.values())
+        {
+            f.set("guildTravel",travel.name());
+            TeleportDevice expected=travel==ClassicTreeRunConfig.GuildTravel.SKILLS_NECKLACE?TeleportDevice.SKILLS
+                :travel==ClassicTreeRunConfig.GuildTravel.FARMING_CAPE?TeleportDevice.FARMING_CAPE:TeleportDevice.NONE;
+            assertEquals(expected,NextTeleport.bank(f.config));
+            String directions=BankDestination.FARMING_GUILD.instructions(f.config);
+            assertTrue(directions.startsWith(TravelGuide.guild(f.config)));assertTrue(directions.contains("central bank chest"));
+            SupplyPlan supplies=TravelSupplies.build(f.config,patches,false,true);
+            if(expected!=TeleportDevice.NONE)assertTrue(supplies.items.contains(expected.representative()));
+            if(travel!=ClassicTreeRunConfig.GuildTravel.SKILLS_NECKLACE)assertFalse(supplies.items.contains(TeleportDevice.SKILLS.representative()));
+        }
+        assertEquals(TeleportDevice.NONE,NextTeleport.resolve(f.config,List.of(Patch.GUILD_TREE),new RouteState(),null,null));
+    }
+
     @Test public void incrementalSlotCountsMatchFullPackingListsForMixedCropsAndPaymentForms()
     {
         java.util.Random random=new java.util.Random(818);
         for(boolean noted:List.of(false,true))for(String compost:List.of("NONE","COMPOST","ULTRACOMPOST","BOTTOMLESS"))
         {
             ConfigFixture f=new ConfigFixture();f.set("loadNotedProtection",Boolean.toString(noted));f.set("supplyCompost",compost);
+            f.set("supplyTeleports","false");
             f.set("cropTree","MAGIC");f.set("cropAllotment","POTATO");f.set("cropFruit","APPLE");
             List<Patch> route=new java.util.ArrayList<>(List.of(Patch.values()));java.util.Collections.shuffle(route,random);
             InventoryItemData data=InventoryFixtures.data(f.config,route);
@@ -41,12 +78,11 @@ public class InventoryLoadPlannerTest
             public void set(String key,String value){throw new AssertionError("No writes while fingerprinting");}
         });
         InventoryItemData data=InventoryFixtures.data(config,route);
-        java.util.Map<String,String> travel=new java.util.TreeMap<>();
-        ConfigValues.read(f.config).forEach((key,value)->{if(key.endsWith("Travel"))travel.put(key,value);});
-        String source=RouteState.encode(route)+"\n"+CropChoices.settings(f.config)+"\n"+InventoryLoadPlanner.settings(f.config)+"\n"+travel+"\n"
-            +data.fingerprint(SupplyPlan.build(f.config,route).items);
-        String expected=com.google.common.hash.Hashing.sha256().hashString(source,java.nio.charset.StandardCharsets.UTF_8).toString();
-        assertEquals(expected,InventoryLoadPlanner.signature(config,route,data));
+        String signature=InventoryLoadPlanner.signature(config,route,data);assertTrue(signature.matches("[0-9a-f]{64}"));
+        f.set("supplyInventory","v1|0:"+ItemID.COINS+":1000:P");f.set("supplyEquipment",EquipmentSetupTest.gear().encode());f.set("supplyBankView","OFF");
+        assertEquals("Saving only a manual setup must keep generated load acknowledgments",signature,InventoryLoadPlanner.signature(config,route,data));
+        f.set("cropTree","MAGIC");
+        assertNotEquals(signature,InventoryLoadPlanner.signature(config,route,InventoryFixtures.data(config,route)));
         assertEquals("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",Digests.sha256(""));
     }
     private List<Patch> type(Patch.Type type)

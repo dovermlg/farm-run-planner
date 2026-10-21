@@ -23,6 +23,21 @@ public interface ClassicTreeRunConfig extends net.runelite.client.config.Config
     enum CalquatTravel { TAI_BWO_WANNAI_SCROLL, FAIRY_RING_CKR, WALK_FROM_BRIMHAVEN }
     enum FossilTravel { DIGSITE_BARGE, HOUSE_ON_HILL_MUSHTREE }
     enum GuildTravel { SKILLS_NECKLACE, FARMING_CAPE, SPIRIT_TREE }
+    enum TeleportSupplies
+    {
+        TABLETS, SPELL_RUNES;
+        @Override public String toString() { return this==TABLETS ? "Teleport tablets" : "Spell runes"; }
+    }
+    enum PackingView
+    {
+        GRID, LIST;
+        @Override public String toString(){return this==GRID?"Grid":"List";}
+    }
+    enum SetupBankView
+    {
+        LAYOUT,FILTER,OFF;
+        @Override public String toString(){return this==LAYOUT?"Equipment and inventory layout":this==FILTER?"Filter only":"Off";}
+    }
 
     @ConfigSection(name="Your run", description="Create and save named presets here; choose a saved run in the tree tab", position=0, closedByDefault=false)
     String RUN = "run";
@@ -40,13 +55,13 @@ public interface ClassicTreeRunConfig extends net.runelite.client.config.Config
     String INVENTORIES = "inventories";
     @ConfigItem(keyName="loadPlanning", name="Plan inventory loads", description="Split the prepared patch order into loads with bank stops. Uses RuneLite item definitions; banking and withdrawing stay manual.", section=INVENTORIES, position=0)
     default boolean loadPlanning() { return true; }
-    @ConfigItem(keyName="loadReservedSlots", name="Reserved inventory slots", description="Leave room for travel items, other gear and harvested crops. Planned tools are counted separately, even when worn. Harvest quantities and stored tools are not predicted.", section=INVENTORIES, position=1)
+    @ConfigItem(keyName="loadReservedSlots", name="Reserved inventory slots", description="Leave room for other gear and harvested crops. Configured teleport supplies and planned tools are counted separately, even when worn. Harvest quantities and stored tools are not predicted.", section=INVENTORIES, position=1)
     @net.runelite.client.config.Range(min=0, max=27)
     default int loadReservedSlots() { return 8; }
     @ConfigItem(keyName="loadNotedProtection", name="Pack protection as notes", description="Plan noteable protection payments as one stack and require notes in the packing list. Withdraw these payments as notes yourself. Disable to plan unnoted payments.", section=INVENTORIES, position=2)
     default boolean loadNotedProtection() { return true; }
-    @ConfigItem(keyName="loadBank", name="Bank between inventories", description="Use this bank for every resupply stop in this preset. Choose Custom bank for another location and enter its instructions below.", section=INVENTORIES, position=3)
-    default BankDestination loadBank() { return BankDestination.GRAND_EXCHANGE; }
+    @ConfigItem(keyName="loadBank", name="Bank between inventories", description="Main resupply bank for this preset. Defaults to the Farming Guild (45 Farming); uses your Guild travel choice and local walks to Guild patches. Choose another bank or Custom bank if needed.", section=INVENTORIES, position=3)
+    default BankDestination loadBank() { return BankDestination.FARMING_GUILD; }
     @ConfigItem(keyName="loadBankInstructions", name="Custom bank instructions", description="For Custom bank: describe where to go and how to reach it (up to 500 characters). This is guidance only; no teleport or banking action is performed.", section=INVENTORIES, position=4)
     default String loadBankInstructions() { return "Travel to your chosen bank and resupply manually."; }
 
@@ -127,7 +142,7 @@ public interface ClassicTreeRunConfig extends net.runelite.client.config.Config
 
     @ConfigItem(keyName="autoOptimize", name="Optimize route", description="Automatically order selected patches using estimated travel costs", section=RUN, position=2)
     default boolean autoOptimize() { return true; }
-    @ConfigItem(keyName="trackGrowth", name="Track crop readiness", description="Observe nearby crop states, show per-patch estimated ready times and a full-run estimate. Unknown or unhealthy crops block full-run readiness.", section=RUN, position=5)
+    @ConfigItem(keyName="trackGrowth", name="Track crop readiness", description="Observe nearby crop states and estimate ready times. Skip healthy hardwoods still estimated growing when preparing a run; keep them in the preset. Unknown or unhealthy crops stay included and block full-run readiness.", section=RUN, position=5)
     default boolean trackGrowth() { return true; }
     @ConfigItem(keyName="notifyWhenReady", name="Notify when run is ready", description="Use RuneLite notifications once all selected patches in a saved preset are estimated ready. RuneLite must remain running; visit patches to obtain observations.", section=RUN, position=6)
     default boolean notifyWhenReady() { return true; }
@@ -135,8 +150,24 @@ public interface ClassicTreeRunConfig extends net.runelite.client.config.Config
     default boolean autoCompleteReplanted() { return false; }
     @ConfigItem(keyName="showDetails", name="Show access notes", description="Show gardener and access requirements on each checklist stop", section=DISPLAY, position=1)
     default boolean showDetails() { return false; }
+    @ConfigItem(keyName="showRunOverlay", name="Show current step on screen", description="Show directions after Start run, then hide them when the run is complete. Resetting or changing presets requires Start run again. Complete patches and bank stops in the sidebar.", section=DISPLAY, position=4)
+    default boolean showRunOverlay() { return true; }
     @ConfigItem(keyName="highlightNextTeleport", name="Highlight next teleport", description="Outline the next route step's matching item in your inventory or worn equipment. Follows patch completion and bank stops. Walking, spells, POH devices and custom travel do not highlight an inventory item. Charges and unlocks still need checking.", section=DISPLAY, position=2)
     default boolean highlightNextTeleport() { return true; }
+    @ConfigItem(keyName="packingView", name="Packing view", description="Show supplies as an inventory grid or compact list. This display preference applies across presets.", section=DISPLAY, position=3)
+    default PackingView packingView() { return PackingView.GRID; }
+
+    String EQUIPMENT="equipment";
+    @ConfigItem(keyName="captureEquipmentAction", name="Capture worn equipment", description="Legacy capture action. Use Inventory setup in the main plugin tab.", hidden=true)
+    default boolean captureEquipmentAction() { return false; }
+    @ConfigItem(keyName="clearEquipmentAction", name="Clear saved equipment", description="Legacy clear action. Use Inventory setup in the main plugin tab.", hidden=true)
+    default boolean clearEquipmentAction() { return false; }
+    @ConfigItem(keyName="supplyEquipment", name="Saved equipment items", description="Encoded local preset equipment choices", hidden=true)
+    default String supplyEquipment() { return ""; }
+    @ConfigItem(keyName="supplyInventory", name="Saved backpack items", description="Encoded backpack captured and saved in the main plugin tab.", hidden=true)
+    default String supplyInventory() { return ""; }
+    @ConfigItem(keyName="supplyBankView", name="Setup bank view", description="Bank display selected in the main tab's inventory setup editor.", hidden=true)
+    default SetupBankView supplyBankView() { return SetupBankView.LAYOUT; }
 
     @ConfigItem(keyName="trees", name="Normal trees", description="Legacy category switch", hidden=true)
     default boolean trees() { return true; }
@@ -168,6 +199,13 @@ public interface ClassicTreeRunConfig extends net.runelite.client.config.Config
     default FossilTravel fossilTravel() { return FossilTravel.DIGSITE_BARGE; }
     @ConfigItem(keyName="guildTravel", name="Guild travel", description="Farming cape requires 99; spirit tree must be grown", section=TRAVEL, position=17)
     default GuildTravel guildTravel() { return GuildTravel.SKILLS_NECKLACE; }
+
+    @ConfigItem(keyName="supplyTeleports", name="Include teleport supplies", description="Add travel items for the route and planned bank stops to the checklist, bank filter and inventory loads. Charged items are checked for presence only.", section=TRAVEL, position=18)
+    default boolean supplyTeleports() { return true; }
+    @ConfigItem(keyName="supplyTeleportMode", name="Teleport supplies", description="Use tablets by default, or ordinary loose spell runes where supported. Redirected house tablets remain tablets. Runes in pouches, combination runes and rune-saving equipment are not counted.", section=TRAVEL, position=19)
+    default TeleportSupplies supplyTeleportMode() { return TeleportSupplies.TABLETS; }
+    @ConfigItem(keyName="supplyFairyStaff", name="Include fairy ring staff", description="Include a dramen or lunar staff for routes that use fairy rings. Disable if your account can use fairy rings without a staff. Arrange your own access to the transport network.", section=TRAVEL, position=20)
+    default boolean supplyFairyStaff() { return true; }
 
     @ConfigItem(keyName="order", name="Custom order", description="Prepared route order", hidden=true)
     default String order() { return ""; }

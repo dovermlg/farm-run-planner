@@ -14,15 +14,18 @@ import net.runelite.client.util.ImageUtil;
 final class SupplyItemIcons
 {
     private final ItemManager itemManager;
-    private final Map<Integer,Icon> icons=new HashMap<>();
+    private final Map<Long,Icon> icons=new HashMap<>();
     SupplyItemIcons(ItemManager itemManager) { this.itemManager=itemManager; }
     void add(int item,JLabel label)
     {
-        Icon cached=icons.get(item);
+        Object requested=label.getClientProperty("itemIconWidth");
+        int width=requested instanceof Integer?(Integer)requested:18;
+        long key=((long)item<<32)|width;
+        Icon cached=icons.get(key);
         if(cached!=null){label.setIcon(cached);return;}
         AsyncBufferedImage image=itemManager.getImage(item);
         image.onLoaded(()->SwingUtilities.invokeLater(()->{
-            Icon ready=icons.computeIfAbsent(item,id->new ImageIcon(ImageUtil.resizeImage(image,18,16)));
+            Icon ready=icons.computeIfAbsent(key,id->new ImageIcon(ImageUtil.resizeImage(image,width,width*8/9)));
             label.setIcon(ready);
         }));
     }

@@ -10,10 +10,13 @@ By **Astral** · [Source](https://github.com/dovermlg/farm-run-planner) · [Issu
 - Create named presets in RuneLite's normal plugin settings cog.
 - Import and export saved presets as local JSON files.
 - Save a chosen crop tier for each patch type, with no lower-tier substitutions.
-- Filter bank supplies with **Start run**, and see carried-item shortages in red.
+- Load one saved farming setup for the sidebar and bank, with equipment on the left and inventory on the right.
 - Split supplies into inventories, with a saved bank choice and packing list for each load.
 - Start a saved run from the sidebar, with travel instructions and a patch checklist.
 - Highlight the next step's teleport item in your inventory or worn equipment.
+- Include route teleports in required items, using tablets by default or chosen spell runes.
+- Capture your backpack and worn gear in a dedicated setup editor on the main tab, with a physical Save setup button.
+- Check captured slots and current farming requirements, with shortages in red.
 - Reorder selected patches using your travel preferences and estimated travel costs.
 - Track observed crops, estimated ready times and full-run reminders.
 - Keep preset libraries, checklist progress and crop observations in local files.
@@ -29,7 +32,7 @@ The starting selection is the classic 16-patch tree run: six normal trees, six f
 3. Leave and reopen the settings page to refresh its fields.
 4. Enter a **Preset name**, select patches, and choose crops under **Crops and supplies**, and set your travel and display preferences.
 5. Click **Save preset** and confirm.
-6. Open the green tree sidebar tab and select the saved name under **Choose your run**.
+6. Open the spade-and-sprout sidebar tab and select the saved name under **Choose your run**.
 
 Save and Delete use RuneLite's checkbox controls. Toggling either one performs the action after confirmation; the tick does not enable automatic saving. The plugin must be enabled for these actions to work.
 
@@ -63,17 +66,33 @@ To restore or import a shared file, copy it into that folder, enter its filename
 
 Imports keep the current draft, checklist and existing presets. An identical preset with the same name is skipped. If the name exists with different settings, the imported copy receives a name such as `Herbs (imported)`. The entire file is validated before saving; invalid files or insufficient free editor slots cancel the whole import. Files must be valid Farm Run Planner JSON, no larger than 1 MB, with at most 256 entries. New presets must fit within the 32 editor slots.
 
-Backups contain preset names, selected patches in route order, crop choices, supply options, inventory planning and travel/display preferences. Version 3 exports include bank and inventory options. Versions 1 and 2 remain importable: both use default inventory options, and version 1 also uses default crop choices. Review the defaults before starting an older preset. Character identifiers, crop observations, reminder records, patch and bank completion marks, and tracking controls are excluded. Files stay local unless you choose to copy or share them.
+Backups contain preset names, selected patches in route order, crop choices, supply options, saved equipment, bank-display choice, inventory planning and travel/display preferences. Version 7 exports include an optional captured backpack with its positions, quantities and noted forms. Formats 1-6 remain importable without a captured backpack; formats 1-5 use the default bank layout; formats 1-4 have no saved equipment, and formats 1-3 use tablet supplies by default. Formats 1 and 2 retain the historical Grand Exchange bank default and other inventory defaults; format 1 also uses default crop choices. Review the defaults before starting an older preset. Character identifiers, crop observations, reminder records, patch and bank completion marks, and tracking controls are excluded. Files stay local unless you choose to copy or share them.
+
+## Capture a backpack and gear setup
+
+1. Create and save the farming preset in the normal cog, then select its name in the main plugin tab.
+2. Click **Inventory setup**. This opens a separate editor inside the same sidebar.
+3. Arrange your backpack and wear your farming gear, then click **Capture backpack and gear**.
+4. Choose the bank display: **Equipment and inventory layout**, **Filter only**, or **Off**.
+5. Click **Save setup**, then **Back to run**.
+
+Capture changes the preview only. Save setup stores it with that named farming preset. Leaving a changed preview offers **Discard changes and back**; live inventory changes never autosave. Saving a setup keeps the route, patch completion marks and generated bank-stop acknowledgments. Crop tiers, travel, route selection and farming-preset management stay in the cog.
+
+The saved backpack preserves all 28 positions, gaps, quantities and noted forms. Grid checks each slot against the saved item and at least its saved quantity; an unexpected item in a saved empty slot is also flagged. Gear checks its intended worn slot. Red means a mismatch or shortage, green means a match, and gray means unknown. Saved equipment and the backpack drive the bank display together. RuneLite's built-in Bank Tags provides that view; Inventory Setups is not required.
+
+The captured setup stays fixed during the run. Calculated **Item requirements** remain visible underneath and follow the current inventory, including required teleports. Saving a capture does not automatically add supplies you forgot to pack. Compare the requirements before capturing. For a run split into multiple inventories, the same captured setup is shown at each bank stop; the calculated list still advances by load.
+
+Without a captured backpack, existing presets keep their calculated supply grid. **Use calculated run supplies** in the editor clears the captured backpack and gear from the preview; click Save setup to keep that change. Click the **eye beside Packing checklist** to reveal the backpack, equipment, requirements and **Grid/List** selector. This section starts collapsed and keeps your visibility choice during progress updates. See [setup editor](docs/setup-editor.md), [visual packing](docs/packing-view.md) and [bank display](docs/setup-banking.md).
 
 ## Pack for a run
 
 1. In the cog, open **Crops and supplies** and choose one crop for each patch type you use. Choose **Harvest / check only** for patches you will not replant.
 2. Open **Inventory planning**. Choose **Bank between inventories**, set **Reserved inventory slots** for travel gear and harvested crops, and decide whether to **Pack protection as notes**. Click **Save preset** to keep these choices.
-3. Select that preset in the sidebar and click **Start run**. Starting again asks before clearing existing completion marks.
-4. Open a bank. Its normal item display is filtered to the current inventory's crops, farming tools, compost, protection payments and coin budget. Withdraw items yourself. Missing items and empty placeholders do not appear.
-5. Use **Item requirements** at the top of the sidebar. Compact lines such as `6 x Magic sapling` show the required quantity with an item icon on the right. Red means short; green means enough carried supplies. Hover a line or icon for the carried count and exact shortage. Hide it with **Show packing checklist** when ready to follow your route.
+3. Select that preset in the sidebar. Its saved setup links to the bank automatically. **Start run** starts fresh and asks before clearing existing completion marks.
+4. Open a bank. The default display puts saved equipment on the left and your captured backpack on the right. Presets without a capture use the current load's calculated supplies instead. Missing layout items may appear as Bank Tags placeholders; they are not owned supplies. Withdraw and equip items yourself.
+5. Click the **eye beside Packing checklist** to show **Item requirements**. Compact lines such as `6 x Magic sapling` show the required quantity with an item icon on the right. Red means short; green means enough carried supplies. Hover a line or icon for the carried count and exact shortage. Click the eye again when ready to follow your route.
 
-The sidebar shows **Inventory N of M** and inserts stops at your chosen bank between loads. When you finish a load's patches, its checklist switches to the next inventory. At the bank, click **Filter this inventory**, deposit harvested produce, and withdraw the listed supplies. Click **Banked - continue** on the bank card when ready; this keeps your patch progress. The same bank is used for every resupply stop in that preset. **Custom bank** lets you enter directions for another bank.
+The sidebar shows **Inventory N of M** and inserts stops at your chosen bank between loads. When you finish a load's patches, its calculated checklist switches to the next inventory. A captured bank setup stays fixed; a calculated bank setup follows the next inventory. At the bank, deposit harvested produce and withdraw the listed supplies. **Show setup in bank** reopens the view without resetting progress. Click **Banked - continue** on the bank card when ready; this keeps your patch progress. The same bank is used for every resupply stop in that preset. **Custom bank** lets you enter directions for another bank.
 
 The planner uses RuneLite's item definitions to count stacks and individual items. It starts with eight reserved slots, counts tools as backpack space even when worn, and does not predict harvested quantities or stored supplies. Increase the reserve for a large harvest, or note produce at a leprechaun yourself. A single patch that exceeds capacity stays in the route with a warning. Disable **Plan inventory loads** for the full remaining-run list. See [inventory planning](docs/inventory-planning.md) for the calculation and bank travel options.
 
@@ -85,13 +104,15 @@ For a bottomless bucket, select **Crops and supplies → Compost → Bottomless 
 
 Protection payments are included by default wherever a gardener is listed. They are optional, and you can start without them. Payments use the exact required form, including filled baskets or sacks. Disable **Include protection payments** if you do not want to pack them. Protected trees omit compost except celastrus, which can use it to improve yield. A **Coin budget** of 10,000 is a starting allowance, not a calculated fare or removal total. Adjust it for your route.
 
-**Clear bank filter**, closing the bank, moving to another inventory, logging out, changing crops or patches, switching presets, changing profile or disabling the plugin removes the filter. Click **Filter this inventory** to reapply it without clearing progress. Other bank searches and Bank Tags still apply; clear them if wanted supplies are hidden. The filter does not edit saved bank tabs or another plugin’s configuration.
+**Close setup bank view** pauses the bank display until you select a saved preset, start a run or click **Show setup in bank**. Closing the bank or logging out keeps the selected setup ready for the next visit. Progress updates refresh an active farming view without switching away from another bank tag you selected. Opening the farming view clears the current search through RuneLite's normal Bank Tags API; saved tags are preserved. Editing the draft pauses or clears the old view.
 
 You choose which axe you can use, travel equipment, combat gear, diving equipment and belladonna gloves. The checklist includes common axes and shows reminders for special equipment. Turn off the rake, dibber or other tool recommendations if your unlocks or stored tools replace them. Read the [supply reference and limits](docs/supplies.md) for details.
 
 ## Follow a run
 
-Selecting a saved run in the sidebar starts a fresh checklist. Loading its slot for editing keeps the current completion marks. Check **Completed** after each patch, or uncheck it to correct a mark. The next unfinished patch has a green border, and the progress bar turns green when the run is complete.
+Selecting a saved run in the sidebar starts a fresh checklist. Loading its slot for editing keeps the current completion marks. Check **Completed** after each patch, or uncheck it to correct a mark. After **Start run**, the next unfinished patch or pending bank stop has a green border. Resetting or switching presets clears this highlight until Start run is clicked again. The progress bar turns green when the run is complete.
+
+The same button changes to **Stop run** while active. Stopping hides on-screen directions, step borders and teleport outlines, closes the linked bank setup, and keeps patch and bank completion marks. Stop remains available while route or item planning refreshes. The button returns to Start run after stopping or completing the last patch. Starting again begins a fresh run and asks before clearing existing marks; use Reset run to clear them separately.
 
 **Reset run** clears patch and bank completion marks, including marks for patches currently excluded from the route. It keeps your presets and settings. Progress is saved between sessions; there is no daily or logout reset. Undoing a patch restores any bank stops after that inventory.
 
@@ -101,15 +122,25 @@ Every selection from the current catalogue has an exact minimum order for the pl
 
 Bring your seeds or saplings, tools, compost or protection payments, and travel supplies. The checklist tracks each patch as one stop; it does not separately track harvesting, clearing, planting and protection.
 
+### Teleport supplies
+
+Under **Travel**, leave **Include teleport supplies** enabled and choose **Teleport supplies**. Tablets are the default; spell runes are optional. Save the choice with each preset. Required quantities follow actual walking links and bank trips, and completed patches drop out. POH, fairy-ring, spirit-tree, diary, charge and unlock requirements still need manual checks. See [teleport supplies](docs/teleport-supplies.md).
+
 ### Next teleport highlight
 
-**Checklist display → Highlight next teleport** is on by default. The matching carried item gets a green outline in your inventory or worn equipment, and the sidebar names it beside the next step. The highlight follows your selected travel preferences and advances when you mark a patch complete, including optional observed replant completion. Undoing or resetting progress updates it too.
+**Checklist display → Highlight next teleport** is on by default. During a started run, the matching carried item gets a green outline in your inventory or worn equipment, and the sidebar names it beside the next step. The highlight follows your selected travel preferences and advances when you mark a patch complete, including optional observed replant completion. Stopping, resetting or finishing the run clears it.
 
 At a resupply stop it switches to the chosen bank's device. Click **Banked - continue** to advance to the next patch's travel. Walking links and local bank walks have no item outline. A Catherby charter leg from Catherby also needs no further teleport.
 
-The highlight is guidance only. Use the written route directions for the destination. For instructions that allow a spell or tablet, the tablet can be outlined when carried; spells, runes, POH objects, fairy rings and spirit trees are not highlighted. Empty jewellery and noted copies are excluded. Check diary limits, charges stored outside the item ID and travel unlocks yourself. Custom bank text is not interpreted as an item choice. Nothing is clicked, equipped or teleported automatically.
+The highlight is guidance only. Use the written route directions for the destination. For instructions that allow a spell or tablet, the tablet can be outlined when carried and tablet supplies are selected; spell-rune mode suppresses that tablet outline. Spells, runes, POH objects, fairy rings and spirit trees are not highlighted. Empty jewellery and noted copies are excluded. Check diary limits, charges stored outside the item ID and travel unlocks yourself. Custom bank text is not interpreted as an item choice. Nothing is clicked, equipped or teleported automatically.
 
 This is a global display preference; loading or importing a preset does not change it. Read the [supported devices and limits](docs/teleport-highlights.md) for details.
+
+### Current step on screen
+
+**Checklist display → Show current step on screen** is on by default. Click **Start run** to show a movable, resizable panel in the top left of the game view with the current stop, travel directions, crop readiness and completion count. It follows sidebar completion and bank acknowledgments even with the sidebar closed, and shows bank instructions before the next inventory. The overlay disappears when the last patch is complete. Resetting, switching presets or reopening the plugin keeps it hidden until Start run is clicked again; the sidebar keeps the completed checklist and green progress bar. Complete patches and bank stops in the sidebar.
+
+Hold **Alt** and drag the overlay to move it using RuneLite's normal overlay controls. Turn off the cog setting to hide it. The overlay is hidden while logged out, while editing an inventory setup, and when no patches are selected. It displays a preparation message while route or inventory planning is pending. This display preference applies across presets. [Details and offline preview](docs/run-step-overlay.md).
 
 ## Crop tracking and reminders
 
@@ -117,11 +148,13 @@ These options are under **Your run** in the settings cog:
 
 | Setting | Behavior |
 | --- | --- |
-| Track crop readiness | Shows the observed crop and its estimated ready time on each patch card. On by default. |
+| Track crop readiness | Shows estimated ready times and skips healthy, still-growing hardwoods when preparing a run. On by default. |
 | Notify when run is ready | Sends a RuneLite notification when every patch in a saved preset is estimated ready. On by default. |
 | Auto-mark replanted patches | Checks a stop after a stable replanting transition is observed during that visit. Off by default. |
 
 These tracking settings apply across presets. Visit patches with tracking enabled to record their crop states. Unknown, empty, diseased, dead or stump states block a full-run reminder. A mixed herb-and-tree preset waits for the trees as well as the herbs. Reminders cover all saved presets, and RuneLite's notification settings control their sound and display.
+
+Growing hardwoods stay saved in your preset but are temporarily left out of the route, calculated item requirements, inventory loads and bank stops. The sidebar lists the skipped trees and their estimated ready times. Unknown, empty, unhealthy, mature and stump patches stay included. Before starting, timers can bring trees back into the plan automatically. **Start run** or the first completion fixes that run's included patches; **Reset run**, starting a fresh run or loading a preset checks readiness again. Other crop types keep their existing behavior. [Hardwood planning details](docs/hardwood-readiness.md).
 
 RuneLite must be running with the plugin enabled to send reminders. After restarting, log into the character to load its observations. The running client can continue reminders after logout. First seeing an already mature crop does not trigger an alert; a growing or regrowing crop must have armed that preset's cycle first.
 
@@ -202,4 +235,4 @@ Test results are in `build/reports/tests/test/index.html`. The reference check c
 - [GitHub and submission setup](docs/GITHUB.md)
 - [Third-party notices](THIRD-PARTY-NOTICES.md)
 
-The plugin displays guidance, filters the bank display and tracks progress. Withdrawing, equipping, walking, teleporting, harvesting and planting are performed by the player. It has not been submitted to or approved by Plugin Hub.
+The plugin displays guidance, filters the bank display and tracks progress. Withdrawing, equipping, walking, teleporting, harvesting and planting are performed by the player. Local development changes must be released through a Plugin Hub update before installed users receive them.
